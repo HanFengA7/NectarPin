@@ -1,6 +1,9 @@
 package main
 
-func main() {
-	println("hello world")
+import (
+	"NectarPin/internal/Init"
+)
 
+func main() {
+	Init.Conf()
 }
