@@ -2,6 +2,7 @@ package Init
 
 import (
 	"NectarPin/constant"
+	"NectarPin/tools"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -13,6 +14,13 @@ import (
 
 func Gorm() *gorm.DB {
 	mConf := constant.Config.Mysql
+
+	tools.CheckConfNil(mConf.Host, "Mysql")
+	tools.CheckConfNil(strconv.Itoa(mConf.Port), "Mysql")
+	tools.CheckConfNil(mConf.DbUser, "Mysql")
+	tools.CheckConfNil(mConf.DbPassword, "Mysql")
+	tools.CheckConfNil(mConf.DbName, "Mysql")
+
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN: fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 			mConf.DbUser,
