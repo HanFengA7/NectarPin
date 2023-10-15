@@ -1,6 +1,6 @@
 # NectarPin
 > 钉住花蜜一般的瞬间！  
-> A moment like nailing nectar!  
+> Pin the moments as sweet as nectar !  
 
 ## 技术栈
 ### 后端
