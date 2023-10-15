@@ -1,5 +1,5 @@
 # NectarPin
-> 钉住花蜜一般的瞬间！ 
+> 钉住花蜜一般的瞬间！  
 > A moment like nailing nectar!  
 
 # 技术栈
