@@ -15,11 +15,11 @@ import (
 func Gorm() *gorm.DB {
 	mConf := constant.Config.Mysql
 
-	tools.CheckConfNil(mConf.Host, "Mysql")
-	tools.CheckConfNil(strconv.Itoa(mConf.Port), "Mysql")
-	tools.CheckConfNil(mConf.DbUser, "Mysql")
-	tools.CheckConfNil(mConf.DbPassword, "Mysql")
-	tools.CheckConfNil(mConf.DbName, "Mysql")
+	tools.CheckConfNil(mConf.Host, "Mysql-Host")
+	tools.CheckConfNil(strconv.Itoa(mConf.Port), "Mysql-Port")
+	tools.CheckConfNil(mConf.DbUser, "Mysql-DbUser")
+	tools.CheckConfNil(mConf.DbPassword, "Mysql-DbPassword")
+	tools.CheckConfNil(mConf.DbName, "Mysql-DbName")
 
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN: fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
