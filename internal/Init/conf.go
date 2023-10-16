@@ -17,9 +17,9 @@ func Conf() {
 		panic(fmt.Errorf("[NectarPin Error]: 配置文件路径错误"))
 	}
 	err = yaml.Unmarshal(yamlConf, config)
+
 	if err != nil {
-		log.Fatalf("[NectarPin Error]: 配置文件Unmarshal错误")
+		log.Fatalln("[NectarPin Error]: 配置文件Unmarshal错误")
 	}
-	log.Println("[NectarPin]: 配置文件加载成功")
 	constant.Config = config
 }

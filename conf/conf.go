@@ -24,6 +24,6 @@ type Logger struct {
 	Level        string `yaml:"level"`
 	Prefix       string `yaml:"prefix"`
 	Director     string `yaml:"director"`
-	ShowLine     string `yaml:"showLine"`
-	LogInConsole string `yaml:"logInConsole"`
+	ShowLine     bool   `yaml:"showLine"`
+	LogInConsole bool   `yaml:"logInConsole"`
 }

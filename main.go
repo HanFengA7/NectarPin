@@ -6,5 +6,6 @@ import (
 
 func main() {
 	Init.Conf()
+	Init.Logger()
 	Init.Gorm()
 }

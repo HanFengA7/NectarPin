@@ -12,5 +12,5 @@ logger:
   level: info
   prefix: '[NectarPin]'
   director: log
-  showLine: true
+  showLine: false
   logInConsole: true
