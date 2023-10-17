@@ -7,83 +7,83 @@ import (
 	"github.com/sirupsen/logrus"
 	"os"
 	"path"
+	"strings"
 )
 
-// 颜色
-const (
-	red    = 31
-	yellow = 33
-	blue   = 36
-	gray   = 37
-)
+var color int
 
-type LogFormatter struct {
+type MyFormatter struct {
+	ForMatTime string
 }
 
-func (t *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
-	var levelColor int
+func (f MyFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+	//设置Level颜色
 	switch entry.Level {
-	case logrus.DebugLevel, logrus.TraceLevel:
-		levelColor = gray
+	case logrus.FatalLevel:
+		color = constant.ColorRedA
+	case logrus.ErrorLevel:
+		color = constant.ColorRedA
 	case logrus.WarnLevel:
-		levelColor = yellow
-	case logrus.ErrorLevel, logrus.FatalLevel, logrus.PanicLevel:
-		levelColor = red
+		color = constant.ColorYoungA
+	case logrus.InfoLevel:
+		color = constant.ColorGreenA
+	case logrus.DebugLevel:
+		color = constant.ColorYoungA
 	default:
-		levelColor = blue
-	}
-	var b *bytes.Buffer
-	if entry.Buffer != nil {
-		b = entry.Buffer
-	} else {
-		b = &bytes.Buffer{}
+		color = constant.ColorGreenA
 	}
 
-	//自定义日期格式
-	log := constant.Config.Logger
-	timestamp := entry.Time.Format("2006-01-02 15:04:05")
-	if entry.HasCaller() {
-		//自定义文件路径
-		funcVal := entry.Caller.Function
-		fileVal := fmt.Sprintf("%s:%d", path.Base(entry.Caller.File), entry.Caller.Line)
-		//自定义输出格式
-		_, err := fmt.Fprintf(b, "%s [%s] \x1b[%dm[%s]\x1b[0m %s %s %s\n", log.Prefix, timestamp, levelColor, entry.Level, fileVal, funcVal, entry.Message)
-		if err != nil {
-			return nil, err
-		}
+	//设置Buffer缓冲区
+	var b *bytes.Buffer
+	if entry.Buffer == nil {
+		b = &bytes.Buffer{}
 	} else {
-		_, err := fmt.Fprintf(b, "%s [%s] \x1b[%dm[%s]\x1b[0m %s\n", log.Prefix, timestamp, levelColor, entry.Level, entry.Message)
-		if err != nil {
-			return nil, err
-		}
+		b = entry.Buffer
 	}
+
+	//设置时间格式
+	formatTime := entry.Time.Format(f.ForMatTime)
+
+	//设置行号
+	filVal := fmt.Sprintf("\u001B[46m%s\u001B[0m\u001B[47m:%d\u001B[0m", path.Base(entry.Caller.File), entry.Caller.Line)
+
+	//设置格式
+	if constant.Config.Logger.ShowLine == true {
+		_, _ = fmt.Fprintf(b,
+			" [%s] [%s] \u001B[44m %s \u001B[0m \u001B[4%dm\u001B[37m %s \u001B[0m\u001B[0m %s \n",
+			formatTime,
+			filVal,
+			constant.Config.Logger.Prefix,
+			color,
+			strings.ToUpper(entry.Level.String()),
+			entry.Message,
+		)
+	} else {
+		_, _ = fmt.Fprintf(b,
+			" [%s] \u001B[44m %s \u001B[0m \u001B[4%dm\u001B[37m %s \u001B[0m\u001B[0m %s \n",
+			formatTime,
+			constant.Config.Logger.Prefix,
+			color, strings.ToUpper(entry.Level.String()),
+			entry.Message,
+		)
+	}
+
 	return b.Bytes(), nil
 }
 
-func Logger() *logrus.Logger {
-	mLog := logrus.New()                                  //新建一个实例
-	mLog.SetOutput(os.Stdout)                             //设置输出类型
-	mLog.SetReportCaller(constant.Config.Logger.ShowLine) //开启返回函数名和行号
-	mLog.SetFormatter(&LogFormatter{})                    //设置自己定义的Formatter
-	level, err := logrus.ParseLevel(constant.Config.Logger.Level)
-	if err != nil {
-		level = logrus.InfoLevel
-	}
-	mLog.SetLevel(level) //设置最低的Level
-
-	//启动全局使用自定义的log
-	DefaultLogger()
-	return mLog
+func FileLogger() {
+	//日志写成log文件
+	logDir := constant.Config.Logger.Director
+	logFile, _ := os.OpenFile(logDir+"/log.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	logrus.SetOutput(logFile)
 }
 
-func DefaultLogger() {
-	//全局log
-	logrus.SetOutput(os.Stdout)
-	logrus.SetReportCaller(constant.Config.Logger.ShowLine)
-	logrus.SetFormatter(&LogFormatter{})
-	level, err := logrus.ParseLevel(constant.Config.Logger.Level)
-	if err != nil {
-		level = logrus.InfoLevel
-	}
-	logrus.SetLevel(level)
+func Logger() *logrus.Logger {
+	FileLogger()
+	mLog := logrus.New()
+	mLog.SetOutput(os.Stdout)
+	mLog.SetLevel(logrus.DebugLevel)
+	mLog.SetReportCaller(constant.Config.Logger.ShowLine)
+	mLog.SetFormatter(&MyFormatter{ForMatTime: "2006-01-02 15:04:06"})
+	return mLog
 }

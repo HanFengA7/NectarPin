@@ -10,7 +10,7 @@ mysql:
   dbPassword: 12345678
 logger:
   level: info
-  prefix: '[NectarPin]'
-  director: log
-  showLine: false
+  prefix: 'NectarPin'
+  director: logs
+  showLine: true
   logInConsole: true
