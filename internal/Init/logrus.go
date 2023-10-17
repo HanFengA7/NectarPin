@@ -12,6 +12,48 @@ import (
 
 var color int
 
+type FileLogFormatter struct {
+	ForMatTime string
+}
+
+func (f1 FileLogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+	//设置Buffer缓冲区
+	var b *bytes.Buffer
+	if entry.Buffer == nil {
+		b = &bytes.Buffer{}
+	} else {
+		b = entry.Buffer
+	}
+	//设置时间格式
+	formatTime := entry.Time.Format(f1.ForMatTime)
+
+	//设置行号
+	filVal := fmt.Sprintf("%s:%d", path.Base(entry.Caller.File), entry.Caller.Line)
+
+	//设置格式
+	if constant.Config.Logger.ShowLine == true {
+		_, _ = fmt.Fprintf(b,
+			"time=\"%s\" [%s] %s %d %s %s \n",
+			formatTime,
+			filVal,
+			constant.Config.Logger.Prefix,
+			color,
+			strings.ToUpper(entry.Level.String()),
+			entry.Message,
+		)
+	} else {
+		_, _ = fmt.Fprintf(b,
+			" [%s]  %s  %d %s %s \n",
+			formatTime,
+			constant.Config.Logger.Prefix,
+			color, strings.ToUpper(entry.Level.String()),
+			entry.Message,
+		)
+	}
+
+	return b.Bytes(), nil
+}
+
 type MyFormatter struct {
 	ForMatTime string
 }
@@ -75,6 +117,8 @@ func FileLogger() {
 	//日志写成log文件
 	logDir := constant.Config.Logger.Director
 	logFile, _ := os.OpenFile(logDir+"/log.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	logrus.SetReportCaller(constant.Config.Logger.ShowLine)
+	logrus.SetFormatter(&FileLogFormatter{ForMatTime: "2006-01-02 15:04:06"})
 	logrus.SetOutput(logFile)
 }
 

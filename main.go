@@ -1,16 +1,15 @@
 package main
 
 import (
+	"NectarPin/constant"
 	"NectarPin/internal/Init"
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
 	Init.Conf()
-	Init.Logger()
+	constant.Log = Init.Logger()
 	//Init.Gorm()
-
+	constant.Log.Errorln("23333")
 	logrus.Errorln("23333")
-	logrus.Warningln("6666")
-	logrus.Infoln("55555")
 }
