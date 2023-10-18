@@ -39,8 +39,10 @@ func Gorm() *gorm.DB {
 		},
 	})
 	if err != nil {
+		constant.Log.Errorln("数据库连接错误")
 		logrus.Errorln("数据库连接错误")
 	} else {
+		constant.Log.Info("数据库连接成功")
 		logrus.Infoln("数据库连接成功")
 	}
 

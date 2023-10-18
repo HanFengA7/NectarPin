@@ -16,6 +16,10 @@ type FileLogFormatter struct {
 	ForMatTime string
 }
 
+type MyFormatter struct {
+	ForMatTime string
+}
+
 func (f1 FileLogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	//设置Buffer缓冲区
 	var b *bytes.Buffer
@@ -28,34 +32,27 @@ func (f1 FileLogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	formatTime := entry.Time.Format(f1.ForMatTime)
 
 	//设置行号
-	filVal := fmt.Sprintf("%s:%d", path.Base(entry.Caller.File), entry.Caller.Line)
+	filVal := fmt.Sprintf("path=\"%s:%d\"", path.Base(entry.Caller.File), entry.Caller.Line)
 
 	//设置格式
 	if constant.Config.Logger.ShowLine == true {
 		_, _ = fmt.Fprintf(b,
-			"time=\"%s\" [%s] %s %d %s %s \n",
+			"time=\"%s\" %s level=\"%s\" msg=\"%s\" \n",
 			formatTime,
 			filVal,
-			constant.Config.Logger.Prefix,
-			color,
 			strings.ToUpper(entry.Level.String()),
 			entry.Message,
 		)
 	} else {
 		_, _ = fmt.Fprintf(b,
-			" [%s]  %s  %d %s %s \n",
+			" [%s] level=\"%s\" msg=\"%s\" \n",
 			formatTime,
-			constant.Config.Logger.Prefix,
-			color, strings.ToUpper(entry.Level.String()),
+			strings.ToUpper(entry.Level.String()),
 			entry.Message,
 		)
 	}
 
 	return b.Bytes(), nil
-}
-
-type MyFormatter struct {
-	ForMatTime string
 }
 
 func (f MyFormatter) Format(entry *logrus.Entry) ([]byte, error) {
