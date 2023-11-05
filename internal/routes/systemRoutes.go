@@ -2,7 +2,7 @@ package routes
 
 import "github.com/gin-gonic/gin"
 
-func SystemRouter(router *gin.Engine) {
+func SystemRoutes(router *gin.Engine) {
 	system := router.Group("api/System")
 	{
 		system.GET("", func(c *gin.Context) {
