@@ -22,7 +22,7 @@
 ├─internal 
 │  │
 │  ├─models
-│  └─router
+│  └─routes
 ├─middleware
 └─web
 ```
