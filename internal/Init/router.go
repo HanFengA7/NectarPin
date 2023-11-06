@@ -15,9 +15,13 @@ func Router() *gin.Engine {
 	//用户路由
 	routes.UserRoutes(router)
 	//文章路由
+	routes.ArticleRoutes(router)
 	//评论路由
+	routes.CommentRoutes(router)
 	//友链路由
+	routes.LinkRoutes(router)
 	//相册路由
+	routes.AlbumRoutes(router)
 
 	_ = router.Run(constant.Config.System.Host + ":" + strconv.Itoa(constant.Config.System.Port))
 	return router
