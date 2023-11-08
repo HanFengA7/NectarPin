@@ -33,3 +33,7 @@ const (
 	ColorYoungB  = 6
 	ColorAshB    = 7
 )
+
+const (
+	NectarpinVersion = "1.0.0"
+)
