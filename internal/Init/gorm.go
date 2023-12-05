@@ -2,6 +2,7 @@ package Init
 
 import (
 	"NectarPin/constant"
+	"NectarPin/internal/models"
 	"NectarPin/tools"
 	"fmt"
 	"github.com/sirupsen/logrus"
@@ -45,6 +46,47 @@ func Gorm() *gorm.DB {
 		constant.Log.Info("数据库连接成功")
 		logrus.Infoln("数据库连接成功")
 	}
+
+	//自动迁移
+	err = db.AutoMigrate(&models.User{}, &models.Category{}, &models.Article{})
+	if err != nil {
+		return nil
+	}
+	/*
+		add1 := models.User{
+			Username:            "admin1",
+			NickName:            "admin",
+			Password:            "1235678",
+			Email:               "1@1.com",
+			AvatarUrl:           "https://img.com/o.png",
+			Role:                1,
+			LastLonginIPAddress: "10.1.0.1",
+			LastLonginDate:      "2023-12-05",
+		}
+		add2 := models.Category{
+			ParentID: 2,
+			LevelNum: 1,
+			Name:     "test2",
+			Desc:     "test",
+		}
+		add3 := models.Article{
+			User:          models.User{},
+			Category:      models.Category{},
+			UID:           1,
+			CID:           2,
+			Title:         "test2",
+			Tags:          "test",
+			Desc:          "test",
+			Content:       "test",
+			ImgUrl:        "test",
+			AIFComment:    1,
+			AIFHide:       0,
+			AIFEncrypt:    0,
+			AIFEncryptPwd: "",
+		}
+		db.Create(&add1)
+		db.Create(&add2)
+		db.Create(&add3)*/
 
 	sqlDB, _ := db.DB()
 	// SetMaxIdleConns 设置空闲连接池中连接的最大数量
