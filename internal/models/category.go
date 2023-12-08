@@ -2,6 +2,7 @@ package models
 
 import "gorm.io/gorm"
 
+// Category 分类表
 type Category struct {
 	gorm.Model
 	/*CID      int    `gorm:"column: cid; type: int; primaryKey; autoIncrement" json:"cid" label:"分类ID"`*/

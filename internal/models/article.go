@@ -2,6 +2,7 @@ package models
 
 import "gorm.io/gorm"
 
+// Article 文章表
 type Article struct {
 	gorm.Model
 	User          User     `gorm:"foreignKey:UID"`

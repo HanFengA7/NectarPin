@@ -2,6 +2,7 @@ package models
 
 import "gorm.io/gorm"
 
+// User 用户表
 type User struct {
 	gorm.Model
 	Username            string `gorm:"column:username; type: varchar(255); not null" json:"username,omitempty" label:"用户名"`
