@@ -8,7 +8,7 @@ import (
 /*
 User [用户表结构][231209][0.1]
 
-	ID						uint				评论ID
+	ID						uint				用户ID
 	CreatedAt				time.Time			创建时间
 	UpdatedAt				time.Time			更新时间
 	DeletedAt				gorm.DeletedAt		删除时间
