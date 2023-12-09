@@ -6,22 +6,25 @@ import (
 )
 
 /*
-Comment [评论表结构][231209]
+Comment [评论表结构][231209][0.1]
 
-	ID 	 			uint		评论ID
-	AID   			int			文章ID
-	ReplyID			int			回复ID
-	RootID			int			评论根ID
-	Depth			int			当前评论层
-	CUID			string		评论用户ID(时间MD5)
-	CUsername		string		评论用户名
-	CEmail			string		评论用户邮箱
-	CWebSite		string		评论用户网站
-	CIP 			string		评论IP
-	CContent 		string		评论内容
-	CFlag			int			评论者标志 [0:管理员 1:游客]
-	CLevel			int			评论等级 [0:正常 1:精选评论 2:仅管理员可见 3:隐藏]
-	CUpvote		    int			评论点赞数
+	ID				uint			评论ID
+	CreatedAt		time.Time		创建时间
+	UpdatedAt		time.Time		更新时间
+	DeletedAt		gorm.DeletedAt	删除时间
+	AID   			int				文章ID
+	ReplyID			int				回复ID
+	RootID			int				评论根ID
+	Depth			int				当前评论层
+	CUID			string			评论用户ID(时间MD5)
+	CUsername		string			评论用户名
+	CEmail			string			评论用户邮箱
+	CWebSite		string			评论用户网站
+	CIP 			string			评论IP
+	CContent 		string			评论内容
+	CFlag			int				评论者标志 [0:管理员 1:游客]
+	CLevel			int				评论等级 [0:正常 1:精选评论 2:仅管理员可见 3:隐藏]
+	CUpvote		    int				评论点赞数
 */
 type Comment struct {
 	ID        uint           `gorm:"primaryKey" json:"id"`
