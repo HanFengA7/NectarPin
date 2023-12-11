@@ -1,6 +1,7 @@
 package models
 
 import (
+	"NectarPin/constant"
 	"gorm.io/gorm"
 	"time"
 )
@@ -35,3 +36,46 @@ type User struct {
 	LastLonginIPAddress string         `gorm:"column:last_longin_ip_address; type: varchar(255);" json:"last_longin_ip_address,omitempty"`
 	LastLonginDate      string         `gorm:"column:last_longin_date; type: varchar(255);datetime;not null" json:"last_longin_date,omitempty"`
 }
+
+/*
+ExistUser [ 用户是否存在 ] [ 231211 ] [ 0.1 ]
+--------------------------------------------------------------
+
+	传参: [int|string] values
+	注释: values [int] 查询用户ID | values [string] 查询用户名
+
+---------------------------------------------------------------
+
+	回参: [int] 0 or 1
+	注释: 0 --> 不存在 | 1 --> 存在
+
+----------------------------------------------------------------
+*/
+func ExistUser(values interface{}) int {
+	db := constant.DB
+	switch values.(type) {
+	case int:
+		//查询用户ID
+		err := db.Where("id = ?", values).First(&User{}).Error
+		if err != nil {
+			return 0
+		}
+		return 1
+	case string:
+		//查询用户名
+		err := db.Where("username = ?", values).First(&User{}).Error
+		if err != nil {
+			return 0
+		}
+		return 1
+	default:
+		return 0
+	}
+}
+
+//todo 查询单个用户信息
+
+//todo 查询用户列表
+//todo 增加用户
+//todo 修改用户信息
+//todo 删除用户

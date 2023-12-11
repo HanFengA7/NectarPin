@@ -48,7 +48,14 @@ func Gorm() *gorm.DB {
 	}
 
 	//自动迁移
-	err = db.AutoMigrate(&models.User{}, &models.Category{}, &models.Article{})
+	err = db.AutoMigrate(
+		&models.User{},
+		&models.Category{},
+		&models.Article{},
+		&models.Comment{},
+		&models.System{},
+		&models.Link{},
+	)
 	if err != nil {
 		return nil
 	}
