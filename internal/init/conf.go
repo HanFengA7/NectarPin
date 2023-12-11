@@ -1,4 +1,4 @@
-package Init
+package init
 
 import (
 	"NectarPin/conf"
