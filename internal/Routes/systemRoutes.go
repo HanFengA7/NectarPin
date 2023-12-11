@@ -1,9 +1,9 @@
-package routes
+package Routes
 
 import (
 	"NectarPin/api"
 	"NectarPin/constant"
-	"NectarPin/internal/models"
+	"NectarPin/internal/Models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -14,7 +14,7 @@ func SystemRoutes(router *gin.Engine) {
 		system.GET("GetSystemInfo", api.GetSystemInfo)
 
 		system.GET("test", func(c *gin.Context) {
-			var article []models.Article
+			var article []Models.Article
 			err := constant.DB.Joins("User", constant.DB.Select("ID", "Username", "NickName", "Email", "AvatarUrl", "Role")).Preload("Category").Where("article.id = ?", 3).First(&article).Error
 			if err != nil {
 				panic("666")

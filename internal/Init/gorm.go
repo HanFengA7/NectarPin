@@ -1,8 +1,8 @@
-package init
+package Init
 
 import (
 	"NectarPin/constant"
-	"NectarPin/internal/models"
+	"NectarPin/internal/Models"
 	"NectarPin/tools"
 	"fmt"
 	"github.com/sirupsen/logrus"
@@ -49,18 +49,18 @@ func Gorm() *gorm.DB {
 
 	//自动迁移
 	err = db.AutoMigrate(
-		&models.User{},
-		&models.Category{},
-		&models.Article{},
-		&models.Comment{},
-		&models.System{},
-		&models.Link{},
+		&Models.User{},
+		&Models.Category{},
+		&Models.Article{},
+		&Models.Comment{},
+		&Models.System{},
+		&Models.Link{},
 	)
 	if err != nil {
 		return nil
 	}
 	/*
-		add1 := models.User{
+		add1 := Models.User{
 			Username:            "admin1",
 			NickName:            "admin",
 			Password:            "1235678",
@@ -70,15 +70,15 @@ func Gorm() *gorm.DB {
 			LastLonginIPAddress: "10.1.0.1",
 			LastLonginDate:      "2023-12-05",
 		}
-		add2 := models.Category{
+		add2 := Models.Category{
 			ParentID: 2,
 			LevelNum: 1,
 			Name:     "test2",
 			Desc:     "test",
 		}
-		add3 := models.Article{
-			User:          models.User{},
-			Category:      models.Category{},
+		add3 := Models.Article{
+			User:          Models.User{},
+			Category:      Models.Category{},
 			UID:           1,
 			CID:           2,
 			Title:         "test2",

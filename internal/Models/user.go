@@ -1,4 +1,4 @@
-package models
+package Models
 
 import (
 	"NectarPin/constant"

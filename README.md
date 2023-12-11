@@ -21,8 +21,8 @@
 ├─docs
 ├─internal 
 │  │
-│  ├─models
-│  └─routes
+│  ├─Models
+│  └─Routes
 ├─middleware
 └─web
 ```

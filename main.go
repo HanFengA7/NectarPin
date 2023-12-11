@@ -2,12 +2,12 @@ package main
 
 import (
 	"NectarPin/constant"
-	"NectarPin/internal/init"
+	"NectarPin/internal/Init"
 )
 
 func main() {
-	init.Conf()
-	constant.Log = init.Logger()
-	constant.DB = init.Gorm()
-	constant.Router = init.Router()
+	Init.Conf()
+	constant.Log = Init.Logger()
+	constant.DB = Init.Gorm()
+	constant.Router = Init.Router()
 }
