@@ -19,7 +19,7 @@ const (
 )
 
 var CodeMsg = map[int]string{
-	SUCCESS:                "OK",
+	SUCCESS:                "SUCCESS",
 	ERROR:                  "FAIL",
 	ErrorUsernameUsed:      "用户名已存在",
 	ErrorUserPasswordWrong: "用户密码错误",

@@ -49,24 +49,26 @@ ExistUser [ 用户是否存在 ] [ 231211 ] [ 0.1 ]
 
 ------------------------------------------------------------------------------------------------------------------------
 
-	回参: [int] 0 or 1
+	回参: [int] data [int] code
 	//: 0 --> 不存在 | 1 --> 存在
+	//: [code] 500 --> FAIL | 200--> SUCCESS
 
 ------------------------------------------------------------------------------------------------------------------------
 */
 func ExistUser(values interface{}) (data int, code int) {
+	var user User
 	db := constant.DB
 	switch values.(type) {
 	case int:
 		//查询用户ID
-		err := db.Where("id = ?", values).First(&User{}).Error
+		err := db.Where("id = ?", values).First(&user).Error
 		if err != nil {
 			return 0, errmsg.ERROR
 		}
 		return 1, errmsg.SUCCESS
 	case string:
 		//查询用户名
-		err := db.Where("username = ?", values).First(&User{}).Error
+		err := db.Where("username = ?", values).First(&user).Error
 		if err != nil {
 			return 0, errmsg.ERROR
 		}
@@ -87,11 +89,12 @@ GetUser [ 查询单个用户信息 ] [ 231212 ] [ 0.1 ]
 
 ------------------------------------------------------------------------------------------------------------------------
 
-	回参:  [ []User ]
-	//: [0] 用户信息
+	回参:  [[]User] data [int] code
+	//: [key=>0 data] 用户信息
 	//: (ID、Username、NickName、Email、AvatarUrl、Role)
-	//: [1] 用户信息
+	//: [key=>1 data] 用户信息
 	//: (ID、CreatedAt、UpdatedAt、Username、NickName、Email、AvatarUrl、Role、LastLonginIPAddress、LastLonginDate)
+	//: [code] 500 --> FAIL | 200--> SUCCESS
 
 ------------------------------------------------------------------------------------------------------------------------
 */
@@ -144,4 +147,40 @@ func GetUser(key int, values interface{}) (data []User, code int) {
 //todo 查询用户列表
 //todo 增加用户
 //todo 修改用户信息
-//todo 删除用户
+
+/*
+DeleteUser [ 删除用户 ] [ 231212 ] [ 0.1 ]
+
+------------------------------------------------------------------------------------------------------------------------
+
+	传参: [int|string] values
+	//: values [int] 删除用户ID  | values [string] 删除用户名
+
+------------------------------------------------------------------------------------------------------------------------
+
+	回参: [int] data [int] code
+	//: [data] 0 --> 删除失败 | 1 --> 删除成功
+	//: [code] 500 --> FAIL | 200--> SUCCESS
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func DeleteUser(values interface{}) (data int, code int) {
+	var user User
+	db := constant.DB
+	switch values.(type) {
+	case int:
+		err := db.Unscoped().Delete(user, values).Error
+		if err != nil {
+			return 0, errmsg.ERROR
+		}
+		return 1, errmsg.SUCCESS
+	case string:
+		err := db.Where("username = ?", values).Unscoped().Delete(user).Error
+		if err != nil {
+			return 0, errmsg.ERROR
+		}
+		return 1, errmsg.SUCCESS
+	default:
+		return 0, errmsg.ERROR
+	}
+}
