@@ -2,6 +2,8 @@ package Models
 
 import (
 	"NectarPin/constant"
+	"NectarPin/tools/errmsg"
+	"errors"
 	"gorm.io/gorm"
 	"time"
 )
@@ -39,41 +41,105 @@ type User struct {
 
 /*
 ExistUser [ 用户是否存在 ] [ 231211 ] [ 0.1 ]
---------------------------------------------------------------
+
+------------------------------------------------------------------------------------------------------------------------
 
 	传参: [int|string] values
-	注释: values [int] 查询用户ID | values [string] 查询用户名
+	//: values [int] 查询用户ID | values [string] 查询用户名
 
----------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 
 	回参: [int] 0 or 1
-	注释: 0 --> 不存在 | 1 --> 存在
+	//: 0 --> 不存在 | 1 --> 存在
 
-----------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 */
-func ExistUser(values interface{}) int {
+func ExistUser(values interface{}) (data int, code int) {
 	db := constant.DB
 	switch values.(type) {
 	case int:
 		//查询用户ID
 		err := db.Where("id = ?", values).First(&User{}).Error
 		if err != nil {
-			return 0
+			return 0, errmsg.ERROR
 		}
-		return 1
+		return 1, errmsg.SUCCESS
 	case string:
 		//查询用户名
 		err := db.Where("username = ?", values).First(&User{}).Error
 		if err != nil {
-			return 0
+			return 0, errmsg.ERROR
 		}
-		return 1
+		return 1, errmsg.SUCCESS
 	default:
-		return 0
+		return 0, errmsg.ERROR
 	}
 }
 
-//todo 查询单个用户信息
+/*
+GetUser [ 查询单个用户信息 ] [ 231212 ] [ 0.1 ]
+
+------------------------------------------------------------------------------------------------------------------------
+
+	传参: [int] key [int|string] values
+	//: key [int] --> 0 前台使用 | key [int] --> 1 后台使用
+	//: values [int] 查询用户ID  | values [string] 查询用户名
+
+------------------------------------------------------------------------------------------------------------------------
+
+	回参:  [ []User ]
+	//: [0] 用户信息
+	//: (ID、Username、NickName、Email、AvatarUrl、Role)
+	//: [1] 用户信息
+	//: (ID、CreatedAt、UpdatedAt、Username、NickName、Email、AvatarUrl、Role、LastLonginIPAddress、LastLonginDate)
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func GetUser(key int, values interface{}) (data []User, code int) {
+	var user []User
+	db := constant.DB
+	if key == 0 {
+		switch values.(type) {
+		case int:
+			err := db.Select("id,username,nickname,email,avater_url,role").Where("id = ?", values).
+				Find(&user).Error
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, errmsg.ERROR
+			}
+			return user, errmsg.SUCCESS
+		case string:
+			err := db.Select("id,username,nickname,email,avater_url,role").Where("username = ?", values).
+				Find(&user).Error
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, errmsg.ERROR
+			}
+			return user, errmsg.SUCCESS
+		default:
+			return nil, errmsg.ERROR
+		}
+	} else {
+		switch values.(type) {
+		case int:
+			err := db.Select(
+				"id,created_at,updated_at,username,nickname,email,avater_url,role,last_longin_ip_address,last_longin_date",
+			).Where("id = ?", values).Find(&user).Error
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, errmsg.ERROR
+			}
+			return user, errmsg.SUCCESS
+		case string:
+			err := db.Select(
+				"id,created_at,updated_at,username,nickname,email,avater_url,role,last_longin_ip_address,last_longin_date",
+			).Where("username = ?", values).Find(&user).Error
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, errmsg.ERROR
+			}
+			return user, errmsg.SUCCESS
+		default:
+			return nil, errmsg.ERROR
+		}
+	}
+}
 
 //todo 查询用户列表
 //todo 增加用户
