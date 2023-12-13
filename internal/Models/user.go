@@ -35,7 +35,7 @@ type User struct {
 	Email               string         `gorm:"column:email; type: varchar(255); not null" json:"email,omitempty"`
 	AvatarUrl           string         `gorm:"column:avater_url; type: longtext" json:"avater_url,omitempty"`
 	Role                int            `gorm:"column:role; type: int; DEFAULT:2; not null" json:"role,omitempty"`
-	LastLonginIPAddress string         `gorm:"column:last_longin_ip_address; type: varchar(255);" json:"last_longin_ip_address,omitempty"`
+	LastLonginIPAddress string         `gorm:"column:last_longin_ip_address; type: varchar(255);"json:"last_longin_ip_address,omitempty"`
 	LastLonginDate      string         `gorm:"column:last_longin_date; type: varchar(255);datetime;not null" json:"last_longin_date,omitempty"`
 }
 
@@ -49,13 +49,13 @@ ExistUser [ 用户是否存在 ] [ 231211 ] [ 0.1 ]
 
 ------------------------------------------------------------------------------------------------------------------------
 
-	回参: [int] data [int] code
-	//: 0 --> 不存在 | 1 --> 存在
-	//: [code] 500 --> FAIL | 200--> SUCCESS
+	回参: [int] msgData [int] statusCode
+	//: [msgData] 0 --> 不存在 | 1 --> 存在
+	//: [statusCode] 500 --> FAIL | 200--> SUCCESS
 
 ------------------------------------------------------------------------------------------------------------------------
 */
-func ExistUser(values interface{}) (data int, code int) {
+func ExistUser(values interface{}) (msgData int, statusCode int) {
 	var user User
 	db := constant.DB
 	switch values.(type) {
@@ -89,16 +89,16 @@ GetUser [ 查询单个用户信息 ] [ 231212 ] [ 0.1 ]
 
 ------------------------------------------------------------------------------------------------------------------------
 
-	回参:  [[]User] data [int] code
-	//: [key=>0 data] 用户信息
+	回参:  [[]User] msgData [int] statusCode
+	//: [key=>0 msgData] 用户信息
 	//: (ID、Username、NickName、Email、AvatarUrl、Role)
-	//: [key=>1 data] 用户信息
+	//: [key=>1 msgData] 用户信息
 	//: (ID、CreatedAt、UpdatedAt、Username、NickName、Email、AvatarUrl、Role、LastLonginIPAddress、LastLonginDate)
-	//: [code] 500 --> FAIL | 200--> SUCCESS
+	//: [statusCode] 500 --> FAIL | 200--> SUCCESS
 
 ------------------------------------------------------------------------------------------------------------------------
 */
-func GetUser(key int, values interface{}) (data []User, code int) {
+func GetUser(key int, values interface{}) (msgData []User, statusCode int) {
 	var user []User
 	db := constant.DB
 	if key == 0 {
@@ -145,7 +145,33 @@ func GetUser(key int, values interface{}) (data []User, code int) {
 }
 
 //todo 查询用户列表
-//todo 增加用户
+
+/*
+CreateUser [ 增加用户 ] [ 231213 ] [ 0.1 ]
+
+------------------------------------------------------------------------------------------------------------------------
+
+	传参: [*User] values
+	//: 用户数据
+
+------------------------------------------------------------------------------------------------------------------------
+
+	回参: [int] msgData [int] statusCode
+	//: [data] 0 --> 增加用户失败 | 1 --> 增加用户成功
+	//: [code] 500 --> FAIL | 200--> SUCCESS
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func CreateUser(values *User) (msgData int, statusCode int) {
+	db := constant.DB
+	//todo 密码加密
+	err := db.Create(&values).Error
+	if err != nil {
+		return 0, errmsg.ERROR
+	}
+	return 1, errmsg.SUCCESS
+}
+
 //todo 修改用户信息
 
 /*
@@ -158,13 +184,13 @@ DeleteUser [ 删除用户 ] [ 231212 ] [ 0.1 ]
 
 ------------------------------------------------------------------------------------------------------------------------
 
-	回参: [int] data [int] code
-	//: [data] 0 --> 删除失败 | 1 --> 删除成功
-	//: [code] 500 --> FAIL | 200--> SUCCESS
+	回参: [int] msgData [int] statusCode
+	//: [msgData] 0 --> 删除失败 | 1 --> 删除成功
+	//: [statusCode] 500 --> FAIL | 200--> SUCCESS
 
 ------------------------------------------------------------------------------------------------------------------------
 */
-func DeleteUser(values interface{}) (data int, code int) {
+func DeleteUser(values interface{}) (msgData int, statusCode int) {
 	var user User
 	db := constant.DB
 	switch values.(type) {
