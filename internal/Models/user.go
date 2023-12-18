@@ -3,7 +3,9 @@ package Models
 import (
 	"NectarPin/constant"
 	"NectarPin/tools/errmsg"
+	"encoding/base64"
 	"errors"
+	"golang.org/x/crypto/scrypt"
 	"gorm.io/gorm"
 	"time"
 )
@@ -164,12 +166,17 @@ CreateUser [ 增加用户 ] [ 231213 ] [ 0.1 ]
 */
 func CreateUser(values *User) (msgData int, statusCode int) {
 	db := constant.DB
-	//todo 密码加密
-	err := db.Create(&values).Error
-	if err != nil {
-		return 0, errmsg.ERROR
+	var code int
+	values.Password, code = UserPwdEnCrypto(values.Password)
+	if code == 200 {
+		err := db.Create(&values).Error
+		if err != nil {
+			return 0, errmsg.ERROR
+		}
+		return 1, errmsg.SUCCESS
+	} else {
+		return 1, errmsg.SUCCESS
 	}
-	return 1, errmsg.SUCCESS
 }
 
 //todo 修改用户信息
@@ -209,4 +216,32 @@ func DeleteUser(values interface{}) (msgData int, statusCode int) {
 	default:
 		return 0, errmsg.ERROR
 	}
+}
+
+/*
+UserPwdEnCrypto [ 用户密码加密 ] [ 231218 ] [ 0.1 ]
+
+------------------------------------------------------------------------------------------------------------------------
+
+	传参:[string] plaintext
+	//:密码明文
+
+------------------------------------------------------------------------------------------------------------------------
+
+	回参: [string] msgData [int] statusCode
+	//: [msgData] string
+	//: [statusCode] 500 --> FAIL | 200--> SUCCESS
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func UserPwdEnCrypto(plaintext string) (msgData string, statusCode int) {
+	salt, err := base64.StdEncoding.DecodeString(constant.Config.System.PwdHashKey)
+	if err != nil {
+		return "配置文件PwdHashKey解密失败", 500
+	}
+	ciphertext, err := scrypt.Key([]byte(plaintext), salt, 32768, 8, 2, 32)
+	if err != nil {
+		return "加密失败", 500
+	}
+	return base64.StdEncoding.EncodeToString(ciphertext), 200
 }

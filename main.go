@@ -10,4 +10,7 @@ func main() {
 	constant.Log = Init.Logger()
 	constant.DB = Init.Gorm()
 	constant.Router = Init.Router()
+
+	//fmt.Println(tools.RandSalt(16))
+
 }

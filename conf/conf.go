@@ -15,9 +15,10 @@ type Mysql struct {
 }
 
 type System struct {
-	Host string `yaml:"host"`
-	Port int    `yaml:"port"`
-	Env  string `yaml:"env"`
+	Host       string `yaml:"host"`
+	Port       int    `yaml:"port"`
+	Env        string `yaml:"env"`
+	PwdHashKey string `yaml:"pwdHashKey"`
 }
 
 type Logger struct {
