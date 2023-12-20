@@ -146,7 +146,59 @@ func GetUser(key int, values interface{}) (msgData []User, statusCode int) {
 	}
 }
 
-//todo 查询用户列表
+/*
+GetUserList [ 查询用户列表 ] [ 231220 ] [ 0.1 ]
+
+------------------------------------------------------------------------------------------------------------------------
+
+	传参: ([string] username 可选) [int] pageSize [int] pageNum
+	//: [username] 模糊搜索用户名类似的用户数据列表,是可选项
+	//: [pageSize] 代表每页的数据条数,是必选项
+	//: [pageNum]  代表当前请求的页数,是必选项
+
+------------------------------------------------------------------------------------------------------------------------
+
+	回参: [[]User] data [int] total [int] statusCode
+	//: [data] 列表数据
+	//: [total] 数据总量
+	//: [statusCode] 500 --> FAIL | 200--> SUCCESS
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func GetUserList(username string, pageSize int, pageNum int) (data []User, total int64, statusCode int) {
+	if pageSize <= 0 {
+		pageSize = 5
+	}
+	if pageNum <= 0 {
+		pageNum = 1
+	}
+
+	var err error
+	db := constant.DB
+	offset := (pageNum - 1) * pageSize
+
+	switch {
+	case len(username) == 0:
+		err = db.Limit(pageSize).Offset(offset).Find(&data).Error
+		err = db.Model(&data).Count(&total).Error
+		if err != nil {
+			return nil, 0, 500
+		}
+		return data, total, 200
+
+	case len(username) != 0:
+		err = db.Where("username LIKE ?", username+"%").Limit(pageSize).Offset(offset).Find(&data).Error
+		err = db.Model(&data).Where("username LIKE ?", username+"%").Count(&total).Error
+		if err != nil {
+			return nil, 0, 500
+		}
+		return data, total, 200
+
+	default:
+		return nil, 0, 500
+	}
+
+}
 
 /*
 CreateUser [ 增加用户 ] [ 231213 ] [ 0.1 ]
