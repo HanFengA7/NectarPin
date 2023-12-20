@@ -37,7 +37,7 @@ type User struct {
 	Email               string         `gorm:"column:email; type: varchar(255); not null" json:"email,omitempty"`
 	AvatarUrl           string         `gorm:"column:avater_url; type: longtext" json:"avater_url,omitempty"`
 	Role                int            `gorm:"column:role; type: int; DEFAULT:2; not null" json:"role,omitempty"`
-	LastLonginIPAddress string         `gorm:"column:last_longin_ip_address; type: varchar(255);"json:"last_longin_ip_address,omitempty"`
+	LastLonginIPAddress string         `gorm:"column:last_longin_ip_address; type: varchar(255);" json:"last_longin_ip_address,omitempty"`
 	LastLonginDate      string         `gorm:"column:last_longin_date; type: varchar(255);datetime;not null" json:"last_longin_date,omitempty"`
 }
 
@@ -231,7 +231,56 @@ func CreateUser(values *User) (msgData int, statusCode int) {
 	}
 }
 
-//todo 修改用户信息
+/*
+EditUserInfo [ 修改用户信息 ] [ 231220 ] [ 0.1 ]
+
+------------------------------------------------------------------------------------------------------------------------
+
+	传参: [int|string] values
+	//: values [int] 删除用户ID  | values [string] 删除用户名
+
+------------------------------------------------------------------------------------------------------------------------
+
+	回参: [string] msgData [int] statusCode
+	//: [msgDate] 返回的信息
+	//: [statusCode] 500 --> FAIL | 200--> SUCCESS
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func EditUserInfo(id int, values *User) (msgData string, statusCode int) {
+	var err error
+	var checkCodeA int
+	var user User
+	var maps = make(map[string]interface{})
+	db := constant.DB
+
+	maps["username"] = values.Username
+	maps["nickname"] = values.NickName
+	maps["email"] = values.Email
+	maps["avater_url"] = values.AvatarUrl
+	maps["role"] = values.Role
+
+	db.Select("id, username").Where("username = ?", values.Username).First(&user)
+	if user.ID == uint(id) {
+		checkCodeA = 1
+	}
+	if user.ID > 0 {
+		checkCodeA = 0
+	}
+
+	switch {
+	case checkCodeA == 1:
+		err = db.Model(&user).Where("id = ?", id).Updates(maps).Error
+		if err != nil {
+			return "修改用户信息失败", 500
+		}
+		return "修改用户信息成功", 200
+	default:
+		return "username已存在,无法修改", 500
+	}
+}
+
+//todo EditUserPwd 修改用户密码
 
 /*
 DeleteUser [ 删除用户 ] [ 231212 ] [ 0.1 ]
