@@ -282,7 +282,33 @@ func EditUserInfo(id int, values *User) (msgData string, statusCode int) {
 	}
 }
 
-//todo EditUserPwd 修改用户密码
+/*
+EditUserPwd [ 修改用户密码 ] [ 240115 ] [ 0.1 ]
+
+------------------------------------------------------------------------------------------------------------------------
+
+	传参:[string] username [string] password
+	//: [username] 用户名
+	//: [password] 密码(在前端进行了MD5加密)
+
+------------------------------------------------------------------------------------------------------------------------
+
+	回参: [int] msgData [int] statusCode
+	//: [msgData] 修改密码失败 | 修改密码成功
+	//: [statusCode] 500 --> FAIL | 200--> SUCCESS
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func EditUserPwd(username string, password string) (msgData string, statusCode int) {
+	db := constant.DB
+	var err error
+	var user User
+	err = db.Model(&user).Where("username = ?", username).Update("password", password).Error
+	if err != nil {
+		return "修改密码失败", 500
+	}
+	return "修改密码成功", 200
+}
 
 /*
 DeleteUser [ 删除用户 ] [ 231212 ] [ 0.1 ]
