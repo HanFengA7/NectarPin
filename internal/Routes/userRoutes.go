@@ -1,6 +1,9 @@
 package Routes
 
-import "github.com/gin-gonic/gin"
+import (
+	"NectarPin/api"
+	"github.com/gin-gonic/gin"
+)
 
 /*
 UserRoutes
@@ -12,8 +15,6 @@ UserRoutes
 func UserRoutes(router *gin.Engine) {
 	user := router.Group("api/User")
 	{
-		user.GET("", func(c *gin.Context) {
-			c.String(200, "hello-world")
-		})
+		user.GET("/add", api.CreateUser)
 	}
 }
