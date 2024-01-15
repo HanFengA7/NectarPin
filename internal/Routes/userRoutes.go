@@ -16,5 +16,6 @@ func UserRoutes(router *gin.Engine) {
 	user := router.Group("api/User")
 	{
 		user.GET("/add", api.CreateUser)
+		user.DELETE("/delete/:id", api.DeleteUser)
 	}
 }

@@ -4,10 +4,23 @@ import (
 	"NectarPin/internal/Models"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 /*
-CreateUser [ 增加用户 ] [ 240115 ] [ 0.1 ]
+CreateUser [ 创建用户 ] [ 240115 ] [ 0.1 ]
+------------------------------------------------------------------------------------------------------------------------
+
+	[API][Private]: api.CreateUser
+	[URL][GET]: /api/User/add
+
+------------------------------------------------------------------------------------------------------------------------
+
+	[CODE][200]: 创建用户成功
+	[CODE][500]: 创建用户失败
+	[CODE][1001]: 用户名已存在
+
+------------------------------------------------------------------------------------------------------------------------
 */
 func CreateUser(c *gin.Context) {
 	var data Models.User
@@ -20,7 +33,7 @@ func CreateUser(c *gin.Context) {
 			c.JSON(
 				http.StatusOK,
 				gin.H{
-					"code": "10002",
+					"code": "500",
 					"msg":  "创建用户失败!",
 				})
 		} else {
@@ -37,6 +50,62 @@ func CreateUser(c *gin.Context) {
 			gin.H{
 				"code": "10001",
 				"msg":  "用户名已存在!",
+			})
+	}
+}
+
+/*
+DeleteUser [ 删除用户 ] [ 240115 ] [ 0.1 ]
+------------------------------------------------------------------------------------------------------------------------
+
+	[API][Private]: api.DeleteUser
+	[URL][DELETE]: /api/User/delete/:id
+
+------------------------------------------------------------------------------------------------------------------------
+
+	[CODE][200]: 用户删除成功
+	[CODE][500]: 用户删除失败
+	[CODE][1002]: 用户名不存在
+	[CODE][1003]: 禁止删除超级管理员
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func DeleteUser(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	existUserCode, _ := Models.ExistUser(id)
+
+	if existUserCode != 0 {
+		if id == 1 {
+			c.JSON(
+				http.StatusOK,
+				gin.H{
+					"code": "10003",
+					"msg":  "禁止删除超级管理员",
+				})
+		} else {
+			deleteUserCode, _ := Models.DeleteUser(id)
+			if deleteUserCode == 1 {
+				c.JSON(
+					http.StatusOK,
+					gin.H{
+						"code": "200",
+						"msg":  "用户删除成功!",
+					})
+			} else {
+				c.JSON(
+					http.StatusOK,
+					gin.H{
+						"code": "500",
+						"msg":  "用户删除失败!",
+					})
+			}
+		}
+	} else {
+		c.JSON(
+			http.StatusOK,
+			gin.H{
+				"code": "10002",
+				"msg":  "用户名不存在",
 			})
 	}
 }
