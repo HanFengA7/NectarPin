@@ -3,8 +3,10 @@ package Models
 import (
 	"NectarPin/constant"
 	"NectarPin/tools/errmsg"
+	"crypto/md5"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"golang.org/x/crypto/scrypt"
 	"gorm.io/gorm"
 	"time"
@@ -345,4 +347,42 @@ func UserPwdEnCrypto(plaintext string) (msgData string, statusCode int) {
 		return "加密失败", 500
 	}
 	return base64.StdEncoding.EncodeToString(ciphertext), 200
+}
+
+/*
+CheckLogin [ 用户登录验证 ] [ 240115 ] [ 0.1 ]
+
+------------------------------------------------------------------------------------------------------------------------
+
+	传参:[string] username [string] plaintext
+	//: [username] 用户名
+	//: [plaintext] 密码明文(在前端进行了MD5加密)
+
+------------------------------------------------------------------------------------------------------------------------
+
+	回参: [string] msgData [int] statusCode
+	//: [msgData] 验证成功 或 验证失败,请检查用户名或密码!
+	//: [statusCode] 500 --> FAIL | 200--> SUCCESS
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func CheckLogin(username string, plaintext string) (msgData string, startCode int) {
+	var db = constant.DB
+	var err error
+	var user User
+
+	err = db.Where("username = ?", username).First(&user).Error
+	passwordMd5 := fmt.Sprintf("%x", md5.Sum([]byte(user.Password)))
+
+	if err != nil {
+		return "验证失败,请检查用户名或密码!", 500
+	}
+	if user.ID == 0 {
+		return "验证失败,请检查用户名或密码!", 500
+	}
+	if user.Password == passwordMd5 {
+		return "验证成功", 200
+	} else {
+		return "验证失败,请检查用户名或密码!", 500
+	}
 }
