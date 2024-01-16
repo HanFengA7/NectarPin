@@ -12,7 +12,7 @@ CreateUser [ 创建用户 ] [ 240115 ] [ 0.1 ]
 ------------------------------------------------------------------------------------------------------------------------
 
 	[API][Private]: api.CreateUser
-	[URL][GET]: /api/User/add
+	[URL][POST]: /api/User/add
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -109,3 +109,54 @@ func DeleteUser(c *gin.Context) {
 			})
 	}
 }
+
+/*
+EditUserInfo [ 编辑用户信息 ] [ 240115 ] [ 0.1 ]
+------------------------------------------------------------------------------------------------------------------------
+
+	[API][Private]: api.EditUserInfo
+	[URL][PUT]: /api/User/edit/:id
+
+------------------------------------------------------------------------------------------------------------------------
+
+	[CODE][200]: 编辑用户信息成功
+	[CODE][500]: 编辑用户信息失败
+	[CODE][1002]: 用户不存在
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func EditUserInfo(c *gin.Context) {
+	var data Models.User
+	id, _ := strconv.Atoi(c.Param("id"))
+	_ = c.ShouldBindJSON(&data)
+
+	existUserCode, _ := Models.ExistUser(id)
+
+	if existUserCode == 1 {
+		editUserInfoMsg, editUserInfoCode := Models.EditUserInfo(id, &data)
+		if editUserInfoCode == 200 {
+			c.JSON(
+				http.StatusOK,
+				gin.H{
+					"code": editUserInfoCode,
+					"msg":  editUserInfoMsg,
+				})
+		} else {
+			c.JSON(
+				http.StatusOK,
+				gin.H{
+					"code": editUserInfoCode,
+					"msg":  editUserInfoMsg,
+				})
+		}
+	} else {
+		c.JSON(
+			http.StatusOK,
+			gin.H{
+				"code": "10002",
+				"msg":  "用户不存在",
+			})
+	}
+}
+
+// todo 修改用户密码

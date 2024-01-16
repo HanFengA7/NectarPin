@@ -238,8 +238,9 @@ EditUserInfo [ 修改用户信息 ] [ 231220 ] [ 0.1 ]
 
 ------------------------------------------------------------------------------------------------------------------------
 
-	传参: [int|string] values
-	//: values [int] 删除用户ID  | values [string] 删除用户名
+	传参: [int] id [string] values
+	//: [id] 用户的ID
+	//: [values] 修改的用户信息
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -274,9 +275,9 @@ func EditUserInfo(id int, values *User) (msgData string, statusCode int) {
 	case checkCodeA == 1:
 		err = db.Model(&user).Where("id = ?", id).Updates(maps).Error
 		if err != nil {
-			return "修改用户信息失败", 500
+			return "编辑用户信息失败", 500
 		}
-		return "修改用户信息成功", 200
+		return "编辑用户信息成功", 200
 	default:
 		return "username已存在,无法修改", 500
 	}
