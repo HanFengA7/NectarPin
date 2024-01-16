@@ -8,6 +8,68 @@ import (
 )
 
 /*
+GetUserInfo [ 查询用户信息 ] [ 240116 ] [ 0.1 ]
+------------------------------------------------------------------------------------------------------------------------
+
+	[API][Public|Private]: api.GetUserInfo
+	[URL][GET]: /api/User/getInfo/:type/:id
+
+------------------------------------------------------------------------------------------------------------------------
+
+	[type]: 0 --> 前台使用 | 1 --> 后台使用
+	[id]: 用户的ID
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func GetUserInfo(c *gin.Context) {
+	var data Models.User
+	infoType, _ := strconv.Atoi(c.Param("type"))
+	id, _ := strconv.Atoi(c.Param("id"))
+	_ = c.ShouldBindJSON(&data)
+
+	existUserCode, _ := Models.ExistUser(id)
+
+	switch existUserCode {
+
+	case 0:
+		c.JSON(
+			http.StatusOK,
+			gin.H{
+				"code": "10002",
+				"msg":  "用户不存在",
+			})
+
+	case 1:
+		getUserData, getUserCode := Models.GetUser(infoType, id)
+		if getUserCode == 200 {
+			c.JSON(
+				http.StatusOK,
+				gin.H{
+					"code": getUserCode,
+					"data": getUserData,
+					"msg":  "查询成功",
+				})
+		} else {
+			c.JSON(
+				http.StatusOK,
+				gin.H{
+					"code": getUserCode,
+					"data": getUserData,
+					"msg":  "查询失败",
+				})
+		}
+
+	default:
+		c.JSON(
+			http.StatusOK,
+			gin.H{
+				"code": "500",
+				"msg":  "查询错误",
+			})
+	}
+}
+
+/*
 CreateUser [ 创建用户 ] [ 240115 ] [ 0.1 ]
 ------------------------------------------------------------------------------------------------------------------------
 
