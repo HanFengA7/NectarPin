@@ -111,11 +111,11 @@ func DeleteUser(c *gin.Context) {
 }
 
 /*
-EditUserInfo [ 编辑用户信息 ] [ 240115 ] [ 0.1 ]
+EditUserInfo [ 编辑用户信息 ] [ 240116 ] [ 0.1 ]
 ------------------------------------------------------------------------------------------------------------------------
 
 	[API][Private]: api.EditUserInfo
-	[URL][PUT]: /api/User/edit/:id
+	[URL][PUT]: /api/User/editInfo/:id
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -134,19 +134,58 @@ func EditUserInfo(c *gin.Context) {
 
 	if existUserCode == 1 {
 		editUserInfoMsg, editUserInfoCode := Models.EditUserInfo(id, &data)
-		if editUserInfoCode == 200 {
+		c.JSON(
+			http.StatusOK,
+			gin.H{
+				"code": editUserInfoCode,
+				"msg":  editUserInfoMsg,
+			})
+	} else {
+		c.JSON(
+			http.StatusOK,
+			gin.H{
+				"code": "10002",
+				"msg":  "用户不存在",
+			})
+	}
+}
+
+/*
+EditUserPwd [ 编辑用户密码 ] [ 240116 ] [ 0.1 ]
+------------------------------------------------------------------------------------------------------------------------
+
+	[API][Private]: api.EditUserPwd
+	[URL][PUT]: /api/User/editPwd/:id
+
+------------------------------------------------------------------------------------------------------------------------
+
+	[CODE][200]: 编辑用户密码成功
+	[CODE][500]: 编辑用户密码失败 | 密码加密异常
+	[CODE][1002]: 用户不存在
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func EditUserPwd(c *gin.Context) {
+	var data Models.User
+	_ = c.ShouldBindJSON(&data)
+	existUserCode, _ := Models.ExistUser(data.ID)
+
+	if existUserCode == 1 {
+		jmPassword, jmStatusCode := Models.UserPwdEnCrypto(data.Password)
+		if jmStatusCode == 200 {
+			editUserPwdMsg, editUserPwdCode := Models.EditUserPwd(data.Username, jmPassword)
 			c.JSON(
 				http.StatusOK,
 				gin.H{
-					"code": editUserInfoCode,
-					"msg":  editUserInfoMsg,
+					"code": editUserPwdCode,
+					"msg":  editUserPwdMsg,
 				})
 		} else {
 			c.JSON(
 				http.StatusOK,
 				gin.H{
-					"code": editUserInfoCode,
-					"msg":  editUserInfoMsg,
+					"code": "500",
+					"msg":  "密码加密异常",
 				})
 		}
 	} else {
@@ -158,5 +197,3 @@ func EditUserInfo(c *gin.Context) {
 			})
 	}
 }
-
-// todo 修改用户密码

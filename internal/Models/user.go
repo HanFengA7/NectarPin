@@ -306,9 +306,9 @@ func EditUserPwd(username string, password string) (msgData string, statusCode i
 	var user User
 	err = db.Model(&user).Where("username = ?", username).Update("password", password).Error
 	if err != nil {
-		return "修改密码失败", 500
+		return "编辑用户密码失败", 500
 	}
-	return "修改密码成功", 200
+	return "编辑用户密码成功", 200
 }
 
 /*
