@@ -329,7 +329,7 @@ func UserLogin(c *gin.Context) {
 					gin.H{
 						"code":  tokenCode,
 						"token": token,
-						"msg":   tokenMsg,
+						"msg":   "登录成功",
 					})
 			}
 		}
