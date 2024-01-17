@@ -74,7 +74,7 @@ func VerifyToken(tokenString string) (tokenData *MyCustomClaims, tokenBool bool,
 	JwtHashKey := []byte(constant.Config.System.JwtHashKey)
 	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return JwtHashKey, nil
-	})
+	}, jwt.WithLeeway(5*time.Second))
 	if err != nil {
 		fmt.Println(err)
 		return nil, false, 500
