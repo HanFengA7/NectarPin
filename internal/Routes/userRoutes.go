@@ -17,7 +17,7 @@ func UserRoutes(router *gin.Engine) {
 	{
 		//[查询用户信息-{type:前台[0]|后台[1]}][GET][Public|Private][/api/User/getInfo/:type/:id]
 		user.GET("/getInfo/:type/:id", api.GetUserInfo)
-		//todo [查询用户列表][GET][Private][/api/User/getList]
+		//[查询用户列表][GET][Private][/api/User/getList]
 		user.GET("/getList", api.GetUserList)
 		//todo [用户登陆验证][POST][Public][/api/User/login]
 		//todo [解密Token][GET][Public][/api/User/authTokenInfo]

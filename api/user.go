@@ -100,9 +100,15 @@ func GetUserList(c *gin.Context) {
 				"total": total,
 			})
 	} else {
-		c.JSON(http.StatusOK, gin.H{"data": "no"})
+		data, total, getUserListCode := Models.GetUserList(glv.Username, glv.PageSize, glv.PageNum)
+		c.JSON(
+			http.StatusOK,
+			gin.H{
+				"code":  getUserListCode,
+				"data":  data,
+				"total": total,
+			})
 	}
-
 }
 
 /*
