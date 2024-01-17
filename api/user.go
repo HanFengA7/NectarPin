@@ -70,6 +70,42 @@ func GetUserInfo(c *gin.Context) {
 }
 
 /*
+GetUserList [ 查询用户列表 ] [ 240116 ] [ 0.1 ]
+------------------------------------------------------------------------------------------------------------------------
+
+	[API][Private]: api.GetUserList
+	[URL][GET]: /api/User/getList
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func GetUserList(c *gin.Context) {
+	type getListValues struct {
+		//[username] 模糊搜索用户名类似的用户数据列表,是可选项
+		Username string `json:"username"`
+		//[pageSize] 代表每页的数据条数,是必选项
+		PageSize int `json:"pageSize"`
+		//[pageNum]  代表当前请求的页数,是必选项
+		PageNum int `json:"pageNum"`
+	}
+	var glv getListValues
+	_ = c.BindJSON(&glv)
+
+	if len(glv.Username) == 0 {
+		data, total, getUserListCode := Models.GetUserList("", glv.PageSize, glv.PageNum)
+		c.JSON(
+			http.StatusOK,
+			gin.H{
+				"code":  getUserListCode,
+				"data":  data,
+				"total": total,
+			})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"data": "no"})
+	}
+
+}
+
+/*
 CreateUser [ 创建用户 ] [ 240115 ] [ 0.1 ]
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -89,29 +125,38 @@ func CreateUser(c *gin.Context) {
 	_ = c.ShouldBindJSON(&data)
 	existUserCode, _ := Models.ExistUser(data.Username)
 
-	if existUserCode == 0 {
-		createUserCode, _ := Models.CreateUser(&data)
-		if createUserCode == 0 {
-			c.JSON(
-				http.StatusOK,
-				gin.H{
-					"code": "500",
-					"msg":  "创建用户失败!",
-				})
+	if len(data.Username) != 0 {
+		if existUserCode == 0 {
+			createUserCode, _ := Models.CreateUser(&data)
+			if createUserCode == 0 {
+				c.JSON(
+					http.StatusOK,
+					gin.H{
+						"code": "500",
+						"msg":  "创建用户失败!",
+					})
+			} else {
+				c.JSON(
+					http.StatusOK,
+					gin.H{
+						"code": "200",
+						"msg":  "创建用户成功!",
+					})
+			}
 		} else {
 			c.JSON(
 				http.StatusOK,
 				gin.H{
-					"code": "200",
-					"msg":  "创建用户成功!",
+					"code": "10001",
+					"msg":  "用户名已存在!",
 				})
 		}
 	} else {
 		c.JSON(
 			http.StatusOK,
 			gin.H{
-				"code": "10001",
-				"msg":  "用户名已存在!",
+				"code": "500",
+				"msg":  "用户名不能为空!",
 			})
 	}
 }

@@ -33,14 +33,14 @@ type User struct {
 	CreatedAt           time.Time      `json:"created_at,omitempty"`
 	UpdatedAt           time.Time      `json:"updated_at,omitempty"`
 	DeletedAt           gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
-	Username            string         `gorm:"column:username; type: varchar(255); not null" json:"username,omitempty"`
-	NickName            string         `gorm:"column:nickname; type:varchar(255); not null" json:"nickname,omitempty"`
+	Username            string         `gorm:"column:username; type: varchar(255); not null" json:"username"`
+	NickName            string         `gorm:"column:nickname; type:varchar(255); not null" json:"nickname"`
 	Password            string         `gorm:"column:password; type: varchar(255); not null" json:"password,omitempty"`
-	Email               string         `gorm:"column:email; type: varchar(255); not null" json:"email,omitempty"`
-	AvatarUrl           string         `gorm:"column:avater_url; type: longtext" json:"avater_url,omitempty"`
-	Role                int            `gorm:"column:role; type: int; DEFAULT:2; not null" json:"role,omitempty"`
+	Email               string         `gorm:"column:email; type: varchar(255); not null" json:"email"`
+	AvatarUrl           string         `gorm:"column:avater_url; type: longtext" json:"avater_url"`
+	Role                int            `gorm:"column:role; type: int; DEFAULT:2; not null" json:"role"`
 	LastLonginIPAddress string         `gorm:"column:last_longin_ip_address; type: varchar(255);" json:"last_longin_ip_address,omitempty"`
-	LastLonginDate      string         `gorm:"column:last_longin_date; type: varchar(255);datetime;not null" json:"last_longin_date,omitempty"`
+	LastLonginDate      string         `gorm:"column:last_longin_date; type: varchar(255);datetime;not null" json:"last_longin_date"`
 }
 
 /*
@@ -181,7 +181,9 @@ func GetUserList(username string, pageSize int, pageNum int) (data []User, total
 
 	switch {
 	case len(username) == 0:
-		err = db.Limit(pageSize).Offset(offset).Find(&data).Error
+		err = db.Select(
+			"id,created_at,updated_at,username,nickname,email,avater_url,role,last_longin_ip_address,last_longin_date",
+		).Limit(pageSize).Offset(offset).Find(&data).Error
 		err = db.Model(&data).Count(&total).Error
 		if err != nil {
 			return nil, 0, 500
@@ -189,7 +191,9 @@ func GetUserList(username string, pageSize int, pageNum int) (data []User, total
 		return data, total, 200
 
 	case len(username) != 0:
-		err = db.Where("username LIKE ?", username+"%").Limit(pageSize).Offset(offset).Find(&data).Error
+		err = db.Select(
+			"id,created_at,updated_at,username,nickname,email,avater_url,role,last_longin_ip_address,last_longin_date",
+		).Where("username LIKE ?", username+"%").Limit(pageSize).Offset(offset).Find(&data).Error
 		err = db.Model(&data).Where("username LIKE ?", username+"%").Count(&total).Error
 		if err != nil {
 			return nil, 0, 500
