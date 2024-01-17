@@ -3,10 +3,8 @@ package Models
 import (
 	"NectarPin/constant"
 	"NectarPin/tools/errmsg"
-	"crypto/md5"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"golang.org/x/crypto/scrypt"
 	"gorm.io/gorm"
 	"time"
@@ -403,7 +401,8 @@ func CheckLogin(username string, plaintext string) (msgData string, startCode in
 	var user User
 
 	err = db.Where("username = ?", username).First(&user).Error
-	passwordMd5 := fmt.Sprintf("%x", md5.Sum([]byte(user.Password)))
+	//passwordMd5 := fmt.Sprintf("%x", md5.Sum([]byte(user.Password)))
+	jmPwd, _ := UserPwdEnCrypto(plaintext)
 
 	if err != nil {
 		return "验证失败,请检查用户名或密码!", 500
@@ -411,7 +410,7 @@ func CheckLogin(username string, plaintext string) (msgData string, startCode in
 	if user.ID == 0 {
 		return "验证失败,请检查用户名或密码!", 500
 	}
-	if user.Password == passwordMd5 {
+	if user.Password == jmPwd {
 		return "验证成功", 200
 	} else {
 		return "验证失败,请检查用户名或密码!", 500
