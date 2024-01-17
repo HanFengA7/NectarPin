@@ -371,7 +371,7 @@ func UserTokenInfo(c *gin.Context) {
 			})
 	} else {
 		c.JSON(
-			http.StatusInternalServerError,
+			http.StatusOK,
 			gin.H{
 				"code":      statusCode,
 				"tokenBool": tokenBool,
