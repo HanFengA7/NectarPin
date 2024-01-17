@@ -8,6 +8,13 @@ import (
 	"time"
 )
 
+type MyCustomClaims struct {
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+	Role     int    `json:"role"`
+	jwt.RegisteredClaims
+}
+
 /*
 CreateToken [创建Token] [240117] [0.1]
 ------------------------------------------------------------------------------------------------------------------------
@@ -27,19 +34,11 @@ CreateToken [创建Token] [240117] [0.1]
 func CreateToken(username string, id int, role int) (token string, statusCode int, statusMsg string) {
 	JwtHashKey := []byte(constant.Config.System.JwtHashKey)
 
-	type MyCustomClaims struct {
-		ID       int    `json:"id"`
-		Username string `json:"username"`
-		Role     int    `json:"role"`
-		jwt.RegisteredClaims
-	}
-
 	claims := MyCustomClaims{
 		id,
 		username,
 		role,
 		jwt.RegisteredClaims{
-			// A usual scenario is to set the expiration time relative to the current time
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(12 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
@@ -48,10 +47,40 @@ func CreateToken(username string, id int, role int) (token string, statusCode in
 			Audience:  []string{"somebody_else"},
 		},
 	}
+
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS512, claims).SignedString(JwtHashKey)
 	if err != nil {
 		fmt.Println(err)
 		return "", 500, "创建Token失败"
 	}
 	return token, 200, "Token创建完成"
+}
+
+/*
+VerifyToken [验证Token] [240117] [0.1]
+------------------------------------------------------------------------------------------------------------------------
+
+	[入参][1][tokenString][string]: Token
+
+------------------------------------------------------------------------------------------------------------------------
+
+	[回参][1][tokenData][string]: 返回Token解密后的数据
+	[回参][2][tokenBool][bool]: 返回Token验证是否通过 false-->不通过 | true-->通过
+	[回参][3][statusCode][int]: 返回的状态码
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func VerifyToken(tokenString string) (tokenData *MyCustomClaims, tokenBool bool, statusCode int) {
+	JwtHashKey := []byte(constant.Config.System.JwtHashKey)
+	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return JwtHashKey, nil
+	})
+	if err != nil {
+		fmt.Println(err)
+		return nil, false, 500
+	} else if claims, valid := token.Claims.(*MyCustomClaims); token.Valid {
+		return claims, valid, 200
+	} else {
+		return claims, valid, 500
+	}
 }

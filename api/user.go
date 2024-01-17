@@ -343,3 +343,21 @@ func UserLogin(c *gin.Context) {
 			})
 	}
 }
+
+/*
+UserTokenInfo [ 解密Token信息 ] [ 240117 ] [ 0.1 ]
+------------------------------------------------------------------------------------------------------------------------
+
+	[API][Public]: api.UserTokenInfo
+	[URL][GET]: /api/User/tokenInfo
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func UserTokenInfo(c *gin.Context) {
+	type GetJsonInfo struct {
+		Token string `json:"token"`
+	}
+	var GJI GetJsonInfo
+	_ = c.BindJSON(&GJI)
+
+}
