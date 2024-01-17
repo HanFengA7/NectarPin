@@ -19,6 +19,7 @@ type System struct {
 	Port       int    `yaml:"port"`
 	Env        string `yaml:"env"`
 	PwdHashKey string `yaml:"pwdHashKey"`
+	JwtHashKey string `yaml:"jwtHashKey"`
 }
 
 type Logger struct {

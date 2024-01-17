@@ -2,6 +2,7 @@ package api
 
 import (
 	"NectarPin/internal/Models"
+	"NectarPin/middleware"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -297,11 +298,41 @@ UserLogin [ 用户登陆验证 ] [ 240117 ] [ 0.1 ]
 */
 func UserLogin(c *gin.Context) {
 	var user Models.User
-	var token string
 	_ = c.ShouldBindJSON(&user)
 
 	loginMsg, loginCode := Models.CheckLogin(user.Username, user.Password)
+
 	if loginCode == 200 {
+		userInfo, getUserCode := Models.GetUser(0, user.Username)
+		if getUserCode != 200 {
+			c.JSON(
+				http.StatusOK,
+				gin.H{
+					"code": "500",
+					"msg":  "请求异常！",
+				})
+		}
+		for _, userInfoValues := range userInfo {
+			ID := int(userInfoValues.ID)
+			Role := userInfoValues.Role
+			token, tokenCode, tokenMsg := middleware.CreateToken(user.Username, ID, Role)
+			if tokenCode != 200 {
+				c.JSON(
+					http.StatusOK,
+					gin.H{
+						"code": tokenCode,
+						"msg":  tokenMsg,
+					})
+			} else {
+				c.JSON(
+					http.StatusOK,
+					gin.H{
+						"code":  tokenCode,
+						"token": token,
+						"msg":   tokenMsg,
+					})
+			}
+		}
 
 	} else {
 		c.JSON(
