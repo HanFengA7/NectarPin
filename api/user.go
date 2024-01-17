@@ -360,4 +360,23 @@ func UserTokenInfo(c *gin.Context) {
 	var GJI GetJsonInfo
 	_ = c.BindJSON(&GJI)
 
+	tokenData, tokenBool, statusCode := middleware.VerifyToken(GJI.Token)
+	if tokenBool != true {
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"code":      statusCode,
+				"tokenBool": tokenBool,
+				"msg":       "Token不存在！",
+			})
+	} else {
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"code":      statusCode,
+				"tokenBool": tokenBool,
+				"tokenData": tokenData,
+				"msg":       "Token验证成功！",
+			})
+	}
 }

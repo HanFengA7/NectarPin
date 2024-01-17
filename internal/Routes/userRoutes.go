@@ -21,8 +21,8 @@ func UserRoutes(router *gin.Engine) {
 		user.GET("/getList", api.GetUserList)
 		//[用户登陆验证][POST][Public][/api/User/login]
 		user.POST("/login", api.UserLogin)
-		//todo [解密Token信息][GET][Private][/api/User/tokenInfo]
-		user.GET("/tokenInfo")
+		//[解密Token信息][GET][Private][/api/User/tokenInfo]
+		user.GET("/tokenInfo", api.UserTokenInfo)
 		//[创建用户][POST][Private][/api/User/add]
 		user.POST("/add", api.CreateUser)
 		//[编辑用户信息][PUT][Private][/api/User/editInfo/:id]
