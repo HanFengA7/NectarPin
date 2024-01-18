@@ -7,5 +7,5 @@ docs/.vitepress/cache
 node_modules/
 
 #NectarPin
-config.yaml
+#config.yaml
 logs

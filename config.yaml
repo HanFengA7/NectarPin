@@ -1,0 +1,18 @@
+system:
+  host: localhost
+  port: 3001
+  env: dev
+  pwdHashKey: I0290ukstFa7kVWeFLxC7w==
+  jwtHashKey: I0290ukssjkh7kVWeFLxC7w
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  dbName: NectarPin
+  dbUser: NectarPin
+  dbPassword: 12345678
+logger:
+  level: info
+  prefix: 'NectarPin'
+  director: logs
+  showLine: true
+  logInConsole: true
