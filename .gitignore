@@ -1,0 +1,12 @@
+#Goland
+.idea/
+
+#NectarPin Docs
+docs/.vitepress/dist
+docs/.vitepress/cache
+package-lock.json
+node_modules/
+
+#NectarPin
+config.yaml
+logs
