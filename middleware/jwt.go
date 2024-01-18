@@ -96,8 +96,11 @@ func AuthJWT() gin.HandlerFunc {
 		JWTHeader := strings.SplitN(c.Request.Header.Get("Authorization"), " ", 2)
 
 		if len(JWTHeader) != 0 && JWTHeader[0] == "Bearer" {
-			_, VJWTBool, _ := VerifyToken(JWTHeader[1])
+			JWTData, VJWTBool, _ := VerifyToken(JWTHeader[1])
 			if VJWTBool != false {
+				c.Set("jwt_data_id", JWTData.ID)
+				c.Set("jwt_data_username", JWTData.Username)
+				c.Set("jwt_data_role", JWTData.Role)
 				c.Next()
 			} else {
 				c.JSON(
