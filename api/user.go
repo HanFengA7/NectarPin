@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 /*
@@ -24,7 +25,7 @@ GetUserInfo [ 查询用户信息 ] [ 240116 ] [ 0.1 ]
 */
 func GetUserInfo(c *gin.Context) {
 	var data Models.User
-	infoType, _ := strconv.Atoi(c.Param("type"))
+	infoType, _ := strconv.Atoi(strings.SplitN(c.FullPath(), "/", 6)[4])
 	id, _ := strconv.Atoi(c.Param("id"))
 	_ = c.ShouldBindJSON(&data)
 
