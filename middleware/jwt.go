@@ -3,8 +3,11 @@ package middleware
 import (
 	"NectarPin/constant"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -82,5 +85,37 @@ func VerifyToken(tokenString string) (tokenData *MyCustomClaims, tokenBool bool,
 		return claims, valid, 200
 	} else {
 		return claims, valid, 500
+	}
+}
+
+/*
+AuthJWT [JWT中间件] [240118] [0.1]
+*/
+func AuthJWT() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		JWTHeader := strings.SplitN(c.Request.Header.Get("Authorization"), " ", 2)
+
+		if len(JWTHeader) != 0 && JWTHeader[0] == "Bearer" {
+			_, VJWTBool, _ := VerifyToken(JWTHeader[1])
+			if VJWTBool != false {
+				c.Next()
+			} else {
+				c.JSON(
+					http.StatusForbidden,
+					gin.H{
+						"code": http.StatusForbidden,
+						"msg":  "身份认证失败!",
+					})
+				c.Abort()
+			}
+		} else {
+			c.JSON(
+				http.StatusForbidden,
+				gin.H{
+					"code": http.StatusForbidden,
+					"msg":  "身份认证失败!",
+				})
+			c.Abort()
+		}
 	}
 }
