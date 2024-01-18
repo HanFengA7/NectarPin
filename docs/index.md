@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: "NectarPin Docs"
-  text: "A VitePress Site"
+  text: "A moment like nailing nectar!"
   tagline: My great project tagline
   actions:
     - theme: brand
