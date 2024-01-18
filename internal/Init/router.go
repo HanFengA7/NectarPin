@@ -3,12 +3,16 @@ package Init
 import (
 	"NectarPin/constant"
 	"NectarPin/internal/Routes"
+	"NectarPin/middleware"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
 
 func Router() *gin.Engine {
 	router := gin.Default()
+
+	//[中间件][跨域]
+	router.Use(middleware.Cors())
 
 	//系统路由
 	Routes.SystemRoutes(router)
