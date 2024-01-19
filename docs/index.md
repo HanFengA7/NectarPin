@@ -4,22 +4,34 @@ layout: home
 
 hero:
   name: "NectarPin Docs"
-  text: "A moment like nailing nectar!"
-  tagline: My great project tagline
+  text: ""
+  tagline: A moment like nailing nectar!
   actions:
     - theme: brand
-      text: Markdown Examples
+      text: Demo
       link: /markdown-examples
     - theme: alt
-      text: API Examples
+      text: Docs
       link: /api-examples
 
 features:
-  - title: Feature A
+  - icon: ⌨️
+    title: 
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
+  - icon: 🛠️
+    title: 
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
+  - icon: 💡  
+    title: 
+    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - icon: 📝
+    title:
+    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - icon: 🥰
+    title:
+    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - icon: 👀
+    title:
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
 ---
 
