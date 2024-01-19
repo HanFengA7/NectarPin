@@ -3,6 +3,7 @@ package api
 import (
 	"NectarPin/internal/Models"
 	"NectarPin/middleware"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -251,15 +252,15 @@ EditUserPwd [ 编辑用户密码 ] [ 240116 ] [ 0.1 ]
 ------------------------------------------------------------------------------------------------------------------------
 
 	[API][Private]: api.EditUserPwd
-	[URL][PUT]: /api/User/editPwd/:id
+	[URL][PUT]: /api/User/editPwd
 
 ------------------------------------------------------------------------------------------------------------------------
 */
 func EditUserPwd(c *gin.Context) {
 	var data Models.User
 	_ = c.ShouldBindJSON(&data)
-	existUserCode, _ := Models.ExistUser(data.ID)
-
+	existUserCode, _ := Models.ExistUser(int(data.ID))
+	fmt.Println(data.ID, existUserCode)
 	if existUserCode == 1 {
 		jmPassword, jmStatusCode := Models.UserPwdEnCrypto(data.Password)
 		if jmStatusCode == 200 {
