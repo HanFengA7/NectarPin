@@ -265,12 +265,17 @@ func EditUserInfo(id int, values *User) (msgData string, statusCode int) {
 	maps["avater_url"] = values.AvatarUrl
 	maps["role"] = values.Role
 
-	db.Select("id, username").Where("username = ?", values.Username).First(&user)
-	if user.ID == uint(id) {
+	//判断用户名是否重复
+	rows := db.Select("id,username").Where("username = ?", values.Username).First(&user).RowsAffected
+	switch {
+	case rows == 0:
 		checkCodeA = 1
-	}
-	if user.ID > 0 {
-		checkCodeA = 0
+	case rows > 0:
+		if user.ID == uint(id) {
+			checkCodeA = 1
+		} else {
+			checkCodeA = 0
+		}
 	}
 
 	switch {
