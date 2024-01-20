@@ -15,7 +15,6 @@ export default defineConfig({
         root: {
             label: '简体中文',
             lang: 'zh',
-            link: '/'
         },
         fr: {
             label: 'English',
@@ -34,7 +33,7 @@ export default defineConfig({
         },
         nav: [
             {text: '首页', link: '/'},
-            {text: '使用指南', link: '/markdown-examples'},
+            {text: '使用指南', link: '/guide/'},
             {text: '开发文档', link: '/markdown-examples'},
             {
                 text: '关于',
@@ -52,15 +51,38 @@ export default defineConfig({
             }
         ],
 
-        sidebar: [
-            {
-                text: 'Examples',
-                items: [
-                    {text: 'Markdown Examples', link: '/markdown-examples'},
-                    {text: 'Runtime API Examples', link: '/api-examples'}
-                ]
-            }
-        ],
+        sidebar: {
+            // 当用户位于 `guide` 目录时，会显示此侧边栏
+            '/guide/': [
+                {
+                    text: '介绍',
+                    collapsed: true,
+                    items: [
+                        { text: '什么是 NectarPin？', link: '/guide/' },
+                        {   text: '安装部署',
+                            collapsed:false,
+                            items:[
+                                { text: 'Docker 部署', link: '/guide/install-docker' },
+                                { text: '二进制编译 部署', link: '/guide/install-2code' },
+                                { text: '源码 部署', link: '/guide/install-code' },
+                            ]
+                        }
+                    ]
+                }
+            ],
+
+            // 当用户位于 `config` 目录时，会显示此侧边栏
+            '/config/': [
+                {
+                    text: 'Config',
+                    items: [
+                        { text: 'Index', link: '/config/' },
+                        { text: 'Three', link: '/config/three' },
+                        { text: 'Four', link: '/config/four' }
+                    ]
+                }
+            ]
+        },
 
         socialLinks: [
             {icon: 'github', link: 'https://github.com/HanFengA7/NectarPin'}
