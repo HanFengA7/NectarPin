@@ -3,10 +3,13 @@ import {defineConfig} from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
     title: "NectarPin Docs",
-    description: "A VitePress Site",
+    description: "A moment like nailing nectar!",
 
 
-    head: [['link', { rel: 'icon', href: '/nectarpin.png' }]],
+    head: [
+        ['link', {rel: 'icon', href: '/nectarpin.png'}],
+        ['link', {rel: 'stylesheet', href: '/styles/custom.css'}]
+    ],
 
     locales: {
         root: {
@@ -25,7 +28,7 @@ export default defineConfig({
 
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
-        logo: '/nectarpin.png',
+        //logo: '/nectarpin.png',
         search: {
             provider: 'local'
         },
@@ -35,6 +38,13 @@ export default defineConfig({
             {text: '开发文档', link: '/markdown-examples'},
             {
                 text: '关于',
+                items: [
+                    {text: 'Markdown Examples', link: '/markdown-examples'},
+                    {text: 'Runtime API Examples', link: '/api-examples'}
+                ]
+            },
+            {
+                text: 'V1.0.0-alpha1',
                 items: [
                     {text: 'Markdown Examples', link: '/markdown-examples'},
                     {text: 'Runtime API Examples', link: '/api-examples'}
@@ -57,7 +67,7 @@ export default defineConfig({
         ],
 
         footer: {
-            copyright: 'Copyright © Lychape'
+            copyright: 'Copyright © 2015 - 2024 Lychape'
         }
 
     }
