@@ -6,7 +6,7 @@ hero:
   name: "NectarPin Docs"
   text: ""
   tagline: A moment like nailing nectar!
-  image: '/nectarpin.png'
+  image: '/favicon.ico'
   actions:
     - theme: brand
       text: Demo

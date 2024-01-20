@@ -12,12 +12,14 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
+    "mdui": "^2.0.3",
     "pinia": "^2.1.7",
     "vue": "^3.3.11",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
     "@arco-design/web-vue": "^2.54.3",
+    "@arco-plugins/vite-vue": "^1.4.5",
     "@tsconfig/node18": "^18.2.2",
     "@types/jsdom": "^21.1.6",
     "@types/node": "^18.19.3",

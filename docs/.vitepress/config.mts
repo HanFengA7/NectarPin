@@ -7,7 +7,7 @@ export default defineConfig({
 
 
     head: [
-        ['link', {rel: 'icon', href: '/nectarpin.png'}],
+        ['link', {rel: 'icon', href: '/favicon.ico'}],
         ['link', {rel: 'stylesheet', href: '/styles/custom.css'}]
     ],
 
@@ -27,7 +27,7 @@ export default defineConfig({
 
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
-        //logo: '/nectarpin.png',
+        //logo: '/favicon.ico',
         search: {
             provider: 'local'
         },
