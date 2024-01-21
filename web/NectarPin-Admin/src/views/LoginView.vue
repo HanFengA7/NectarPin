@@ -1,31 +1,57 @@
 <script setup lang="ts">
 import {reactive, ref} from 'vue';
+import {md5} from "js-md5";
+import {Login} from "@/api/User/login";
 
 const layout = ref('vertical');
 const form = reactive({
-  name: '',
-  post: '',
+  username: '',
+  password: '',
 });
+
+interface handleSubmit {
+  values: any; // 你可以根据实际情况提供更具体的类型
+  errors: any; // 同上，根据实际情况提供更具体的类型
+}
+
+const handleSubmit = ({values, errors}: handleSubmit) => {
+  if (errors === undefined) {
+    form.password = md5(form.password)
+        Login(form).then(r => {
+      console.log(r)
+    })
+    console.log(form)
+  }
+};
+
+
 </script>
 
 <template>
-  <!--[Login Body] [PC] [Start]-->
+  <!--[User Body] [PC] [Start]-->
   <div class="Login-Body div-class-name">
     <div class="Login-Box">
       <a-row :gutter="24">
         <a-col :span="11">
           <div class="Login-Box-L">
-            <div class="Login-Box-L-overlay"></div>
             <h2>NectarPin - 身份认证</h2>
-            <a-form :model="form" :layout="layout">
-              <a-form-item field="name" label="用户名:">
-                <a-input v-model="form.name"/>
+            <a-form :model="form" :layout="layout" @submit="handleSubmit">
+              <a-form-item
+                  field="username" label="用户名:"
+                  :rules="[{required:true,message:'请输入用户名'}]"
+                  :validate-trigger="['change','input']"
+              >
+                <a-input v-model="form.username"/>
               </a-form-item>
-              <a-form-item field="post" label="密码:">
-                <a-input v-model="form.post" type="password"/>
+              <a-form-item
+                  field="password" label="密码:"
+                  :rules="[{required:true,message:'请输入密码'}]"
+                  :validate-trigger="['change','input']"
+              >
+                <a-input v-model="form.password" type="password"/>
               </a-form-item>
               <div style="text-align: center;">
-                <a-button class="Login-Box-L-but">登录</a-button>
+                <a-button class="Login-Box-L-but" html-type="submit">登录</a-button>
               </div>
             </a-form>
           </div>
@@ -36,18 +62,19 @@ const form = reactive({
         <a-col :span="11">
           <div class="Login-Box-R">
             <h1>NectarPin</h1>
-            <h3>A moment like nailing nectar!</h3>
+            <h3>A moment like nailing nectar !</h3>
+            {{form1}}
           </div>
         </a-col>
       </a-row>
     </div>
   </div>
-  <!--[Login Body] [PC] [End]-->
+  <!--[User Body] [PC] [End]-->
 </template>
 
 <style scoped>
 .Login-Body {
-  background-image: url("https://cloudcache.tencent-cloud.com/qcloud/ui/static/tc_portal/c3f153dd-80a0-40a8-9a54-a3b7d6717ab8.jpg");
+  background-image: url("/bj-2.jpg");
   height: 100vh;
   max-width: 100%;
   background-size: cover;
@@ -75,43 +102,34 @@ const form = reactive({
   overflow: hidden;
 }
 
-.Login-Box-L-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05) 10px, rgba(0, 0, 0, 0) 10px, rgba(0, 0, 0, 0) 20px);
-  pointer-events: none;
-}
 
 .Login-Box-L h2 {
   font-weight: 300;
 }
-.Login-Box-L-but{
-  width: 80%;
+
+.Login-Box-L-but {
+  width: 40%;
   background-color: rgb(253 253 253 / 82%);
-  border-radius: 8px;
+  border-radius: 5px;
+  margin: 5px;
 }
-.arco-input-wrapper{
-  background-color: rgb(251 251 252)!important;
+
+.arco-input-wrapper {
+  background-color: rgb(251 251 252) !important;
   border-radius: 8px;
-}
-.Login-divider{
-  border-left: 1px solid #1b1b1f; /* 宽度可调整 */
-  height: 500px;
 }
 
 .Login-Box-R {
   padding: 5px;
-  top:50px;
+  top: 50px;
   left: 100px;
   text-align: center;
   position: relative;
   overflow: hidden;
 }
-.Login-Box-R h1{
-  background: linear-gradient(to right, #5d72e7, #e1e1e8);
+
+.Login-Box-R h1 {
+  background: linear-gradient(to top right, #5F9DF7, #7360DF, #d7dde8, #efefef);
   -webkit-background-clip: text;
   color: transparent;
   font-size: 3em;
@@ -120,8 +138,9 @@ const form = reactive({
   padding: 10px;
   text-align: left;
 }
-.Login-Box-R h3{
-  background: #b5b5b9db;
+
+.Login-Box-R h3 {
+  background: #ffffffe8;
   -webkit-background-clip: text;
   color: transparent;
   font-weight: 400;

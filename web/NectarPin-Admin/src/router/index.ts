@@ -11,7 +11,7 @@ const router = createRouter({
     },
     {
       path: '/Login',
-      name: 'NectarPin - Login',
+      name: 'NectarPin - User',
       component:() => import('../views/LoginView.vue')
     },
     {

@@ -1,5 +1,8 @@
 {
-  "files": [],
+  "include": ["src/**/*.ts"],
+  "files": [
+    "src/plugin/axios/axios.ts"
+  ],
   "references": [
     {
       "path": "./tsconfig.node.json"
