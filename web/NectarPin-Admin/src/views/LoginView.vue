@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import {reactive, ref} from 'vue';
+import {debounce} from "@/plugin/debounce/debounce";
 import {md5} from "js-md5";
 import {Login} from "@/api/User/login";
+import {Notification} from "@arco-design/web-vue";
 
 const layout = ref('vertical');
 const form = reactive({
@@ -10,19 +12,30 @@ const form = reactive({
 });
 
 interface handleSubmit {
-  values: any; // 你可以根据实际情况提供更具体的类型
-  errors: any; // 同上，根据实际情况提供更具体的类型
+  errors: any;
 }
 
-const handleSubmit = ({values, errors}: handleSubmit) => {
+const handleSubmit = debounce(({errors}: handleSubmit) => {
   if (errors === undefined) {
-    form.password = md5(form.password)
-        Login(form).then(r => {
-      console.log(r)
+    form.password = md5(form.password);
+    Login(form).then((res: any) => {
+      if (res.data.code == 200){
+        Notification.success({
+          content: res.data.msg,
+          duration: 4000,
+          closable: true,
+        })
+      }
+      if (res.data.code == 500){
+        Notification.error({
+          content: res.data.msg,
+          duration: 7000,
+          closable: true,
+        })
+      }
     })
-    console.log(form)
   }
-};
+}, 900);
 
 
 </script>
@@ -63,7 +76,6 @@ const handleSubmit = ({values, errors}: handleSubmit) => {
           <div class="Login-Box-R">
             <h1>NectarPin</h1>
             <h3>A moment like nailing nectar !</h3>
-            {{form1}}
           </div>
         </a-col>
       </a-row>

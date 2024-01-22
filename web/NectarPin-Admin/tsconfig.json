@@ -1,7 +1,8 @@
 {
   "include": ["src/**/*.ts"],
   "files": [
-    "src/plugin/axios/axios.ts"
+    "src/plugin/axios/axios.ts",
+    "src/plugin/debounce/debounce.ts"
   ],
   "references": [
     {
