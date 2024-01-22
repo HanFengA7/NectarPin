@@ -8,10 +8,9 @@ export function Login(data){
     })
 }
 
-export function Login_CheckToken(data){
+export function Login_CheckToken(token){
     return Service({
-        url : '/User/login',
-        method: 'post',
-        data
+        url : '/User/checkToken/'+token,
+        method: 'get',
     })
 }

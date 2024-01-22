@@ -2,8 +2,9 @@
 import {reactive, ref} from 'vue';
 import {debounce} from "@/plugin/debounce/debounce";
 import {md5} from "js-md5";
-import {Login} from "@/api/User/login";
+import {Login, Login_CheckToken} from "@/api/User/login";
 import {Notification} from "@arco-design/web-vue";
+import router from "@/router";
 
 const layout = ref('vertical');
 const form = reactive({
@@ -21,12 +22,12 @@ const handleSubmit = debounce(({errors}: handleSubmit) => {
     Login(form).then((res: any) => {
       if (res.data.code == 200){
         window.sessionStorage.setItem('token',res.data.token)
-        console.log(form)
         Notification.success({
           content: res.data.msg,
           duration: 4000,
           closable: true,
         })
+        router.push('/Dashboard')
       }
       if (res.data.code == 500){
         Notification.error({

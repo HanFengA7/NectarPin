@@ -38,6 +38,6 @@ func UserRoutes(router *gin.Engine) {
 		//[用户登陆验证] [POST] [Public] [/api/User/login]
 		notAuthUserAPI.POST("/login", api.UserLogin)
 		//[检查Token有效性] [GET] [Public] [/api/User/checkToken]
-		notAuthUserAPI.GET("/checkToken", api.UserCheckToken)
+		notAuthUserAPI.GET("/checkToken/:token", api.UserCheckToken)
 	}
 }
