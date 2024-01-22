@@ -20,6 +20,8 @@ const handleSubmit = debounce(({errors}: handleSubmit) => {
     form.password = md5(form.password);
     Login(form).then((res: any) => {
       if (res.data.code == 200){
+        window.sessionStorage.setItem('token',res.data.token)
+        console.log(form)
         Notification.success({
           content: res.data.msg,
           duration: 4000,

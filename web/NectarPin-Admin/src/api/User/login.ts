@@ -7,3 +7,11 @@ export function Login(data){
         data
     })
 }
+
+export function Login_CheckToken(data){
+    return Service({
+        url : '/User/login',
+        method: 'post',
+        data
+    })
+}
