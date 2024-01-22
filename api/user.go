@@ -380,3 +380,40 @@ func UserTokenInfo(c *gin.Context) {
 			})
 	}
 }
+
+/*
+UserCheckToken [ 检查Token有效性 ] [ 240117 ] [ 0.1 ]
+------------------------------------------------------------------------------------------------------------------------
+
+	[API][Public]: api.UserCheckToken
+	[URL][POST]: /api/User/checkToken
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func UserCheckToken(c *gin.Context) {
+	type GetJsonInfo struct {
+		Token string `json:"token"`
+	}
+
+	var GJI GetJsonInfo
+	_ = c.BindJSON(&GJI)
+	_, tokenBool, statusCode := middleware.VerifyToken(GJI.Token)
+
+	if tokenBool != true {
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"code":      statusCode,
+				"tokenBool": tokenBool,
+				"msg":       "Token无效！",
+			})
+	} else {
+		c.JSON(
+			http.StatusOK,
+			gin.H{
+				"code":      statusCode,
+				"tokenBool": tokenBool,
+				"msg":       "Token验证成功！",
+			})
+	}
+}
