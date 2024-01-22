@@ -363,7 +363,7 @@ func UserTokenInfo(c *gin.Context) {
 	tokenData, tokenBool, statusCode := middleware.VerifyToken(GJI.Token)
 	if tokenBool != true {
 		c.JSON(
-			http.StatusInternalServerError,
+			http.StatusOK,
 			gin.H{
 				"code":      statusCode,
 				"tokenBool": tokenBool,
@@ -401,7 +401,7 @@ func UserCheckToken(c *gin.Context) {
 
 	if tokenBool != true {
 		c.JSON(
-			http.StatusInternalServerError,
+			http.StatusOK,
 			gin.H{
 				"code":      statusCode,
 				"tokenBool": tokenBool,
