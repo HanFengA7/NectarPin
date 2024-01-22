@@ -104,18 +104,18 @@ func AuthJWT() gin.HandlerFunc {
 				c.Next()
 			} else {
 				c.JSON(
-					http.StatusForbidden,
+					http.StatusOK,
 					gin.H{
-						"code": http.StatusForbidden,
+						"code": 500,
 						"msg":  "身份认证失败!",
 					})
 				c.Abort()
 			}
 		} else {
 			c.JSON(
-				http.StatusForbidden,
+				http.StatusOK,
 				gin.H{
-					"code": http.StatusForbidden,
+					"code": 500,
 					"msg":  "身份认证失败!",
 				})
 			c.Abort()
