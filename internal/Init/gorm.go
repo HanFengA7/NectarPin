@@ -9,6 +9,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
+	"os"
 	"strconv"
 	"time"
 )
@@ -40,8 +41,9 @@ func Gorm() *gorm.DB {
 		},
 	})
 	if err != nil {
-		constant.Log.Errorln("数据库连接错误")
-		logrus.Errorln("数据库连接错误")
+		constant.Log.Error("数据库连接错误")
+		logrus.Error("数据库连接错误")
+		os.Exit(0)
 	} else {
 		constant.Log.Info("数据库连接成功")
 		logrus.Infoln("数据库连接成功")
