@@ -130,7 +130,13 @@ function onClickMenuItem(key) {
 
         <RouterView></RouterView>
 
-        <a-layout-footer></a-layout-footer>
+        <a-layout-footer>
+          <div class="footer">
+            <div class="footer-copyright">
+              NectarPin © 2015-2024 LychApe
+            </div>
+          </div>
+        </a-layout-footer>
       </a-layout>
     </a-layout>
   </a-layout>
@@ -179,5 +185,21 @@ function onClickMenuItem(key) {
   font-size: 16px;
   font-stretch: condensed;
   text-align: center;
+}
+
+.footer{
+  margin-top: 55px;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 20px 20px 0;
+  background-color: #f7f8fa;
+}
+.footer-copyright {
+  margin-left: 12px;
+  color: var(--color-text-3);
+  font-size: 12px;
+  line-height: 12px;
 }
 </style>
