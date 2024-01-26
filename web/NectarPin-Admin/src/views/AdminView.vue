@@ -98,13 +98,32 @@ function onClickMenuItem(key) {
           <IconCaretRight v-if="collapsed"/>
           <IconCaretLeft v-else/>
         </a-button>
+        <a-button shape="round" style="margin-left: 15px"><icon-sync /></a-button>
+
         <div style="float: right; margin-right: 20px">
-          <a-avatar>
-            <img
-                alt="avatar"
-                src="https://q1.qlogo.cn/g?b=qq&nk=1091044631&s=640"
-            />
-          </a-avatar>
+
+          <a-dropdown position="br">
+            <a-avatar>
+              <img
+                  alt="avatar"
+                  src="https://q1.qlogo.cn/g?b=qq&nk=1091044631&s=640"
+              />
+            </a-avatar>
+            <template #content>
+              <a-doption>
+                <template #icon>
+                  <icon-export />
+                </template>
+                <template #default>退出登录</template>
+              </a-doption>
+              <a-doption>
+                <template #icon>
+                  <icon-idcard />
+                </template>
+                <template #default>个人中心</template>
+              </a-doption>
+            </template>
+          </a-dropdown>
         </div>
       </a-layout-header>
       <a-layout>
