@@ -5,10 +5,10 @@ import {IconCaretLeft, IconCaretRight,} from '@arco-design/web-vue/es/icon';
 
 const collapsed = ref(false);
 const onCollapse = () => {
-      collapsed.value = !collapsed.value;
-    };
+  collapsed.value = !collapsed.value;
+};
 
-function onClickMenuItem(key){
+function onClickMenuItem(key) {
   Message.info({content: `You select ${key}`, showIcon: true});
 }
 </script>
@@ -85,7 +85,7 @@ function onClickMenuItem(key){
         </a-sub-menu>
         <a-sub-menu key="8">
           <template #title>
-            <span><icon-bulb />系统</span>
+            <span><icon-bulb/>系统</span>
           </template>
           <a-menu-item key="8_1">关于</a-menu-item>
           <a-menu-item key="7_3">设置</a-menu-item>
@@ -98,6 +98,14 @@ function onClickMenuItem(key){
           <IconCaretRight v-if="collapsed"/>
           <IconCaretLeft v-else/>
         </a-button>
+        <div style="float: right; margin-right: 20px">
+          <a-avatar>
+            <img
+                alt="avatar"
+                src="https://q1.qlogo.cn/g?b=qq&nk=1091044631&s=640"
+            />
+          </a-avatar>
+        </div>
       </a-layout-header>
       <a-layout>
 
