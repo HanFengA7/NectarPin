@@ -58,28 +58,16 @@ func (f0 MyFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	formatTime := entry.Time.Format(f0.ForMatTime)
 
 	//设置行号
-	filVal := fmt.Sprintf("\u001B[46m%s\u001B[0m\u001B[47m:%d\u001B[0m", path.Base(entry.Caller.File), entry.Caller.Line)
+	//filVal := fmt.Sprintf("\u001B[46m%s\u001B[0m\u001B[47m:%d\u001B[0m", path.Base(entry.Caller.File), entry.Caller.Line)
 
 	//设置格式
-	if constant.Config.Logger.ShowLine == true {
-		_, _ = fmt.Fprintf(b,
-			" [%s] [%s] \u001B[44m %s \u001B[0m \u001B[4%dm\u001B[37m %s \u001B[0m\u001B[0m %s \n",
-			formatTime,
-			filVal,
-			constant.Config.Logger.Prefix,
-			color,
-			strings.ToUpper(entry.Level.String()),
-			entry.Message,
-		)
-	} else {
-		_, _ = fmt.Fprintf(b,
-			" [%s] \u001B[44m %s \u001B[0m \u001B[4%dm\u001B[37m %s \u001B[0m\u001B[0m %s \n",
-			formatTime,
-			constant.Config.Logger.Prefix,
-			color, strings.ToUpper(entry.Level.String()),
-			entry.Message,
-		)
-	}
+	_, _ = fmt.Fprintf(b,
+		" [%s] \u001B[44m %s \u001B[0m \u001B[4%dm\u001B[37m %s \u001B[0m\u001B[0m %s \n",
+		formatTime,
+		constant.Config.Logger.Prefix,
+		color, strings.ToUpper(entry.Level.String()),
+		entry.Message,
+	)
 
 	return b.Bytes(), nil
 }

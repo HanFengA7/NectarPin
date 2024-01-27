@@ -9,5 +9,6 @@ func main() {
 	Init.Conf()
 	constant.Log = Init.Logger()
 	constant.DB = Init.Gorm()
-	constant.Router = Init.Router()
+	Init.Router()
+	Init.Plugins()
 }

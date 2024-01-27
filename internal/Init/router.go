@@ -5,10 +5,12 @@ import (
 	"NectarPin/internal/Routes"
 	"NectarPin/middleware"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"strconv"
 )
 
-func Router() *gin.Engine {
+func Router() {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
 	//[中间件][跨域]
@@ -27,6 +29,10 @@ func Router() *gin.Engine {
 	//相册路由
 	Routes.AlbumRoutes(router)
 
-	_ = router.Run(constant.Config.System.Host + ":" + strconv.Itoa(constant.Config.System.Port))
-	return router
+	go func() {
+		_ = router.Run(constant.Config.System.Host + ":" + strconv.Itoa(constant.Config.System.Port))
+	}()
+
+	constant.Log.Info("路由启动成功")
+	logrus.Infoln("路由启动成功")
 }

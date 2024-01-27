@@ -1,0 +1,33 @@
+// cd .\internal\PluginCore\protobuf\
+// protoc -I . --go_out=plugins=grpc:. .\plugin.proto
+syntax = "proto3";
+package PluginCorePB;
+option go_package="../PluginCorePB";
+
+
+service PluginService{
+  rpc PluginInfo (PluginRequest) returns (PluginResponse) {}
+  rpc PluginRouteRegistered (PluginRouteRegisteredRequest) returns (PluginRouteRegisteredResponse) {}
+}
+
+//插件路由注册请求
+message PluginRouteRegisteredRequest {
+  string RouterName = 1;
+  bool RouterAuthIF = 2;
+}
+//插件路由注册响应
+message PluginRouteRegisteredResponse {
+  string Data = 1;
+}
+
+// The request message
+message PluginRequest {
+  string PluginName = 1;
+  string PluginURL = 2;
+}
+
+// The response message
+message PluginResponse {
+  string PluginName = 1;
+  string PluginURL = 2;
+}
