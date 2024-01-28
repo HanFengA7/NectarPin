@@ -12,10 +12,9 @@ service PluginService{
 //插件路由注册请求
 message PluginRouteRegisteredRequest {
   string RouterName = 1;
-  string RouterMethod = 2;
-  bool RouterAuthIF = 3;
-  repeated PluginRouterGroupRequest PluginRouterGroup = 4;
-  PluginInfoRequest PluginInfo = 5;
+  string RouterNum = 2;
+  repeated PluginRouterGroupRequest PluginRouterGroup = 3;
+  PluginInfoRequest PluginInfo = 4;
 }
 
 //插件路由注册响应
@@ -28,9 +27,9 @@ message PluginRouteRegisteredResponse {
 
 //插件路由组请求
 message PluginRouterGroupRequest {
-  string routerPath = 1;
+  string RouterPath = 1;
   string RouterMethod = 2;
-  bool RouterAuthIF = 3;
+  string RouterAuthIF = 3;
 }
 
 //插件信息请求

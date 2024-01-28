@@ -16,13 +16,13 @@ type PluginConfig struct {
 type Plugin struct {
 	PluginName    string `yaml:"pluginName"`
 	PluginDesc    string `yaml:"pluginDesc"`
-	PluginPort    int    `yaml:"pluginPort"`
+	PluginPort    string `yaml:"pluginPort"`
 	PluginVersion string `yaml:"PluginVersion"`
 }
 
 type Router struct {
 	RouterName  string `yaml:"routerName"`
-	RouterNum   int    `yaml:"routerNum"`
+	RouterNum   string `yaml:"routerNum"`
 	RouterGroup struct {
 		Routers1 Routers1 `yaml:"routers1"`
 		Routers2 Routers2 `yaml:"routers2"`
@@ -33,17 +33,17 @@ type Router struct {
 type Routers1 struct {
 	RouterPath   string `yaml:"routerPath"`
 	RouterMethod string `yaml:"routerMethod"`
-	RouterAuthIF bool   `yaml:"routerAuthIF"`
+	RouterAuthIF string `yaml:"routerAuthIF"`
 }
 type Routers2 struct {
 	RouterPath   string `yaml:"routerPath"`
 	RouterMethod string `yaml:"routerMethod"`
-	RouterAuthIF bool   `yaml:"routerAuthIF"`
+	RouterAuthIF string `yaml:"routerAuthIF"`
 }
 type Routers3 struct {
 	RouterPath   string `yaml:"routerPath"`
 	RouterMethod string `yaml:"routerMethod"`
-	RouterAuthIF bool   `yaml:"routerAuthIF"`
+	RouterAuthIF string `yaml:"routerAuthIF"`
 }
 
 func InitPluginConfig() *PluginConfig {

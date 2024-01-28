@@ -15,7 +15,7 @@ router:
     routers2:
       routerPath: '/:id'
       routerMethod: GET
-      routerAuthIF: false
+      routerAuthIF: true
     routers3:
       routerPath: '/test'
       routerMethod: GET

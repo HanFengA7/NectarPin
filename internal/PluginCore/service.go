@@ -2,17 +2,19 @@ package PluginCore
 
 import (
 	"NectarPin/internal/PluginCore/PluginCorePB"
+	"fmt"
 )
 
 type Service struct {
 }
 
 type PluginsList struct {
-	PluginName   string
-	PluginURL    string
-	RouterMethod string
-	RouterAuthIF bool
-	PluginInfo   PluginInfo
+	PluginName  string
+	PluginURL   string
+	RouterName  string
+	RouterNum   string
+	RouterGroup []*PluginCorePB.PluginRouterGroupRequest
+	PluginInfo  PluginInfo
 }
 
 type PluginInfo struct {
@@ -30,16 +32,18 @@ func (s Service) PluginRouteRegistered(stream PluginCorePB.PluginService_PluginR
 	//业务逻辑
 	PluginsListData = append(PluginsListData,
 		PluginsList{
-			PluginName:   request.RouterName,
-			PluginURL:    "/api/Plugins/" + request.RouterName,
-			RouterMethod: request.RouterMethod,
-			RouterAuthIF: request.RouterAuthIF,
+			PluginName:  request.PluginInfo.PluginName,
+			PluginURL:   "/api/Plugins/" + request.RouterName,
+			RouterName:  request.RouterName,
+			RouterNum:   request.RouterNum,
+			RouterGroup: request.PluginRouterGroup,
 			PluginInfo: PluginInfo{
 				PluginName:    request.PluginInfo.PluginName,
 				PluginPort:    request.PluginInfo.PluginPort,
 				PluginVersion: request.PluginInfo.PluginVersion,
 			},
 		})
+	fmt.Println(PluginsListData)
 	//// 打印所有插件信息
 	//for _, plugin := range PluginsListData {
 	//	fmt.Printf("PluginName: %s, PluginURL: %s, RouterAuthIF:%s \n", plugin.PluginName, plugin.PluginURL, plugin.RouterAuthIF)
