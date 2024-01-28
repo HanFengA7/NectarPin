@@ -36,7 +36,7 @@ func main() {
 		fmt.Println(err)
 	}
 	_ = stream.Send(&PluginCorePB.PluginRouteRegisteredRequest{
-		RouterName:   "CosanoxjBot",
+		RouterName:   "MengklBot",
 		RouterAuthIF: false,
 	})
 	response, err := stream.Recv()

@@ -2,12 +2,10 @@ package main
 
 import (
 	"NectarPin/internal/PluginCore/PluginCorePB"
-	"context"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
-	"time"
 )
 
 func initClient() PluginCorePB.PluginServiceClient {
@@ -21,16 +19,16 @@ func initClient() PluginCorePB.PluginServiceClient {
 }
 
 func main() {
-	client := initClient()
-	time.Sleep(2000)
-	result, err := client.PluginInfo(context.Background(), &PluginCorePB.PluginRequest{
-		PluginName: "Hello2插件",
-		PluginURL:  ":3002",
-	})
-	result1, err := client.PluginRouteRegistered(context.Background(), &PluginCorePB.PluginRouterRequest{
-		RouterPath: "hello2",
-	})
-
-	fmt.Println(result, err)
-	fmt.Println(result1, err)
+	//client := initClient()
+	//time.Sleep(2000)
+	//result, err := client.PluginInfo(context.Background(), &PluginCorePB.PluginRequest{
+	//	PluginName: "Hello2插件",
+	//	PluginURL:  ":3002",
+	//})
+	//result1, err := client.PluginRouteRegistered(context.Background(), &PluginCorePB.PluginRouterRequest{
+	//	RouterPath: "hello2",
+	//})
+	//
+	//fmt.Println(result, err)
+	//fmt.Println(result1, err)
 }

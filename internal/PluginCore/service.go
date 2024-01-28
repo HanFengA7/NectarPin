@@ -3,22 +3,34 @@ package PluginCore
 import (
 	"NectarPin/internal/PluginCore/PluginCorePB"
 	"context"
-	"fmt"
 )
 
 type Service struct {
 }
 
-func (s Service) PluginRouteRegistered(ctx context.Context, request *PluginCorePB.PluginRouteRegisteredRequest) (
-	*PluginCorePB.PluginRouteRegisteredResponse, error) {
-	fmt.Println(request)
+type PluginsList struct {
+	PluginName   string
+	PluginURL    string
+	RouterAuthIF bool
+}
 
-	//路由注册
-	// [0] 判断路由是否要鉴权
+var PluginsListData []PluginsList
 
-	return &PluginCorePB.PluginRouteRegisteredResponse{
-		Data: "200<--这是插件中心发来的",
-	}, nil
+func (s Service) PluginRouteRegistered(stream PluginCorePB.PluginService_PluginRouteRegisteredServer) error {
+
+	request, _ := stream.Recv()
+	PluginsListData = append(PluginsListData, PluginsList{PluginName: request.RouterName, PluginURL: "/api/Plugins/" + request.RouterName, RouterAuthIF: request.RouterAuthIF})
+
+	//// 打印所有插件信息
+	//for _, plugin := range PluginsListData {
+	//	fmt.Printf("PluginName: %s, PluginURL: %s, RouterAuthIF:%s \n", plugin.PluginName, plugin.PluginURL, plugin.RouterAuthIF)
+	//}
+
+	err := stream.Send(&PluginCorePB.PluginRouteRegisteredResponse{Data: "200"})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s Service) PluginInfo(ctx context.Context, request *PluginCorePB.PluginRequest) (*PluginCorePB.PluginResponse, error) {

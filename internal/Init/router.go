@@ -28,7 +28,8 @@ func Router() {
 	Routes.LinkRoutes(router)
 	//相册路由
 	Routes.AlbumRoutes(router)
-
+	//插件路由
+	Routes.PluginsRoutes(router)
 	go func() {
 		_ = router.Run(constant.Config.System.Host + ":" + strconv.Itoa(constant.Config.System.Port))
 	}()

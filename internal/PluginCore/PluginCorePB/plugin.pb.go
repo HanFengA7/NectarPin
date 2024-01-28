@@ -267,21 +267,22 @@ var file_plugin_proto_rawDesc = []byte{
 	0x4e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x50, 0x6c, 0x75, 0x67,
 	0x69, 0x6e, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x1c, 0x0a, 0x09, 0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e,
 	0x55, 0x52, 0x4c, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x50, 0x6c, 0x75, 0x67, 0x69,
-	0x6e, 0x55, 0x52, 0x4c, 0x32, 0xce, 0x01, 0x0a, 0x0d, 0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x53,
+	0x6e, 0x55, 0x52, 0x4c, 0x32, 0xd2, 0x01, 0x0a, 0x0d, 0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x53,
 	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x49, 0x0a, 0x0a, 0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e,
 	0x49, 0x6e, 0x66, 0x6f, 0x12, 0x1b, 0x2e, 0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x43, 0x6f, 0x72,
 	0x65, 0x50, 0x42, 0x2e, 0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
 	0x74, 0x1a, 0x1c, 0x2e, 0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x43, 0x6f, 0x72, 0x65, 0x50, 0x42,
 	0x2e, 0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
-	0x00, 0x12, 0x72, 0x0a, 0x15, 0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x52, 0x6f, 0x75, 0x74, 0x65,
+	0x00, 0x12, 0x76, 0x0a, 0x15, 0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x52, 0x6f, 0x75, 0x74, 0x65,
 	0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x65, 0x64, 0x12, 0x2a, 0x2e, 0x50, 0x6c, 0x75,
 	0x67, 0x69, 0x6e, 0x43, 0x6f, 0x72, 0x65, 0x50, 0x42, 0x2e, 0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e,
 	0x52, 0x6f, 0x75, 0x74, 0x65, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x65, 0x64, 0x52,
 	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2b, 0x2e, 0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x43,
 	0x6f, 0x72, 0x65, 0x50, 0x42, 0x2e, 0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x52, 0x6f, 0x75, 0x74,
 	0x65, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x65, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x11, 0x5a, 0x0f, 0x2e, 0x2e, 0x2f, 0x50, 0x6c, 0x75, 0x67,
-	0x69, 0x6e, 0x43, 0x6f, 0x72, 0x65, 0x50, 0x42, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6e, 0x73, 0x65, 0x22, 0x00, 0x28, 0x01, 0x30, 0x01, 0x42, 0x11, 0x5a, 0x0f, 0x2e, 0x2e, 0x2f,
+	0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x43, 0x6f, 0x72, 0x65, 0x50, 0x42, 0x62, 0x06, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -403,7 +404,7 @@ const _ = grpc.SupportPackageIsVersion6
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type PluginServiceClient interface {
 	PluginInfo(ctx context.Context, in *PluginRequest, opts ...grpc.CallOption) (*PluginResponse, error)
-	PluginRouteRegistered(ctx context.Context, in *PluginRouteRegisteredRequest, opts ...grpc.CallOption) (*PluginRouteRegisteredResponse, error)
+	PluginRouteRegistered(ctx context.Context, opts ...grpc.CallOption) (PluginService_PluginRouteRegisteredClient, error)
 }
 
 type pluginServiceClient struct {
@@ -423,19 +424,41 @@ func (c *pluginServiceClient) PluginInfo(ctx context.Context, in *PluginRequest,
 	return out, nil
 }
 
-func (c *pluginServiceClient) PluginRouteRegistered(ctx context.Context, in *PluginRouteRegisteredRequest, opts ...grpc.CallOption) (*PluginRouteRegisteredResponse, error) {
-	out := new(PluginRouteRegisteredResponse)
-	err := c.cc.Invoke(ctx, "/PluginCorePB.PluginService/PluginRouteRegistered", in, out, opts...)
+func (c *pluginServiceClient) PluginRouteRegistered(ctx context.Context, opts ...grpc.CallOption) (PluginService_PluginRouteRegisteredClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_PluginService_serviceDesc.Streams[0], "/PluginCorePB.PluginService/PluginRouteRegistered", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &pluginServicePluginRouteRegisteredClient{stream}
+	return x, nil
+}
+
+type PluginService_PluginRouteRegisteredClient interface {
+	Send(*PluginRouteRegisteredRequest) error
+	Recv() (*PluginRouteRegisteredResponse, error)
+	grpc.ClientStream
+}
+
+type pluginServicePluginRouteRegisteredClient struct {
+	grpc.ClientStream
+}
+
+func (x *pluginServicePluginRouteRegisteredClient) Send(m *PluginRouteRegisteredRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *pluginServicePluginRouteRegisteredClient) Recv() (*PluginRouteRegisteredResponse, error) {
+	m := new(PluginRouteRegisteredResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 // PluginServiceServer is the server API for PluginService service.
 type PluginServiceServer interface {
 	PluginInfo(context.Context, *PluginRequest) (*PluginResponse, error)
-	PluginRouteRegistered(context.Context, *PluginRouteRegisteredRequest) (*PluginRouteRegisteredResponse, error)
+	PluginRouteRegistered(PluginService_PluginRouteRegisteredServer) error
 }
 
 // UnimplementedPluginServiceServer can be embedded to have forward compatible implementations.
@@ -445,8 +468,8 @@ type UnimplementedPluginServiceServer struct {
 func (*UnimplementedPluginServiceServer) PluginInfo(context.Context, *PluginRequest) (*PluginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PluginInfo not implemented")
 }
-func (*UnimplementedPluginServiceServer) PluginRouteRegistered(context.Context, *PluginRouteRegisteredRequest) (*PluginRouteRegisteredResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PluginRouteRegistered not implemented")
+func (*UnimplementedPluginServiceServer) PluginRouteRegistered(PluginService_PluginRouteRegisteredServer) error {
+	return status.Errorf(codes.Unimplemented, "method PluginRouteRegistered not implemented")
 }
 
 func RegisterPluginServiceServer(s *grpc.Server, srv PluginServiceServer) {
@@ -471,22 +494,30 @@ func _PluginService_PluginInfo_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PluginService_PluginRouteRegistered_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PluginRouteRegisteredRequest)
-	if err := dec(in); err != nil {
+func _PluginService_PluginRouteRegistered_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(PluginServiceServer).PluginRouteRegistered(&pluginServicePluginRouteRegisteredServer{stream})
+}
+
+type PluginService_PluginRouteRegisteredServer interface {
+	Send(*PluginRouteRegisteredResponse) error
+	Recv() (*PluginRouteRegisteredRequest, error)
+	grpc.ServerStream
+}
+
+type pluginServicePluginRouteRegisteredServer struct {
+	grpc.ServerStream
+}
+
+func (x *pluginServicePluginRouteRegisteredServer) Send(m *PluginRouteRegisteredResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *pluginServicePluginRouteRegisteredServer) Recv() (*PluginRouteRegisteredRequest, error) {
+	m := new(PluginRouteRegisteredRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
-	if interceptor == nil {
-		return srv.(PluginServiceServer).PluginRouteRegistered(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/PluginCorePB.PluginService/PluginRouteRegistered",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PluginServiceServer).PluginRouteRegistered(ctx, req.(*PluginRouteRegisteredRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return m, nil
 }
 
 var _PluginService_serviceDesc = grpc.ServiceDesc{
@@ -497,11 +528,14 @@ var _PluginService_serviceDesc = grpc.ServiceDesc{
 			MethodName: "PluginInfo",
 			Handler:    _PluginService_PluginInfo_Handler,
 		},
+	},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "PluginRouteRegistered",
-			Handler:    _PluginService_PluginRouteRegistered_Handler,
+			StreamName:    "PluginRouteRegistered",
+			Handler:       _PluginService_PluginRouteRegistered_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "plugin.proto",
 }

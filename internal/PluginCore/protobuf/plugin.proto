@@ -4,12 +4,6 @@ syntax = "proto3";
 package PluginCorePB;
 option go_package="../PluginCorePB";
 
-
-service PluginService{
-  rpc PluginInfo (PluginRequest) returns (PluginResponse) {}
-  rpc PluginRouteRegistered (PluginRouteRegisteredRequest) returns (PluginRouteRegisteredResponse) {}
-}
-
 //插件路由注册请求
 message PluginRouteRegisteredRequest {
   string RouterName = 1;
@@ -18,6 +12,11 @@ message PluginRouteRegisteredRequest {
 //插件路由注册响应
 message PluginRouteRegisteredResponse {
   string Data = 1;
+}
+
+service PluginService{
+  rpc PluginInfo (PluginRequest) returns (PluginResponse) {}
+  rpc PluginRouteRegistered (stream PluginRouteRegisteredRequest) returns (stream PluginRouteRegisteredResponse) {}
 }
 
 // The request message
