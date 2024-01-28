@@ -1,0 +1,9 @@
+plugin:
+  pluginName: ExamplePlugin
+  pluginDesc: '这是NectarPin的一个示例插件,可以帮助开发者了解NectarPin的插件编写'
+  pluginPort: 3002
+  PluginVersion: 'V1.0.0'
+router:
+  routerName: Example
+  routerMethod: GET
+  routerAuthIF: false
