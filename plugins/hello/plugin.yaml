@@ -3,7 +3,20 @@ plugin:
   pluginDesc: '这是NectarPin的一个示例插件,可以帮助开发者了解NectarPin的插件编写'
   pluginPort: 3002
   PluginVersion: 'V1.0.0'
+
 router:
   routerName: Example
-  routerMethod: GET
-  routerAuthIF: false
+  routerNum: 3
+  routerGroup:
+    routers1:
+      routerPath: '/:name'
+      routerMethod: GET
+      routerAuthIF: false
+    routers2:
+      routerPath: '/:id'
+      routerMethod: GET
+      routerAuthIF: false
+    routers3:
+      routerPath: '/test'
+      routerMethod: GET
+      routerAuthIF: false

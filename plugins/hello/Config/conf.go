@@ -21,7 +21,27 @@ type Plugin struct {
 }
 
 type Router struct {
-	RouterName   string `yaml:"routerName"`
+	RouterName  string `yaml:"routerName"`
+	RouterNum   int    `yaml:"routerNum"`
+	RouterGroup struct {
+		Routers1 Routers1 `yaml:"routers1"`
+		Routers2 Routers2 `yaml:"routers2"`
+		Routers3 Routers3 `yaml:"routers3"`
+	} `yaml:"routerGroup"`
+}
+
+type Routers1 struct {
+	RouterPath   string `yaml:"routerPath"`
+	RouterMethod string `yaml:"routerMethod"`
+	RouterAuthIF bool   `yaml:"routerAuthIF"`
+}
+type Routers2 struct {
+	RouterPath   string `yaml:"routerPath"`
+	RouterMethod string `yaml:"routerMethod"`
+	RouterAuthIF bool   `yaml:"routerAuthIF"`
+}
+type Routers3 struct {
+	RouterPath   string `yaml:"routerPath"`
 	RouterMethod string `yaml:"routerMethod"`
 	RouterAuthIF bool   `yaml:"routerAuthIF"`
 }

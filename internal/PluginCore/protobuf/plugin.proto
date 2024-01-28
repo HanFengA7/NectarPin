@@ -14,7 +14,8 @@ message PluginRouteRegisteredRequest {
   string RouterName = 1;
   string RouterMethod = 2;
   bool RouterAuthIF = 3;
-  PluginInfoRequest PluginInfo = 4;
+  repeated PluginRouterGroupRequest PluginRouterGroup = 4;
+  PluginInfoRequest PluginInfo = 5;
 }
 
 //插件路由注册响应
@@ -25,10 +26,18 @@ message PluginRouteRegisteredResponse {
   string Message = 4;
 }
 
+//插件路由组请求
+message PluginRouterGroupRequest {
+  string routerPath = 1;
+  string RouterMethod = 2;
+  bool RouterAuthIF = 3;
+}
+
 //插件信息请求
 message PluginInfoRequest {
   string PluginName = 1;
   string PluginPort = 2;
   string PluginVersion = 3;
 }
+
 
