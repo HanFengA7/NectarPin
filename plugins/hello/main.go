@@ -31,8 +31,13 @@ func main() {
 	}
 
 	client := InitExamplePlugin.Client()
-	stream, _ := client.PluginRouteRegistered(context.Background())
-	_ = stream.Send(&PluginCorePB.PluginRouteRegisteredRequest{
+	stream, err := client.PluginRouteRegistered(context.Background())
+	if err != nil {
+		log.Fatalf("Error creating bidirectional stream: %v", err)
+	}
+
+	// 发送注册插件消息到服务端
+	if err := stream.Send(&PluginCorePB.PluginRouteRegisteredRequest{
 		RouterName:        config.Router.RouterName,
 		RouterNum:         config.Router.RouterNum,
 		PluginRouterGroup: rGR,
@@ -41,35 +46,56 @@ func main() {
 			PluginPort:    config.Plugin.PluginPort,
 			PluginVersion: config.Plugin.PluginVersion,
 		},
-	})
+	}); err != nil {
+		log.Fatalf("Error sending message to server: %v", err)
+	}
 
-	// 开始异步接收数据
-	//go func() {
 	// 从流中接收数据
 	for {
-		err1 := stream.Send(&PluginCorePB.PluginRouteRegisteredRequest{
-			RouterName:        config.Router.RouterName,
-			RouterNum:         config.Router.RouterNum,
-			PluginRouterGroup: rGR,
-			PluginInfo: &PluginCorePB.PluginInfoRequest{
-				PluginName:    config.Plugin.PluginName,
-				PluginPort:    config.Plugin.PluginPort,
-				PluginVersion: config.Plugin.PluginVersion,
-			},
-		})
-		fmt.Println(err1)
+		// 发送心跳包消息到服务端
+		//if err := stream.Send(&PluginCorePB.PluginRouteRegisteredRequest{
+		//	RouterName: "这是心跳包[插件]",
+		//}); err != nil {
+		//	log.Fatalf("Error sending message to server: %v", err)
+		//}
+		//time.Sleep(5 * time.Second)
 
+		// 接收服务端的响应
 		response, err := stream.Recv()
 		if err != nil {
-			log.Fatalf("Error receiving data: %v", err)
+			log.Fatalf("Error receiving response from server: %v", err)
 		}
-		// 处理接收到的数据
-		data := response
-		fmt.Println(data)
+		// 打印服务端的响应
+		fmt.Printf("Server response: %v\n", response.Message)
 	}
-	//}()
+
+	//// 开始异步接收数据
+	////go func() {
+	//// 从流中接收数据
+	//for {
+	//	err1 := stream.Send(&PluginCorePB.PluginRouteRegisteredRequest{
+	//		RouterName:        config.Router.RouterName,
+	//		RouterNum:         config.Router.RouterNum,
+	//		PluginRouterGroup: rGR,
+	//		PluginInfo: &PluginCorePB.PluginInfoRequest{
+	//			PluginName:    config.Plugin.PluginName,
+	//			PluginPort:    config.Plugin.PluginPort,
+	//			PluginVersion: config.Plugin.PluginVersion,
+	//		},
+	//	})
+	//	fmt.Println(err1)
 	//
-	//// 阻塞主线程，保持客户端运行
-	//select {}
+	//	response, err := stream.Recv()
+	//	if err != nil {
+	//		log.Fatalf("Error receiving data: %v", err)
+	//	}
+	//	// 处理接收到的数据
+	//	data := response
+	//	fmt.Println(data)
+	//}
+	////}()
+	////
+	////// 阻塞主线程，保持客户端运行
+	////select {}
 
 }
