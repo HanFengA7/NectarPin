@@ -20,13 +20,11 @@ func main() {
 	for i := 1; i <= configRouterNum; i++ {
 		// 获取结构体的字段通过反射获取结构体的反射值,使用直接字段访问方式获取字段的值
 		routerGroupFieldValue := reflect.ValueOf(config.Router.RouterGroup).FieldByName(fmt.Sprintf("Routers%d", i))
-
 		newRouterGroup := &PluginCorePB.PluginRouterGroupRequest{
 			RouterPath:   fmt.Sprintf("%s", routerGroupFieldValue.FieldByName("RouterPath").String()),
 			RouterMethod: fmt.Sprintf("%s", routerGroupFieldValue.FieldByName("RouterMethod").String()),
 			RouterAuthIF: fmt.Sprintf("%s", routerGroupFieldValue.FieldByName("RouterAuthIF").String()),
 		}
-
 		rGR = append(rGR, newRouterGroup)
 	}
 

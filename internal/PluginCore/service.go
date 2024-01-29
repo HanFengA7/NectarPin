@@ -1,9 +1,12 @@
 package PluginCore
 
 import (
+	"NectarPin/constant"
 	"NectarPin/internal/PluginCore/PluginCorePB"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"log"
+	"net/http"
 	"time"
 )
 
@@ -30,65 +33,115 @@ var PluginsListData []PluginsList
 
 func (s Service) PluginRouteRegistered(stream PluginCorePB.PluginService_PluginRouteRegisteredServer) error {
 	for {
+
 		// 从插件接收消息
-		_, err := stream.Recv()
+		request, err := stream.Recv()
 		if err != nil {
-			log.Printf("Error receiving message from client: %v", err)
-			fmt.Println("插件被卸载")
+			log.Printf("从插件端接收消息时出错: %v", err)
 			return err
 		}
 
-		// 处理收到的消息，这里只是一个简单的示例
-		//log.Printf("Received message: %v", req.RouterName)
+		// 检测插件列表数据切片是否有数据 [Start]
+		var isInPLData1 = false
+		for _, v := range PluginsListData {
+			if v.PluginName == request.PluginInfo.PluginName {
+				isInPLData1 = true
+			}
+		}
+		// 检测插件列表数据切片是否有数据 [End]
 
-		// 发送响应到客户端
+		// 插件启动提示
+		log.Printf("%s <--插件被安装", request.PluginInfo.PluginName)
+
+		// 业务逻辑层 [Start]
+
+		if isInPLData1 == false {
+			// 插件列表数据切片无数据
+			fmt.Println(request)
+			//将插件发来的信息存储到PluginsListData切片中
+			PluginsListData = append(PluginsListData,
+				PluginsList{
+					PluginName:  request.PluginInfo.PluginName,
+					PluginURL:   "/api/Plugins/" + request.RouterName,
+					RouterName:  request.RouterName,
+					RouterNum:   request.RouterNum,
+					RouterGroup: request.PluginRouterGroup,
+					PluginInfo: PluginInfo{
+						PluginName:    request.PluginInfo.PluginName,
+						PluginPort:    request.PluginInfo.PluginPort,
+						PluginVersion: request.PluginInfo.PluginVersion,
+					},
+					PluginRouterStatus: true,
+				})
+			//路由注册及插件内部业务方法实现
+			router := constant.Router
+			for i, _ := range request.PluginRouterGroup {
+				router.GET("/api/Plugins/"+request.RouterName+"/"+request.PluginRouterGroup[i].RouterPath, func(c *gin.Context) {
+					params, _ := extractParamsFromRoute(c.FullPath())
+					// 动态获取params参数值
+					var values []string
+					for _, param := range params {
+						value := c.Param(param)
+						values = append(values, fmt.Sprintf("%s: %s", param, value))
+					}
+					// 将获取params参数值发給插件
+					err := stream.Send(&PluginCorePB.PluginRouteRegisteredResponse{
+						Code:       "200",
+						Data2:      values,
+						RouterPath: "/api/Plugins/" + request.RouterName + "/" + request.PluginRouterGroup[i].RouterPath,
+						Message:    "路由发来的数据",
+					})
+					if err != nil {
+						c.Abort()
+						panic("[NectarPin-PluginCore]:Params参数值发給插件时出现异常！")
+						return
+					}
+					//todo 接收插件处理后的数据
+
+					//将接收插件处理后的数据发送给用户
+					c.JSON(http.StatusOK, gin.H{"message": "Dynamic Route Added!",
+						"params": values})
+					time.Sleep(1 * time.Second)
+				})
+			}
+
+		} else {
+			// 插件列表数据切片有数据
+
+			for _, v := range PluginsListData {
+				if v.PluginRouterStatus == true {
+					fmt.Println("插件路由true")
+				} else {
+					fmt.Println("插件路由false")
+					for i, v := range PluginsListData {
+						if v.PluginName == request.PluginInfo.PluginName && v.PluginRouterStatus == false {
+							PluginsListData[i].PluginRouterStatus = true
+						}
+					}
+				}
+			}
+
+		}
+
+		//业务逻辑层 [End]
+
+		// 发送响应到插件端
 		for {
-			if err := stream.Send(&PluginCorePB.PluginRouteRegisteredResponse{Message: "这是心跳包[服务器]"}); err != nil {
-				log.Printf("Error sending response to client: %v", err)
+			if err := stream.Send(
+				&PluginCorePB.PluginRouteRegisteredResponse{
+					Message: "[NectarPin-PluginCore]: 这是心跳包 ",
+				}); err != nil {
+				//插件卸载
+				clearPluginStatus(request.PluginInfo.PluginName)
+				log.Printf("%s <--插件被卸载", request.PluginInfo.PluginName)
 				return err
 			}
-			time.Sleep(2 * time.Second)
+			time.Sleep(5 * time.Second)
 		}
 
 	}
 }
 
-//func extractParamsFromRoute(routePath string) ([]string, bool) {
-//	// 分割路径
-//	parts := strings.Split(routePath, "/")
-//
-//	var params []string
-//
-//	// 遍历路径中的部分，找到包含冒号的部分
-//	for _, part := range parts {
-//		if strings.HasPrefix(part, ":") {
-//			// 去掉冒号
-//			param := strings.TrimLeft(part, ":")
-//			params = append(params, param)
-//		}
-//	}
-//
-//	if len(params) > 0 {
-//		return params, true
-//	}
-//
-//	return nil, false
-//}
-//
-//func exponentialBackoff(attempt int) time.Duration {
-//	return time.Duration(math.Pow(2, float64(attempt))) * time.Second
-//}
-//
-//func clearPluginStatus(pluginName string) {
-//	for i, v := range PluginsListData {
-//		if v.PluginName == pluginName {
-//			// 清理插件状态，确保重新注册时状态正确
-//			PluginsListData[i].PluginRouterStatus = false
-//			// 其他清理操作...
-//			break
-//		}
-//	}
-//}
 //
 //// PluginRouteRegistered 插件路由注册 [PluginCore-grpcFunc][1]
 //func (s Service) PluginRouteRegistered(stream PluginCorePB.PluginService_PluginRouteRegisteredServer) error {
