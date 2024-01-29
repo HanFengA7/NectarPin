@@ -7,18 +7,17 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
 	"log"
+	"time"
 )
 
 func Client() PluginCorePB.PluginServiceClient {
 	addr := ":3002"
 	conn, err := grpc.Dial(addr,
-		grpc.WithInsecure(), grpc.WithBlock(), grpc.FailOnNonTempDialError(true),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithKeepaliveParams(
 			keepalive.ClientParameters{
-				Time:                0,
-				Timeout:             0,
-				PermitWithoutStream: true,
+				Time:                5 * time.Minute, // 发送 ping 的频率
+				PermitWithoutStream: true,            // 允许在没有活动流时保持连接
 			},
 		),
 	)

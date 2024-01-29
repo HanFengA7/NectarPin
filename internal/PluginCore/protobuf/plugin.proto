@@ -15,14 +15,17 @@ message PluginRouteRegisteredRequest {
   string RouterNum = 2;
   repeated PluginRouterGroupRequest PluginRouterGroup = 3;
   PluginInfoRequest PluginInfo = 4;
+  repeated string  Data = 5;
 }
 
 //插件路由注册响应
 message PluginRouteRegisteredResponse {
   string Code = 1;
-  map<string, string> Data = 2;
-  string RouterPath = 3;
-  string Message = 4;
+  map<string, string> Data0 = 2;
+  repeated  GinParams Data1 = 3;
+  repeated string  Data2 = 4;
+  string RouterPath = 5;
+  string Message = 6;
 }
 
 //插件路由组请求
@@ -39,4 +42,8 @@ message PluginInfoRequest {
   string PluginVersion = 3;
 }
 
+message GinParams {
+  string Key = 1;
+  string Value = 2;
+}
 

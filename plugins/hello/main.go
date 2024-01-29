@@ -6,6 +6,7 @@ import (
 	InitExamplePlugin "NectarPin/plugins/hello/Init"
 	"context"
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 )
@@ -30,8 +31,8 @@ func main() {
 	}
 
 	client := InitExamplePlugin.Client()
-	stream, err := client.PluginRouteRegistered(context.Background())
-	err = stream.Send(&PluginCorePB.PluginRouteRegisteredRequest{
+	stream, _ := client.PluginRouteRegistered(context.Background())
+	_ = stream.Send(&PluginCorePB.PluginRouteRegisteredRequest{
 		RouterName:        config.Router.RouterName,
 		RouterNum:         config.Router.RouterNum,
 		PluginRouterGroup: rGR,
@@ -42,10 +43,33 @@ func main() {
 		},
 	})
 
-	response, err := stream.Recv()
+	// 开始异步接收数据
+	//go func() {
+	// 从流中接收数据
+	for {
+		err1 := stream.Send(&PluginCorePB.PluginRouteRegisteredRequest{
+			RouterName:        config.Router.RouterName,
+			RouterNum:         config.Router.RouterNum,
+			PluginRouterGroup: rGR,
+			PluginInfo: &PluginCorePB.PluginInfoRequest{
+				PluginName:    config.Plugin.PluginName,
+				PluginPort:    config.Plugin.PluginPort,
+				PluginVersion: config.Plugin.PluginVersion,
+			},
+		})
+		fmt.Println(err1)
 
-	if err != nil {
-		fmt.Println(err)
+		response, err := stream.Recv()
+		if err != nil {
+			log.Fatalf("Error receiving data: %v", err)
+		}
+		// 处理接收到的数据
+		data := response
+		fmt.Println(data)
 	}
-	fmt.Println(response)
+	//}()
+	//
+	//// 阻塞主线程，保持客户端运行
+	//select {}
+
 }

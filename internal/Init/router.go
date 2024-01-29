@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func Router() {
+func Router() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
@@ -36,4 +36,5 @@ func Router() {
 
 	constant.Log.Info("路由启动成功")
 	logrus.Infoln("路由启动成功")
+	return router
 }
