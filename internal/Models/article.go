@@ -43,3 +43,7 @@ type Article struct {
 	AIFEncrypt    int            `gorm:"column:aif_encrypt; type:int; not null;" json:"aif_encrypt" label:"是否加密文章"`
 	AIFEncryptPwd string         `gorm:"column:aif_encrypt_pwd; type:string;" json:"aif_encrypt_pwd,-" label:"加密文章密码"`
 }
+
+/*
+
+ */
