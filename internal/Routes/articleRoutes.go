@@ -10,20 +10,20 @@ ArticleRoutes [文章路由接口] [V1.0] [20240130]
 ------------------------------------------------------------------------------------------------------------------------
 
 	╒[需要授权] [authArticleAPI]
-	╞═todo [创建文章] [POST] [/api/Article/:id]
-	╞═todo [编辑文章] [PUT] [/api/Article/:id]
-	╞═todo [删除文章] [DELETE] [/api/Article/:id]
-	╘═todo [扩展功能-文章访客分析] [GET] [/api/Article/func/analysis/:id]
+	╞═[1]═todo [创建文章] [POST] [/api/Article/:id]
+	╞═[2]═todo [编辑文章] [PUT] [/api/Article/:id]
+	╞═[3]═todo [删除文章] [DELETE] [/api/Article/:id]
+	╘═[4]═todo [扩展功能-文章访客分析] [GET] [/api/Article/func/analysis/:id]
 
 ------------------------------------------------------------------------------------------------------------------------
 
 	╒[不需要授权] [notAuthUserAPI]
-	╞═todo [查询文章-单篇] [GET] [/api/Article/:id]
-	╞═todo [查询文章-单篇-加密] [GET] [/api/Article/:id/*password]
-	╞═todo [查询文章-列表] [GET] [/api/Article/list/:pageSize/:pageNum]
-	╞═todo [搜索文章] [POST] [/api/Article/search]
-	╞═todo [扩展功能-文章点赞] [POST] [/api/Article/func/star]
-	╘═todo [扩展功能-文章访客分析] [POST] [/api/Article/func/analysis]
+	╞═[1]═todo [查询文章-单篇] [GET] [/api/Article/:id]
+	╞═[2]═todo [查询文章-单篇-加密] [GET] [/api/Article/:id/*password]
+	╞═[3]═todo [查询文章-列表] [GET] [/api/Article/list/:pageSize/:pageNum]
+	╞═[4]═todo [搜索文章] [POST] [/api/Article/search]
+	╞═[5]═todo [扩展功能-文章点赞] [POST] [/api/Article/func/star]
+	╘═[6]═todo [扩展功能-文章访客分析] [POST] [/api/Article/func/analysis]
 
 ------------------------------------------------------------------------------------------------------------------------
 */
