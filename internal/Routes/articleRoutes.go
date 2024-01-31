@@ -1,6 +1,7 @@
 package Routes
 
 import (
+	"NectarPin/api"
 	"NectarPin/middleware"
 	"github.com/gin-gonic/gin"
 )
@@ -10,7 +11,7 @@ ArticleRoutes [文章路由接口] [V1.0] [20240130]
 ------------------------------------------------------------------------------------------------------------------------
 
 	╒[需要授权] [authArticleAPI]
-	╞═[1]═todo [创建文章] [POST] [/api/Article/]
+	╞═[1]═[创建文章] [POST] [/api/Article/]
 	╞═[2]═todo [编辑文章] [PUT] [/api/Article/:id]
 	╞═[3]═todo [删除文章] [DELETE] [/api/Article/:id]
 	╘═[4]═todo [扩展功能-文章访客分析] [GET] [/api/Article/func/analysis/:id]
@@ -32,8 +33,8 @@ func ArticleRoutes(router *gin.Engine) {
 	// [需要授权] [authArticleAPI]
 	authArticleAPI := router.Group("api/Article").Use(middleware.AuthJWT())
 	{
-		//todo [创建文章] [POST] [Private] [/api/Article/]
-		authArticleAPI.POST("/")
+		//[创建文章] [POST] [Private] [/api/Article/]
+		authArticleAPI.POST("", api.CreateArticle)
 		//todo [编辑文章] [PUT] [Private] [/api/Article/:id]
 		authArticleAPI.PUT("/:id")
 		//todo [删除文章] [DELETE] [Private] [/api/Article/:id]
