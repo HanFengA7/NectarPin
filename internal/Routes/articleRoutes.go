@@ -46,9 +46,9 @@ func ArticleRoutes(router *gin.Engine) {
 	//[不需要授权] [notAuthUserAPI]
 	notAuthArticleAPI := router.Group("api/Article")
 	{
-		//todo [查询文章-单篇] [GET] [Public] [/api/Article/:id]
+		//todo [查询文章-单篇] [GET] [Public] [/api/Article/:id/:toType]
 		notAuthArticleAPI.GET("/:id")
-		//todo [查询文章-单篇-加密] [GET] [Public] [/api/Article/:id/*password]
+		//todo [查询文章-单篇-加密] [GET] [Public] [/api/Article/:id/:toType/*password]
 		notAuthArticleAPI.GET("/:id/*password")
 		//todo [查询文章-列表] [GET] [Public] [/api/Article/list/:pageSize/:pageNum]
 		notAuthArticleAPI.GET("/list/:pageSize/:pageNum")

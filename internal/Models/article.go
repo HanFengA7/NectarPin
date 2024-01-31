@@ -62,9 +62,32 @@ CreateArticle 创建文章 [0.1] [240130]
 */
 func CreateArticle(data *Article) (msgData string, statusCode int) {
 	db := constant.DB
-	err := db.Create(&data).Error
-	if err != nil {
+	if err := db.Create(&data).Error; err != nil {
 		return "文章存入数据库失败!", 500
 	}
 	return "创建文章成功！", 200
+}
+
+/*
+GetArticle 查询文章 [0.1] [240131]
+------------------------------------------------------------------------------------------------------------------------
+
+	//:[入参]
+	[1] [id] [int] : 文章的ID
+
+------------------------------------------------------------------------------------------------------------------------
+
+	//:[出参]
+	[1] [msgData] [[]Article] : 返回的数据
+	[2] [statusCode] [int] : 返回的状态码
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func GetArticle(id int) (msgData []Article, statusCode int) {
+	var article []Article
+	db := constant.DB
+	if err := db.Where("id = ?", id).First(&article).Error; err != nil {
+		return nil, 500
+	}
+	return article, 200
 }
