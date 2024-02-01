@@ -86,7 +86,9 @@ GetArticle 查询文章 [0.1] [240131]
 func GetArticle(id int) (msgData []Article, statusCode int) {
 	var article []Article
 	db := constant.DB
-	if err := db.Where("id = ?", id).First(&article).Error; err != nil {
+	if err := db.Joins(
+		"User", db.Select("id", "username", "nickname", "email", "avater_url", "role", "last_longin_date"),
+	).Joins("Category").Where("article.id = ?", id).First(&article).Error; err != nil {
 		return nil, 500
 	}
 	return article, 200

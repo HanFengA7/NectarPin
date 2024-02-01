@@ -4,6 +4,7 @@ import (
 	"NectarPin/internal/Models"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 /*
@@ -65,4 +66,60 @@ func CreateArticle(ctx *gin.Context) {
 		"msg":  msgData,
 	})
 	return
+}
+
+/*
+GetArticle [查询文章API接口] [240131] [0.1]
+------------------------------------------------------------------------------------------------------------------------
+
+	[API] [Public] : api.GetArticle
+	[URL] [GET] : /api/Article/:id/:toType
+
+------------------------------------------------------------------------------------------------------------------------
+
+	//:[入参]
+	[1]: [GET]-->[Param][:id]: 文章的ID
+	[2]: [GET]-->[Param][:toType]: 输出文章的类型 [HTML|Markdown]
+
+	//:[回参]
+	[1]: [code]: 状态码 (200|500)
+	[2]: [data]: 数据
+	[3]: [message]: 消息
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func GetArticle(ctx *gin.Context) {
+
+	//[1]:入参Param数据
+	id, _ := strconv.Atoi(ctx.Param("id"))
+	toType := ctx.Param("toType")
+
+	//[2]:入
+	switch toType {
+	case "HTML":
+		//Markdown转HTML输出
+
+	case "Markdown":
+		if msgData, statusCode := Models.GetArticle(id); statusCode == 200 {
+			ctx.JSON(statusCode, gin.H{
+				"code":    statusCode,
+				"data":    msgData,
+				"message": "查询文章成功",
+			})
+		} else {
+			ctx.JSON(statusCode, gin.H{
+				"code":    statusCode,
+				"data":    msgData,
+				"message": "查询文章失败",
+			})
+		}
+
+	default:
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"data":    nil,
+			"message": "请正确传入'toType'的值。[HTML|Markdown]",
+		})
+	}
+
 }

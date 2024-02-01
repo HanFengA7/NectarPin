@@ -33,7 +33,7 @@ type User struct {
 	DeletedAt           gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
 	Username            string         `gorm:"column:username; type: varchar(255); not null" json:"username"`
 	NickName            string         `gorm:"column:nickname; type:varchar(255); not null" json:"nickname"`
-	Password            string         `gorm:"column:password; type: varchar(255); not null" json:"password,omitempty"`
+	Password            string         `gorm:"column:password; type: varchar(255); not null" json:"-"`
 	Email               string         `gorm:"column:email; type: varchar(255); not null" json:"email"`
 	AvatarUrl           string         `gorm:"column:avater_url; type: longtext" json:"avater_url"`
 	Role                int            `gorm:"column:role; type: int; DEFAULT:2; not null" json:"role"`
