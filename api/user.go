@@ -324,6 +324,8 @@ func UserLogin(c *gin.Context) {
 						"msg":  tokenMsg,
 					})
 			} else {
+				//写入最后登录时间,登录IP
+				Models.UserLoginWriteLog(ID, user.LastLonginIPAddress, user.LastLonginDate)
 				c.JSON(
 					http.StatusOK,
 					gin.H{

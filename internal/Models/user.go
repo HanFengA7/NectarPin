@@ -421,3 +421,15 @@ func CheckLogin(username string, plaintext string) (msgData string, startCode in
 		return "验证失败,请检查用户名或密码!", 500
 	}
 }
+
+/*
+UserLoginWriteLog [ 写入用户登录日志 ] [ 240201 ] [ 0.1 ]
+*/
+func UserLoginWriteLog(uID int, lIP string, lDate string) {
+	var db = constant.DB
+	var user User
+	var maps = make(map[string]interface{})
+	maps["LastLonginIPAddress"] = lIP
+	maps["LastLonginDate"] = lDate
+	db.Model(&user).Where("id = ?", uID).Select("LastLonginIPAddress", "LastLonginDate").Updates(&maps)
+}

@@ -2,15 +2,31 @@
 import {reactive, ref} from 'vue';
 import {debounce} from "@/plugin/debounce/debounce";
 import {md5} from "js-md5";
-import {Login, Login_CheckToken} from "@/api/User/login";
+import {Login} from "@/api/User/login";
 import {Notification} from "@arco-design/web-vue";
 import router from "@/router";
+import moment from "moment";
+moment.locale('zh-cn', {
+  months: '一月_二月_三月_四月_五月_六月_七月_八月_九月_十月_十一月_十二月'.split('_'),
+  monthsShort: '1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月'.split('_'),
+  weekdays: '星期日_星期一_星期二_星期三_星期四_星期五_星期六'.split('_'),
+  weekdaysShort: '周日_周一_周二_周三_周四_周五_周六'.split('_'),
+  weekdaysMin: '日_一_二_三_四_五_六'.split('_'),
+})
 
 const layout = ref('vertical');
 const form = reactive({
   username: '',
   password: '',
+  last_longin_ip_address: '',
+  last_longin_date: '',
 });
+
+fetch('https://api.ipify.org?format=json')
+    .then(response => response.json())
+    .then(json => {
+      form.last_longin_ip_address = json.ip;
+    })
 
 interface handleSubmit {
   errors: any;
@@ -19,9 +35,10 @@ interface handleSubmit {
 const handleSubmit = debounce(({errors}: handleSubmit) => {
   if (errors === undefined) {
     form.password = md5(form.password);
+    form.last_longin_date = moment().format("YYYY-MM-DD dddd H:mm:ss");
     Login(form).then((res: any) => {
-      if (res.data.code == 200){
-        window.sessionStorage.setItem('token',res.data.token)
+      if (res.data.code == 200) {
+        window.sessionStorage.setItem('token', res.data.token)
         Notification.success({
           content: res.data.msg,
           duration: 4000,
@@ -29,7 +46,7 @@ const handleSubmit = debounce(({errors}: handleSubmit) => {
         })
         router.push('/Dashboard')
       }
-      if (res.data.code == 500){
+      if (res.data.code == 500) {
         Notification.error({
           content: res.data.msg,
           duration: 7000,
