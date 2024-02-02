@@ -424,6 +424,14 @@ func CheckLogin(username string, plaintext string) (msgData string, startCode in
 
 /*
 UserLoginWriteLog [ 写入用户登录日志 ] [ 240201 ] [ 0.1 ]
+------------------------------------------------------------------------------------------------------------------------
+
+	//:[入参]
+	[1] [uID] [int] : 用户ID
+	[2] [LIP] [string] : 登录时的IP地址
+	[3] [lDate] [string] : 登录时的时间
+
+------------------------------------------------------------------------------------------------------------------------
 */
 func UserLoginWriteLog(uID int, lIP string, lDate string) {
 	var db = constant.DB
