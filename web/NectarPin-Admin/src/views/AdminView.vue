@@ -1,7 +1,10 @@
 <script setup>
 import {ref} from 'vue';
-import {Message} from '@arco-design/web-vue';
+import {Message, Notification} from '@arco-design/web-vue';
 import {IconCaretLeft, IconCaretRight,} from '@arco-design/web-vue/es/icon';
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
 
 const collapsed = ref(false);
 const onCollapse = () => {
@@ -10,6 +13,17 @@ const onCollapse = () => {
 
 function onClickMenuItem(key) {
   Message.info({content: `You select ${key}`, showIcon: true});
+}
+
+//退出登录
+const Logout = () =>{
+  window.sessionStorage.removeItem('token')
+  router.push('/Login')
+  Notification.success({
+    content: "退出登录成功",
+    duration: 1000,
+    closable: true,
+  })
 }
 </script>
 
@@ -110,7 +124,7 @@ function onClickMenuItem(key) {
               />
             </a-avatar>
             <template #content>
-              <a-doption>
+              <a-doption @click="Logout">
                 <template #icon>
                   <icon-export />
                 </template>

@@ -28,6 +28,14 @@ const router = createRouter({
                         title: 'NectarPin - 仪表盘',
                     },
                     component: () => import('../components/Dashboard.vue')
+                },
+                {
+                    path: '/PersonalCenter',
+                    name: 'PersonalCenter',
+                    meta:{
+                        title: 'NectarPin - 个人中心'
+                    },
+                    component: () => import('../components/PersonalCenter.vue')
                 }
             ],
         }
