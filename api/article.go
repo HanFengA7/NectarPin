@@ -50,7 +50,7 @@ func CreateArticle(ctx *gin.Context) {
 		validatorErrMsg["aif_encrypt_pwd"] = "文章加密密码不能为空!"
 	}
 	if len(validatorErrMsg) != 0 {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.JSON(http.StatusOK, gin.H{
 			"code": 400,
 			"data": nil,
 			"msg":  validatorErrMsg,
@@ -60,7 +60,7 @@ func CreateArticle(ctx *gin.Context) {
 
 	//[3]:将数据写入数据库中
 	msgData, statusCode := Models.CreateArticle(&data)
-	ctx.JSON(statusCode, gin.H{
+	ctx.JSON(http.StatusOK, gin.H{
 		"code": statusCode,
 		"data": &data,
 		"msg":  msgData,
@@ -73,7 +73,7 @@ GetArticle [查询文章API接口] [240131] [0.1]
 ------------------------------------------------------------------------------------------------------------------------
 
 	[API] [Public] : api.GetArticle
-	[URL] [GET] : /api/Article/:id/:toType
+	[URL] [GET] : /api/Article/0/:id/:toType
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -93,29 +93,23 @@ func GetArticle(ctx *gin.Context) {
 	//[1]:入参Param数据
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	toType := ctx.Param("toType")
+	aPassword := ctx.Param("password")
 
-	//[2]:入
+	//[2]:入参Param处理
 	switch toType {
 	case "HTML":
-		//Markdown转HTML输出
+	//Markdown转HTML输出
 
 	case "Markdown":
-		if msgData, statusCode := Models.GetArticle(id); statusCode == 200 {
-			ctx.JSON(statusCode, gin.H{
-				"code":    statusCode,
-				"data":    msgData,
-				"message": "查询文章成功",
-			})
-		} else {
-			ctx.JSON(statusCode, gin.H{
-				"code":    statusCode,
-				"data":    msgData,
-				"message": "查询文章失败",
-			})
-		}
+		data, message, statusCode := Models.GetArticle(id, aPassword)
+		ctx.JSON(http.StatusOK, gin.H{
+			"code":    statusCode,
+			"data":    data,
+			"message": message,
+		})
 
 	default:
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.JSON(http.StatusOK, gin.H{
 			"code":    400,
 			"data":    nil,
 			"message": "请正确传入'toType'的值。[HTML|Markdown]",

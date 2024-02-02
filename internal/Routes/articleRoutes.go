@@ -19,8 +19,8 @@ ArticleRoutes [文章路由接口] [V1.0] [20240130]
 ------------------------------------------------------------------------------------------------------------------------
 
 	╒[不需要授权] [notAuthUserAPI]
-	╞═[1]═todo [查询文章-单篇] [GET] [/api/Article/:id/:toType]
-	╞═[2]═todo [查询文章-单篇-加密] [GET] [/api/Article/:id/:toType/*password]
+	╞═[1]═todo [查询文章-单篇] [GET] [/api/Article/0/:id/:toType]
+	╞═[2]═todo [查询文章-单篇-加密] [GET] [/api/Article/0/:id/:toType/*password]
 	╞═[3]═todo [查询文章-列表] [GET] [/api/Article/list/:pageSize/:pageNum]
 	╞═[4]═todo [搜索文章] [POST] [/api/Article/search]
 	╞═[5]═todo [扩展功能-文章点赞] [POST] [/api/Article/func/star]
@@ -33,7 +33,7 @@ func ArticleRoutes(router *gin.Engine) {
 	// [需要授权] [authArticleAPI]
 	authArticleAPI := router.Group("api/Article").Use(middleware.AuthJWT())
 	{
-		//[创建文章] [POST] [Private] [/api/Article/]
+		//[创建文章] [POST] [Private] [/api/Article]
 		authArticleAPI.POST("", api.CreateArticle)
 		//todo [编辑文章] [PUT] [Private] [/api/Article/:id]
 		authArticleAPI.PUT("/:id")
@@ -46,10 +46,10 @@ func ArticleRoutes(router *gin.Engine) {
 	//[不需要授权] [notAuthUserAPI]
 	notAuthArticleAPI := router.Group("api/Article")
 	{
-		//todo [查询文章-单篇] [GET] [Public] [/api/Article/:id/:toType]
-		notAuthArticleAPI.GET("/:id/:toType", api.GetArticle)
-		//todo [查询文章-单篇-加密] [GET] [Public] [/api/Article/:id/:toType/*password]
-		notAuthArticleAPI.GET("/:id/:toType/*password")
+		//todo [查询文章-单篇] [GET] [Public] [/api/Article/0/:id/:toType]
+		notAuthArticleAPI.GET("/0/:id/:toType", api.GetArticle)
+		//todo [查询文章-单篇-加密] [GET] [Public] [/api/Article/0/:id/:toType/*password]
+		notAuthArticleAPI.GET("/0/:id/:toType/*password", api.GetArticle)
 		//todo [查询文章-列表] [GET] [Public] [/api/Article/list/:pageSize/:pageNum]
 		notAuthArticleAPI.GET("/list/:pageSize/:pageNum")
 		//todo [搜索文章] [POST] [Public] [/api/Article/search]
