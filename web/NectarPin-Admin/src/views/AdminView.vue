@@ -1,11 +1,13 @@
 <script lang="ts" setup>
-import {reactive, ref} from 'vue';
+import {onBeforeMount, onMounted, reactive, ref} from 'vue';
 import {Message, Notification} from '@arco-design/web-vue';
 import {IconCaretLeft, IconCaretRight,} from '@arco-design/web-vue/es/icon';
 import {useRouter} from 'vue-router';
 import {GetUserInfo, TokenGetUserInfo} from '@/api/User/user'
+import eventBus from "@/plugin/event-bus/event-bus";
 
 const router = useRouter()
+const selectedKeys = ref();
 const collapsed = ref(false);
 const onCollapse = () => {
   collapsed.value = !collapsed.value;
@@ -63,7 +65,14 @@ const Logout = () => {
 }
 
 //接收子组件数据
-
+onBeforeMount(() => {
+  // 监听事件
+  eventBus.on('child-data-selectedKeys', (newData:any) => {
+    // 处理从子组件接收到的数据
+    selectedKeys.value = newData.value;
+    console.log(newData.value)
+  });
+});
 </script>
 
 <template>
@@ -78,6 +87,7 @@ const Logout = () => {
       </div>
       <a-menu
           :defaultSelectedKeys="['Dashboard']"
+          :selected-keys="selectedKeys"
           :style="{ width: '100%' }"
           @menuItemClick="onClickMenuItem"
       >
@@ -183,7 +193,7 @@ const Logout = () => {
       </a-layout-header>
       <a-layout>
 
-        <RouterView :userInfo="UserInfoData" @child-event="handleChildEvent"></RouterView>
+        <RouterView :userInfo="UserInfoData"></RouterView>
 
         <a-layout-footer>
           <div class="footer">

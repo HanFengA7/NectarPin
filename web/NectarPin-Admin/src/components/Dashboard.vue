@@ -1,6 +1,7 @@
-<script setup>
+<script lang="ts" setup>
 import {computed, ref, reactive} from 'vue'
 import axios from "axios";
+import eventBus from "@/plugin/event-bus/event-bus.js";
 
 
 const data = [
@@ -99,6 +100,12 @@ axios.get('https://international.v1.hitokoto.cn/?c=d')
     .then(res =>{
       heardCardInfo.hitokoto = res.data["hitokoto"] + "--《" +res.data["from"]+"》"
     })
+
+//传数据给父组件
+//eventBus.emit('child-data-selectedKeys', ["Dashboard"]);
+/*设置侧边栏选择选项*/
+let SelectedKeys: any = ref(["Dashboard"]);
+eventBus.emit("child-data-selectedKeys", SelectedKeys);
 </script>
 
 <template>

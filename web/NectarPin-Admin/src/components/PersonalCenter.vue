@@ -1,9 +1,12 @@
-<script setup>
+<script lang="ts" setup>
+import eventBus from '@/plugin/event-bus/event-bus';
+import {ref} from "vue";
 //接收父组件的UserInfoData数据
 const props = defineProps(['userInfo']);
 //传数据给父组件
-const emit = defineEmits();
-emit('child-event', '这是子组件传递给父组件的数据');
+/*设置侧边栏选择选项*/
+let SelectedKeys: any = ref(["PersonalCenter"]);
+eventBus.emit("child-data-selectedKeys", SelectedKeys);
 </script>
 
 <template>
