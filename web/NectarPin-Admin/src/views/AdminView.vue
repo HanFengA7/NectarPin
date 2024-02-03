@@ -13,8 +13,7 @@ const onCollapse = () => {
 
 //点击侧边栏事件
 function onClickMenuItem(key: any) {
-  router.push(key)
-  Message.info({content: `You select ${key}`, showIcon: true});
+  router.push({ name: key })
 }
 
 //获取用户信息
