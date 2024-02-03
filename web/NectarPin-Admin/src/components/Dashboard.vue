@@ -83,16 +83,21 @@ const props = defineProps(['userInfo']);
 
 //头部卡片信息
 const heardCardInfo = reactive({
+  hitokoto:"",
   date:"",
   solarDay:"",
   sign:"",
   lastIpProvince:"",
 })
-axios.get('https://api.xygeng.cn/openapi/day')
-    .then(({ data }) => {
-      heardCardInfo.date = data.data.date
-      heardCardInfo.solarDay = data.data["solar"].day
-      heardCardInfo.sign = data.data["sign"]
+// axios.get('https://api.xygeng.cn/openapi/day')
+//     .then(({ data }) => {
+//       heardCardInfo.date = data.data.date
+//       heardCardInfo.solarDay = data.data["solar"].day
+//       heardCardInfo.sign = data.data["sign"]
+//     })
+axios.get('https://international.v1.hitokoto.cn/?c=d')
+    .then(res =>{
+      heardCardInfo.hitokoto = res.data["hitokoto"] + "--《" +res.data["from"]+"》"
     })
 </script>
 
@@ -101,7 +106,7 @@ axios.get('https://api.xygeng.cn/openapi/day')
     <h2>🤗&nbsp;欢迎回来&nbsp;,&nbsp;{{ props.userInfo.nickname }}&nbsp;,&nbsp;快来写一篇吧!</h2>
 
     <h5>
-      今天是{{heardCardInfo.date}}&nbsp;{{heardCardInfo.solarDay}}&nbsp;{{heardCardInfo.sign}}&nbsp;
+      {{ heardCardInfo.hitokoto }}
     </h5>
 
   </div>

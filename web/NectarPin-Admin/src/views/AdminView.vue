@@ -17,7 +17,7 @@ function onClickMenuItem(key: any) {
 }
 
 //获取用户信息
-const token = window.sessionStorage.getItem("token");
+const token = window.localStorage.getItem("token");
 const UserInfoData = reactive({
   "id": "",
   "username": "",
@@ -46,14 +46,14 @@ TokenGetUserInfo(token).then((res: any) => {
       UserInfoData.last_longin_ip_address = res.data.data[0]["last_longin_ip_address"]
     })
   } else {
-    Message.error({content: `网络异常`, showIcon: true});
+    Message.error({content: res.data.msg, showIcon: true});
   }
 })
 
 
 //退出登录
 const Logout = () => {
-  window.sessionStorage.removeItem('token')
+  window.localStorage.removeItem('token')
   router.push('/Login')
   Notification.success({
     content: "退出登录成功",
@@ -61,6 +61,9 @@ const Logout = () => {
     closable: true,
   })
 }
+
+//接收子组件数据
+
 </script>
 
 <template>
@@ -180,7 +183,7 @@ const Logout = () => {
       </a-layout-header>
       <a-layout>
 
-        <RouterView :userInfo="UserInfoData"></RouterView>
+        <RouterView :userInfo="UserInfoData" @child-event="handleChildEvent"></RouterView>
 
         <a-layout-footer>
           <div class="footer">

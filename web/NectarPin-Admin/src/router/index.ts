@@ -49,7 +49,7 @@ router.beforeEach(async (to, from) => {
     }
 
     // 检查token是否存在  && 检查token有效性
-    const token: string = window.sessionStorage.getItem("token");
+    const token: string = window.localStorage.getItem("token");
     let tokenIF: boolean = false;
     if (token) {
         try {

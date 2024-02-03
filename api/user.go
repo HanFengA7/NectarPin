@@ -388,18 +388,23 @@ UserCheckToken [ 检查Token有效性 ] [ 240117 ] [ 0.1 ]
 ------------------------------------------------------------------------------------------------------------------------
 
 	[API][Public]: api.UserCheckToken
-	[URL][GET]: /api/User/checkToken
+	[URL][POST]: /api/User/checkToken
 
 ------------------------------------------------------------------------------------------------------------------------
 */
 func UserCheckToken(c *gin.Context) {
-	var Token = c.Param("token")
-	_, tokenBool, statusCode := middleware.VerifyToken(Token)
+	type GetJsonInfo struct {
+		Token string `json:"token"`
+	}
+	var GJI GetJsonInfo
+	_ = c.ShouldBindJSON(&GJI)
+
+	_, tokenBool, statusCode := middleware.VerifyToken(GJI.Token)
 	if tokenBool != true {
 		c.JSON(
 			http.StatusOK,
 			gin.H{
-				"token":     Token,
+				"token":     GJI.Token,
 				"code":      statusCode,
 				"tokenBool": tokenBool,
 				"msg":       "Token无效！",
@@ -408,7 +413,7 @@ func UserCheckToken(c *gin.Context) {
 		c.JSON(
 			http.StatusOK,
 			gin.H{
-				"token":     Token,
+				"token":     GJI.Token,
 				"code":      statusCode,
 				"tokenBool": tokenBool,
 				"msg":       "Token有效！",

@@ -10,7 +10,7 @@ const Service = axios.create({
 // 请求拦截器
 Service.interceptors.request.use((config: any) => {
     // 在发送请求之前做些什么
-    config.headers.Authorization = `Bearer ${window.sessionStorage.getItem(
+    config.headers.Authorization = `Bearer ${window.localStorage.getItem(
         "token"
     )}`;
     return config;

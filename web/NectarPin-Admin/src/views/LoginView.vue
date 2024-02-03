@@ -38,7 +38,8 @@ const handleSubmit = debounce(({errors}: handleSubmit) => {
     form.this_longin_date = moment().format("YYYY-MM-DD dddd H:mm:ss");
     Login(form).then((res: any) => {
       if (res.data.code == 200) {
-        window.sessionStorage.setItem('token', res.data.token)
+        //window.sessionStorage.setItem('token', res.data.token)
+        window.localStorage.setItem('token', res.data.token)
         Notification.success({
           content: res.data.msg,
           duration: 4000,
