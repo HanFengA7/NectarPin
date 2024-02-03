@@ -23,6 +23,8 @@ User [用户表结构][231209][0.1]
 	Email               	string				电子邮箱
 	AvatarUrl          		string				头像地址
 	Role                	int					角色码 [0:管理员 1:编辑者 2:订阅者]
+	ThisLonginIPAddress 	string				这次登录IP地址
+	ThisLonginDate      	string				这次登录时间
 	LastLonginIPAddress 	string				最后登录IP地址
 	LastLonginDate      	string				最后登录时间
 */
@@ -37,6 +39,8 @@ type User struct {
 	Email               string         `gorm:"column:email; type: varchar(255); not null" json:"email"`
 	AvatarUrl           string         `gorm:"column:avater_url; type: longtext" json:"avater_url"`
 	Role                int            `gorm:"column:role; type: int; DEFAULT:2; not null" json:"role"`
+	ThisLonginIPAddress string         `gorm:"column:this_longin_ip_address; type: varchar(255);" json:"this_longin_ip_address,omitempty"`
+	ThisLonginDate      string         `gorm:"column:this_longin_date; type: varchar(255);datetime;not null" json:"this_longin_date"`
 	LastLonginIPAddress string         `gorm:"column:last_longin_ip_address; type: varchar(255);" json:"last_longin_ip_address,omitempty"`
 	LastLonginDate      string         `gorm:"column:last_longin_date; type: varchar(255);datetime;not null" json:"last_longin_date"`
 }
@@ -126,7 +130,7 @@ func GetUser(key int, values interface{}) (msgData []User, statusCode int) {
 		switch values.(type) {
 		case int:
 			err := db.Select(
-				"id,created_at,updated_at,username,nickname,email,avater_url,role,last_longin_ip_address,last_longin_date",
+				"id,created_at,updated_at,username,nickname,email,avater_url,role,last_longin_ip_address,last_longin_date,this_longin_ip_address,this_longin_date",
 			).Where("id = ?", values).Find(&user).Error
 			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, errmsg.ERROR
@@ -134,7 +138,7 @@ func GetUser(key int, values interface{}) (msgData []User, statusCode int) {
 			return user, errmsg.SUCCESS
 		case string:
 			err := db.Select(
-				"id,created_at,updated_at,username,nickname,email,avater_url,role,last_longin_ip_address,last_longin_date",
+				"id,created_at,updated_at,username,nickname,email,avater_url,role,last_longin_ip_address,last_longin_date,this_longin_ip_address,this_longin_date",
 			).Where("username = ?", values).Find(&user).Error
 			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, errmsg.ERROR
@@ -180,7 +184,7 @@ func GetUserList(username string, pageSize int, pageNum int) (data []User, total
 	switch {
 	case len(username) == 0:
 		err = db.Select(
-			"id,created_at,updated_at,username,nickname,email,avater_url,role,last_longin_ip_address,last_longin_date",
+			"id,created_at,updated_at,username,nickname,email,avater_url,role,last_longin_ip_address,last_longin_date,this_longin_ip_address,this_longin_date",
 		).Limit(pageSize).Offset(offset).Find(&data).Error
 		err = db.Model(&data).Count(&total).Error
 		if err != nil {
@@ -190,7 +194,7 @@ func GetUserList(username string, pageSize int, pageNum int) (data []User, total
 
 	case len(username) != 0:
 		err = db.Select(
-			"id,created_at,updated_at,username,nickname,email,avater_url,role,last_longin_ip_address,last_longin_date",
+			"id,created_at,updated_at,username,nickname,email,avater_url,role,last_longin_ip_address,last_longin_date,this_longin_ip_address,this_longin_date",
 		).Where("username LIKE ?", username+"%").Limit(pageSize).Offset(offset).Find(&data).Error
 		err = db.Model(&data).Where("username LIKE ?", username+"%").Count(&total).Error
 		if err != nil {
@@ -437,7 +441,10 @@ func UserLoginWriteLog(uID int, lIP string, lDate string) {
 	var db = constant.DB
 	var user User
 	var maps = make(map[string]interface{})
-	maps["LastLonginIPAddress"] = lIP
-	maps["LastLonginDate"] = lDate
-	db.Model(&user).Where("id = ?", uID).Select("LastLonginIPAddress", "LastLonginDate").Updates(&maps)
+	db.Where("id = ?", uID).First(&user)
+	maps["ThisLonginIPAddress"] = lIP
+	maps["ThisLonginDate"] = lDate
+	maps["LastLonginIPAddress"] = user.ThisLonginIPAddress
+	maps["LastLonginDate"] = user.ThisLonginDate
+	db.Model(&user).Where("id = ?", uID).Select("LastLonginIPAddress", "LastLonginDate", "ThisLonginIPAddress", "ThisLonginDate").Updates(&maps)
 }

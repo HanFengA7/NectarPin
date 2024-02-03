@@ -11,7 +11,9 @@ const onCollapse = () => {
   collapsed.value = !collapsed.value;
 };
 
+//点击侧边栏事件
 function onClickMenuItem(key: any) {
+  router.push(key)
   Message.info({content: `You select ${key}`, showIcon: true});
 }
 
@@ -19,18 +21,36 @@ function onClickMenuItem(key: any) {
 const token = window.sessionStorage.getItem("token");
 const UserInfoData = reactive({
   "id": "",
+  "username": "",
+  "nickname": "",
+  "email": "",
+  "role": "",
   "avater_url": "",
+  "this_longin_date": "",
+  "this_longin_ip_address": "",
+  "last_longin_date": "",
+  "last_longin_ip_address": "",
 })
+
 TokenGetUserInfo(token).then((res: any) => {
   if (res.data.code == 200) {
     GetUserInfo(res.data["tokenData"].id).then((res: any) => {
-      UserInfoData.id =  res.data.data[0]["id"]
+      UserInfoData.id = res.data.data[0]["id"]
+      UserInfoData.username = res.data.data[0]["username"]
+      UserInfoData.nickname = res.data.data[0]["nickname"]
+      UserInfoData.email = res.data.data[0]["email"]
+      UserInfoData.role = res.data.data[0]["role"]
       UserInfoData.avater_url = res.data.data[0]["avater_url"]
+      UserInfoData.this_longin_date = res.data.data[0]["this_longin_date"]
+      UserInfoData.this_longin_ip_address = res.data.data[0]["this_longin_ip_address"]
+      UserInfoData.last_longin_date = res.data.data[0]["last_longin_date"]
+      UserInfoData.last_longin_ip_address = res.data.data[0]["last_longin_ip_address"]
     })
   } else {
     Message.error({content: `网络异常`, showIcon: true});
   }
 })
+
 
 //退出登录
 const Logout = () => {
@@ -42,7 +62,6 @@ const Logout = () => {
     closable: true,
   })
 }
-
 </script>
 
 <template>
@@ -56,15 +75,15 @@ const Logout = () => {
         <h1 style="text-align: center;font-weight: 200">NectarPin</h1>
       </div>
       <a-menu
-          :defaultSelectedKeys="['0_1']"
+          :defaultSelectedKeys="['Dashboard']"
           :style="{ width: '100%' }"
           @menuItemClick="onClickMenuItem"
       >
-        <a-menu-item key="0_1">
+        <a-menu-item key="Dashboard">
           <icon-dashboard/>
           控制台
         </a-menu-item>
-        <a-menu-item key="0_2">
+        <a-menu-item key="PersonalCenter">
           <icon-idcard/>
           个人中心
         </a-menu-item>
@@ -154,7 +173,7 @@ const Logout = () => {
                 <template #icon>
                   <icon-idcard/>
                 </template>
-                <template #default>个人中心</template>
+                <template #default>个人中心{{a}}</template>
               </a-doption>
             </template>
           </a-dropdown>
@@ -162,7 +181,7 @@ const Logout = () => {
       </a-layout-header>
       <a-layout>
 
-        <RouterView></RouterView>
+        <RouterView :userInfo="UserInfoData"></RouterView>
 
         <a-layout-footer>
           <div class="footer">
@@ -222,12 +241,12 @@ const Logout = () => {
 }
 
 .footer {
+  padding: 20px;
   margin-top: 55px;
   display: flex;
   justify-content: center;
   box-sizing: border-box;
   width: 100%;
-  padding: 20px 20px 0;
   background-color: #f7f8fa;
 }
 

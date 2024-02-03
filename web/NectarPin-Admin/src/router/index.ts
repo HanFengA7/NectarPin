@@ -20,6 +20,7 @@ const router = createRouter({
                 title: 'NectarPin',
             },
             component: AdminView,
+            props: route => ({ userInfo: route.params.userInfo }),
             children: [
                 {
                     path: '/Dashboard',

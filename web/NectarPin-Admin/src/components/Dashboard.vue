@@ -1,5 +1,6 @@
 <script setup>
-import {computed} from 'vue'
+import {computed, ref, reactive} from 'vue'
+import axios from "axios";
 
 
 const data = [
@@ -77,13 +78,32 @@ const option = computed(() => {
   }
 })
 
+//接收父组件的UserInfoData数据
+const props = defineProps(['userInfo']);
 
+//头部卡片信息
+const heardCardInfo = reactive({
+  date:"",
+  solarDay:"",
+  sign:"",
+  lastIpProvince:"",
+})
+axios.get('https://api.xygeng.cn/openapi/day')
+    .then(({ data }) => {
+      heardCardInfo.date = data.data.date
+      heardCardInfo.solarDay = data.data["solar"].day
+      heardCardInfo.sign = data.data["sign"]
+    })
 </script>
 
 <template>
   <div class="dashboard-heard-PC">
-    <h2>🤗&nbsp;欢迎回来&nbsp;,&nbsp;火山喵&nbsp;,&nbsp;你有1天没写博文了&nbsp;,&nbsp;快来写一篇吧!</h2>
-    <h5>今天大部分地区多云。 最低气温6°，天气寒冷，注意添加衣物哟！</h5>
+    <h2>🤗&nbsp;欢迎回来&nbsp;,&nbsp;{{ props.userInfo.nickname }}&nbsp;,&nbsp;快来写一篇吧!</h2>
+
+    <h5>
+      今天是{{heardCardInfo.date}}&nbsp;{{heardCardInfo.solarDay}}&nbsp;{{heardCardInfo.sign}}&nbsp;
+    </h5>
+
   </div>
   <div class="dashboard-body-PC">
     <a-row :gutter="24">
@@ -95,25 +115,29 @@ const option = computed(() => {
             </template>
             <template #suffix>篇</template>
           </a-statistic>
-          <a-statistic title="分类总数" :value="5" :precision="0" :value-from="0" :start="true" animation style="padding-left: 150px">
+          <a-statistic title="分类总数" :value="5" :precision="0" :value-from="0" :start="true" animation
+                       style="padding-left: 150px">
             <template #prefix>
               <icon-folder style="padding-right: 5px"/>
             </template>
             <template #suffix>个</template>
           </a-statistic>
-          <a-statistic title="评论总数" :value="66" :precision="0" :value-from="0" :start="true" animation style="padding-left: 150px">
+          <a-statistic title="评论总数" :value="66" :precision="0" :value-from="0" :start="true" animation
+                       style="padding-left: 150px">
             <template #prefix>
               <icon-message style="padding-right: 5px"/>
             </template>
             <template #suffix>条</template>
           </a-statistic>
-          <a-statistic title="获赞总数" :value="999" :precision="0" :value-from="0" :start="true" animation style="padding-left: 150px">
+          <a-statistic title="获赞总数" :value="999" :precision="0" :value-from="0" :start="true" animation
+                       style="padding-left: 150px">
             <template #prefix>
-              <icon-thumb-up  style="padding-right: 5px"/>
+              <icon-thumb-up style="padding-right: 5px"/>
             </template>
             <template #suffix>个</template>
           </a-statistic>
-          <a-statistic title="今日访客量" :value="2" :precision="0" :value-from="0" :start="true" animation style="padding-left: 150px">
+          <a-statistic title="今日访客量" :value="2" :precision="0" :value-from="0" :start="true" animation
+                       style="padding-left: 150px">
             <template #prefix>
               <icon-user style="padding-right: 5px"/>
             </template>
@@ -144,7 +168,7 @@ const option = computed(() => {
                 <a-tooltip content="写作">
                   <div class="dashboard-card1-box-btn-bg-PC">
                     <div class="dashboard-card1-box-btn-PC">
-                      <icon-edit />
+                      <icon-edit/>
                     </div>
                   </div>
                 </a-tooltip>
@@ -154,7 +178,7 @@ const option = computed(() => {
                 <a-tooltip content="文章管理">
                   <div class="dashboard-card1-box-btn-bg-PC">
                     <div class="dashboard-card1-box-btn-PC">
-                      <icon-sort />
+                      <icon-sort/>
                     </div>
                   </div>
                 </a-tooltip>
@@ -162,11 +186,11 @@ const option = computed(() => {
 
               <a-col :lg="{span: 2, offset: 2}">
                 <a-tooltip content="博客首页">
-                <div class="dashboard-card1-box-btn-bg-PC">
-                  <div class="dashboard-card1-box-btn-PC">
-                    <icon-home />
+                  <div class="dashboard-card1-box-btn-bg-PC">
+                    <div class="dashboard-card1-box-btn-PC">
+                      <icon-home/>
+                    </div>
                   </div>
-                </div>
                 </a-tooltip>
               </a-col>
 
@@ -174,7 +198,7 @@ const option = computed(() => {
                 <a-tooltip content="Todo">
                   <div class="dashboard-card1-box-btn-bg-PC">
                     <div class="dashboard-card1-box-btn-PC">
-                      <icon-mind-mapping />
+                      <icon-mind-mapping/>
                     </div>
                   </div>
                 </a-tooltip>
@@ -184,7 +208,7 @@ const option = computed(() => {
                 <a-tooltip content="基本设置">
                   <div class="dashboard-card1-box-btn-bg-PC">
                     <div class="dashboard-card1-box-btn-PC">
-                      <icon-settings />
+                      <icon-settings/>
                     </div>
                   </div>
                 </a-tooltip>
@@ -194,7 +218,7 @@ const option = computed(() => {
                 <a-tooltip content="NectarPin Github">
                   <div class="dashboard-card1-box-btn-bg-PC">
                     <div class="dashboard-card1-box-btn-PC">
-                      <icon-github />
+                      <icon-github/>
                     </div>
                   </div>
                 </a-tooltip>
@@ -204,7 +228,7 @@ const option = computed(() => {
         </div>
       </a-col>
     </a-row>
-<br/>
+    <br/>
     <!--第三层-->
     <a-row :gutter="24">
       <a-col :xs="8">
@@ -278,7 +302,8 @@ const option = computed(() => {
   border-radius: 15px;
   height: 200px
 }
-.dashboard-card2-PC{
+
+.dashboard-card2-PC {
   padding: 20px;
   background: #ffffff;
   border-radius: 15px;
@@ -287,7 +312,8 @@ const option = computed(() => {
   justify-content: center;
   align-items: center;
 }
-.dashboard-card3-PC{
+
+.dashboard-card3-PC {
   margin-left: 20px;
   margin-right: 20px;
   padding: 10px;
@@ -296,7 +322,7 @@ const option = computed(() => {
   height: 300px;
 }
 
-.dashboard-card1-box-btn-bg-PC{
+.dashboard-card1-box-btn-bg-PC {
   width: 40px;
   height: 40px;
   padding: 10px;
@@ -307,11 +333,13 @@ const option = computed(() => {
   border-radius: 5px;
   transition: 3s ease-in-out;
 }
-.dashboard-card1-box-btn-bg-PC:hover{
+
+.dashboard-card1-box-btn-bg-PC:hover {
   border-radius: 20px;
   box-shadow: 0 0 20px 13px rgb(246 246 247 / 25%);
 }
-.dashboard-card1-box-btn-bg-PC:active{
+
+.dashboard-card1-box-btn-bg-PC:active {
   border-radius: 20px;
   box-shadow: 0 0 20px 13px rgb(246 246 247 / 25%);
   transition: 1s ease-in-out;

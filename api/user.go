@@ -325,7 +325,7 @@ func UserLogin(c *gin.Context) {
 					})
 			} else {
 				//写入最后登录时间,登录IP
-				Models.UserLoginWriteLog(ID, user.LastLonginIPAddress, user.LastLonginDate)
+				Models.UserLoginWriteLog(ID, user.ThisLonginIPAddress, user.ThisLonginDate)
 				c.JSON(
 					http.StatusOK,
 					gin.H{

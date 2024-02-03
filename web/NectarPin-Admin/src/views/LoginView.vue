@@ -18,14 +18,14 @@ const layout = ref('vertical');
 const form = reactive({
   username: '',
   password: '',
-  last_longin_ip_address: '',
-  last_longin_date: '',
+  this_longin_ip_address: '',
+  this_longin_date: '',
 });
 
 fetch('https://api.ipify.org?format=json')
     .then(response => response.json())
     .then(json => {
-      form.last_longin_ip_address = json.ip;
+      form.this_longin_ip_address = json.ip;
     })
 
 interface handleSubmit {
@@ -35,7 +35,7 @@ interface handleSubmit {
 const handleSubmit = debounce(({errors}: handleSubmit) => {
   if (errors === undefined) {
     form.password = md5(form.password);
-    form.last_longin_date = moment().format("YYYY-MM-DD dddd H:mm:ss");
+    form.this_longin_date = moment().format("YYYY-MM-DD dddd H:mm:ss");
     Login(form).then((res: any) => {
       if (res.data.code == 200) {
         window.sessionStorage.setItem('token', res.data.token)
