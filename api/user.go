@@ -351,7 +351,7 @@ UserTokenInfo [ 解密Token信息 ] [ 240117 ] [ 0.1 ]
 ------------------------------------------------------------------------------------------------------------------------
 
 	[API][Public]: api.UserTokenInfo
-	[URL][GET]: /api/User/tokenInfo
+	[URL][POST]: /api/User/tokenInfo
 
 ------------------------------------------------------------------------------------------------------------------------
 */
@@ -360,7 +360,7 @@ func UserTokenInfo(c *gin.Context) {
 		Token string `json:"token"`
 	}
 	var GJI GetJsonInfo
-	_ = c.BindJSON(&GJI)
+	_ = c.ShouldBindJSON(&GJI)
 
 	tokenData, tokenBool, statusCode := middleware.VerifyToken(GJI.Token)
 	if tokenBool != true {

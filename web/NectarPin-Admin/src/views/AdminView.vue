@@ -1,22 +1,39 @@
-<script setup>
-import {ref} from 'vue';
+<script lang="ts" setup>
+import {reactive, ref} from 'vue';
 import {Message, Notification} from '@arco-design/web-vue';
 import {IconCaretLeft, IconCaretRight,} from '@arco-design/web-vue/es/icon';
-import { useRouter } from 'vue-router';
+import {useRouter} from 'vue-router';
+import {GetUserInfo, TokenGetUserInfo} from '@/api/User/user'
 
 const router = useRouter()
-
 const collapsed = ref(false);
 const onCollapse = () => {
   collapsed.value = !collapsed.value;
 };
 
-function onClickMenuItem(key) {
+function onClickMenuItem(key: any) {
   Message.info({content: `You select ${key}`, showIcon: true});
 }
 
+//获取用户信息
+const token = window.sessionStorage.getItem("token");
+const UserInfoData = reactive({
+  "id": "",
+  "avater_url": "",
+})
+TokenGetUserInfo(token).then((res: any) => {
+  if (res.data.code == 200) {
+    GetUserInfo(res.data["tokenData"].id).then((res: any) => {
+      UserInfoData.id =  res.data.data[0]["id"]
+      UserInfoData.avater_url = res.data.data[0]["avater_url"]
+    })
+  } else {
+    Message.error({content: `网络异常`, showIcon: true});
+  }
+})
+
 //退出登录
-const Logout = () =>{
+const Logout = () => {
   window.sessionStorage.removeItem('token')
   router.push('/Login')
   Notification.success({
@@ -25,6 +42,7 @@ const Logout = () =>{
     closable: true,
   })
 }
+
 </script>
 
 <template>
@@ -112,7 +130,9 @@ const Logout = () =>{
           <IconCaretRight v-if="collapsed"/>
           <IconCaretLeft v-else/>
         </a-button>
-        <a-button shape="round" style="margin-left: 15px"><icon-sync /></a-button>
+        <a-button shape="round" style="margin-left: 15px">
+          <icon-sync/>
+        </a-button>
 
         <div style="float: right; margin-right: 20px">
 
@@ -120,19 +140,19 @@ const Logout = () =>{
             <a-avatar>
               <img
                   alt="avatar"
-                  src="https://q1.qlogo.cn/g?b=qq&nk=1091044631&s=640"
+                  :src="UserInfoData.avater_url"
               />
             </a-avatar>
             <template #content>
               <a-doption @click="Logout">
                 <template #icon>
-                  <icon-export />
+                  <icon-export/>
                 </template>
                 <template #default>退出登录</template>
               </a-doption>
               <a-doption>
                 <template #icon>
-                  <icon-idcard />
+                  <icon-idcard/>
                 </template>
                 <template #default>个人中心</template>
               </a-doption>
@@ -201,7 +221,7 @@ const Logout = () =>{
   text-align: center;
 }
 
-.footer{
+.footer {
   margin-top: 55px;
   display: flex;
   justify-content: center;
@@ -210,6 +230,7 @@ const Logout = () =>{
   padding: 20px 20px 0;
   background-color: #f7f8fa;
 }
+
 .footer-copyright {
   margin-left: 12px;
   color: var(--color-text-3);

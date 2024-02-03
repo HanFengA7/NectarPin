@@ -13,7 +13,7 @@ UserRoutes [用户路由接口] [V1.0] [20240130]
 	╒[需要授权] [authUserAPI]
 	╞═[1]═[查询用户信息-后台[1]] [GET] [/api/User/getInfo/1/:id]
 	╞═[2]═[查询用户列表] [GET] [/api/User/getList]
-	╞═[3]═[解密Token信息] [GET] [/api/User/tokenInfo]
+	╞═[3]═[解密Token信息] [POST] [/api/User/tokenInfo]
 	╞═[4]═[创建用户] [POST] [/api/User/add]
 	╞═[5]═[编辑用户信息] [PUT] [/api/User/editInfo/:id]
 	╞═[6]═[编辑用户密码] [PUT] [/api/User/editPwd]
@@ -37,8 +37,8 @@ func UserRoutes(router *gin.Engine) {
 		authUserAPI.GET("/getInfo/1/:id", api.GetUserInfo)
 		//[查询用户列表] [GET] [Private] [/api/User/getList]
 		authUserAPI.GET("/getList", api.GetUserList)
-		//[解密Token信息] [GET] [Private] [/api/User/tokenInfo]
-		authUserAPI.GET("/tokenInfo", api.UserTokenInfo)
+		//[解密Token信息] [POST] [Private] [/api/User/tokenInfo]
+		authUserAPI.POST("/tokenInfo", api.UserTokenInfo)
 		//[创建用户] [POST] [Private] [/api/User/add]
 		authUserAPI.POST("/add", api.CreateUser)
 		//[编辑用户信息] [PUT] [Private] [/api/User/editInfo/:id]
