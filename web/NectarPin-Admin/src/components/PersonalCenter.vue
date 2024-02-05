@@ -33,7 +33,8 @@ const personalCenterHeardOnBack = () =>{
 
       <template #extra>
         <a-space>
-          <a-button>编辑</a-button>
+          <a-button>编辑资料</a-button>
+          <a-button>修改密码</a-button>
         </a-space>
       </template>
     </a-page-header>
@@ -62,10 +63,18 @@ const personalCenterHeardOnBack = () =>{
 
     <a-row class="personalCenter-heardBox-Card-row1-PC">
       <a-col :span="12">
-        <div class="personalCenter-heardBox-Card1-PC"></div>
+        <div class="personalCenter-heardBox-Card1-PC">
+          <p>用户名 : {{props.userInfo["username"]}}</p>
+          <p>昵称 : {{props.userInfo["nickname"]}}</p>
+          <p>邮箱 : {{props.userInfo["email"]}}</p>
+          <p>权限 : {{props.userInfo["role"] == "1" ? "超级管理员" : "管理员"}}</p>
+        </div>
       </a-col>
       <a-col :span="12">
-        <div class="personalCenter-heardBox-Card2-PC"></div>
+        <div class="personalCenter-heardBox-Card2-PC">
+          <p>上次登录时间 : {{props.userInfo["last_longin_date"]}}</p>
+          <p>上次登录IP : {{props.userInfo["last_longin_ip_address"]}}</p>
+        </div>
       </a-col>
     </a-row>
 
@@ -94,21 +103,19 @@ const personalCenterHeardOnBack = () =>{
 }
 
 .personalCenter-heardBox-Card-row1-PC{
-  margin: 20px;
+  margin: 35px;
 }
 
 .personalCenter-heardBox-Card1-PC{
   border-radius: 10px;
-  margin-right: 20px;
+  margin-right: 25px;
   padding: 20px;
   background: #f2f3f5d4;
-  height: 50px;
 }
 .personalCenter-heardBox-Card2-PC{
   border-radius: 10px;
-  margin-left: 20px;
+  margin-left: 25px;
   padding: 20px;
   background: #f2f3f5d4;
-  height: 50px;
 }
 </style>
