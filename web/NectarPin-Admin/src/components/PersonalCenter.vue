@@ -77,7 +77,6 @@ const personalCenterHeardOnBack = () =>{
         </div>
       </a-col>
     </a-row>
-
   </a-watermark>
 </template>
 
@@ -89,10 +88,10 @@ const personalCenterHeardOnBack = () =>{
 }
 .personalCenter-heardBox-PC{
   border-radius: 15px;
-  margin: 40px;
+  margin: 50px;
   padding: 25px;
   background: #ffffff;
-  height: 650px;
+  height: 550px;
 }
 
 .personalCenter-heardBox-avatar-PC{

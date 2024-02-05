@@ -181,11 +181,11 @@ onBeforeMount(() => {
                 </template>
                 <template #default>退出登录</template>
               </a-doption>
-              <a-doption>
+              <a-doption @click="router.push({name: 'PersonalCenter'})">
                 <template #icon>
                   <icon-idcard/>
                 </template>
-                <template #default>个人中心{{a}}</template>
+                <template #default>个人中心</template>
               </a-doption>
             </template>
           </a-dropdown>
