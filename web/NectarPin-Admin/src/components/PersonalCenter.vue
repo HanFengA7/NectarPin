@@ -1,18 +1,66 @@
 <script lang="ts" setup>
 import eventBus from '@/plugin/event-bus/event-bus';
-import {ref} from "vue";
+import {onMounted, reactive, ref, toRefs, watch} from "vue";
 import router from "@/router";
 import dayjs from 'dayjs';
-//接收父组件的UserInfoData数据
+
+/*
+接收父组件的数据
+[1][UserInfoData]
+ */
 const props = defineProps(['userInfo']);
-//传数据给父组件
-/*设置侧边栏选择选项*/
+
+
+
+/*
+传数据给父组件
+[1]设置侧边栏选择选项 [child-data-selectedKeys]
+*/
 let SelectedKeys: any = ref(["PersonalCenter"]);
 eventBus.emit("child-data-selectedKeys", SelectedKeys);
 
+//返回Dashboard的函数
 const personalCenterHeardOnBack = () =>{
   router.push({ name: 'Dashboard' })
 }
+
+//编辑资料模态框的函数[公共]
+//定义editInfo_Form
+const editInfo_Form = ref({
+  username: props.userInfo["username"],
+  nickname: props.userInfo["nickname"],
+  email: props.userInfo["email"],
+  avater_url: props.userInfo["avater_url"],
+});
+//监听userInfo
+watch(
+    () => props.userInfo, // 要监视的表达式
+    (newValue, oldValue) => {
+      editInfo_Form.value.username = newValue["username"]
+
+    },
+    { deep: true } // 深度监听对象属性的变化
+);
+
+
+
+//编辑资料模态框的函数[PC]
+const editInfo_Visible_PC = ref(false);
+const editInfo_handleClickPC = () => {
+  editInfo_Visible_PC.value = true;
+};
+const editInfo_handleBeforeOk_PC = (done:any) => {
+  console.log(editInfo_Form)
+  window.setTimeout(() => {
+    done()
+    // prevent close
+    // done(false)
+  }, 3000)
+};
+const editInfo_handleCancel_PC = () => {
+  editInfo_Visible_PC.value = false;
+}
+
 </script>
 
 <template>
@@ -33,12 +81,22 @@ const personalCenterHeardOnBack = () =>{
 
       <template #extra>
         <a-space>
-          <a-button>编辑资料</a-button>
+          <a-button @click="editInfo_handleClickPC">编辑资料</a-button>
           <a-button>修改密码</a-button>
         </a-space>
       </template>
     </a-page-header>
   </div>
+
+  <!--[编辑资料][模态框][PC]-->
+  <a-modal v-model:visible="editInfo_Visible_PC" title="编辑资料" @cancel="editInfo_handleCancel_PC" @before-ok="editInfo_handleBeforeOk_PC">
+    <a-form :model="editInfo_Form">
+      <a-form-item field="username" label="用户名">
+        <a-input v-model="editInfo_Form.username" />
+      </a-form-item>
+    </a-form>
+  </a-modal>
+
   <a-watermark
       :content="[props.userInfo.username,dayjs().format('YYYY-MM-DD H:mm:ss')]"
       :alpha="0.25"

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {computed, ref, reactive} from 'vue'
+import {computed, ref, reactive, onBeforeMount, onMounted, watch, toRaw, watchEffect} from 'vue'
 import axios from "axios";
 import eventBus from "@/plugin/event-bus/event-bus.js";
 
@@ -81,6 +81,12 @@ const option = computed(() => {
 
 //接收父组件的UserInfoData数据
 const props = defineProps(['userInfo']);
+const userInfoRef = ref(props.userInfo);
+
+watchEffect(() => {
+  console.log(userInfoRef.value)
+});
+
 
 //头部卡片信息
 const heardCardInfo = reactive({

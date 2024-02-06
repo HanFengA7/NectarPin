@@ -20,7 +20,7 @@ const router = createRouter({
                 title: 'NectarPin',
             },
             component: AdminView,
-            props: route => ({ userInfo: route.params.userInfo }),
+            //props: route => ({ userInfo: route.params.userInfo }),
             children: [
                 {
                     path: '/Dashboard',
@@ -42,6 +42,7 @@ const router = createRouter({
         }
     ]
 })
+
 router.beforeEach(async (to, from) => {
     // 设置标题
     if (to.meta.title) {

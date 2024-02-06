@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {onBeforeMount, onMounted, reactive, ref} from 'vue';
+import {nextTick, onBeforeMount, onMounted, reactive, ref, toRefs} from 'vue';
 import {Message, Notification} from '@arco-design/web-vue';
 import {IconCaretLeft, IconCaretRight,} from '@arco-design/web-vue/es/icon';
 import {useRouter} from 'vue-router';
@@ -33,9 +33,10 @@ const UserInfoData = reactive({
   "last_longin_ip_address": "",
 })
 
-TokenGetUserInfo(token).then((res: any) => {
+
+TokenGetUserInfo(token).then(async (res: any) => {
   if (res.data.code == 200) {
-    GetUserInfo(res.data["tokenData"].id).then((res: any) => {
+    await GetUserInfo(res.data["tokenData"].id).then((res: any) => {
       UserInfoData.id = res.data.data[0]["id"]
       UserInfoData.username = res.data.data[0]["username"]
       UserInfoData.nickname = res.data.data[0]["nickname"]
@@ -51,7 +52,6 @@ TokenGetUserInfo(token).then((res: any) => {
     Message.error({content: res.data.msg, showIcon: true});
   }
 })
-
 
 //退出登录
 const Logout = () => {
