@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {nextTick, onBeforeMount, onMounted, reactive, ref, toRefs} from 'vue';
+import {onBeforeMount, provide, reactive, ref} from 'vue';
 import {Message, Notification} from '@arco-design/web-vue';
 import {IconCaretLeft, IconCaretRight,} from '@arco-design/web-vue/es/icon';
 import {useRouter} from 'vue-router';
@@ -15,7 +15,7 @@ const onCollapse = () => {
 
 //点击侧边栏事件
 function onClickMenuItem(key: any) {
-  router.push({ name: key })
+  router.push({name: key})
 }
 
 //获取用户信息
@@ -32,11 +32,10 @@ const UserInfoData = reactive({
   "last_longin_date": "",
   "last_longin_ip_address": "",
 })
-
-
-TokenGetUserInfo(token).then(async (res: any) => {
+const isUserInfoData = ref(false)
+TokenGetUserInfo(token).then((res: any) => {
   if (res.data.code == 200) {
-    await GetUserInfo(res.data["tokenData"].id).then((res: any) => {
+    GetUserInfo(res.data["tokenData"].id).then((res: any) => {
       UserInfoData.id = res.data.data[0]["id"]
       UserInfoData.username = res.data.data[0]["username"]
       UserInfoData.nickname = res.data.data[0]["nickname"]
@@ -47,11 +46,24 @@ TokenGetUserInfo(token).then(async (res: any) => {
       UserInfoData.this_longin_ip_address = res.data.data[0]["this_longin_ip_address"]
       UserInfoData.last_longin_date = res.data.data[0]["last_longin_date"]
       UserInfoData.last_longin_ip_address = res.data.data[0]["last_longin_ip_address"]
+      isUserInfoData.value = true
     })
   } else {
+    isUserInfoData.value = false
     Message.error({content: res.data.msg, showIcon: true});
   }
 })
+//provide('UserInfoData', UserInfoData);
+//onMounted(LoadUserInfoData);
+// watch(
+//     () => UserInfoData, // 要监视的表达式
+//     (newValue) => {
+//       console.log(newValue)
+//       provide('UserInfoData', UserInfoData);
+//     },
+//     {deep: true} // 深度监听对象属性的变化
+// )
+
 
 //退出登录
 const Logout = () => {
@@ -67,7 +79,7 @@ const Logout = () => {
 //接收子组件数据
 onBeforeMount(() => {
   // 监听事件
-  eventBus.on('child-data-selectedKeys', (newData:any) => {
+  eventBus.on('child-data-selectedKeys', (newData: any) => {
     // 处理从子组件接收到的数据
     selectedKeys.value = newData.value;
     console.log(newData.value)
@@ -193,7 +205,7 @@ onBeforeMount(() => {
       </a-layout-header>
       <a-layout>
 
-        <RouterView :userInfo="UserInfoData"></RouterView>
+        <RouterView :userInfo="UserInfoData" v-if="isUserInfoData"></RouterView>
 
         <a-layout-footer>
           <div class="footer">

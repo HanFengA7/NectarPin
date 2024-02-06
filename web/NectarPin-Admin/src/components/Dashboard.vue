@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {computed, ref, reactive, onBeforeMount, onMounted, watch, toRaw, watchEffect} from 'vue'
+import {computed, ref, reactive, onBeforeMount, onMounted, watch, toRaw, watchEffect, inject} from 'vue'
 import axios from "axios";
 import eventBus from "@/plugin/event-bus/event-bus.js";
 
@@ -79,13 +79,7 @@ const option = computed(() => {
   }
 })
 
-//接收父组件的UserInfoData数据
-const props = defineProps(['userInfo']);
-const userInfoRef = ref(props.userInfo);
 
-watchEffect(() => {
-  console.log(userInfoRef.value)
-});
 
 
 //头部卡片信息
@@ -107,6 +101,13 @@ axios.get('https://international.v1.hitokoto.cn/?c=d')
       heardCardInfo.hitokoto = res.data["hitokoto"] + "--《" +res.data["from"]+"》"
     })
 
+//接收父组件的UserInfoData数据
+const props = defineProps(['userInfo']);
+console.log(props.userInfo)
+// watchEffect(() => {
+//   console.log(props.userInfo)
+// });
+
 //传数据给父组件
 //eventBus.emit('child-data-selectedKeys', ["Dashboard"]);
 /*设置侧边栏选择选项*/
@@ -116,7 +117,7 @@ eventBus.emit("child-data-selectedKeys", SelectedKeys);
 
 <template>
   <div class="dashboard-heard-PC">
-    <h2>🤗&nbsp;欢迎回来&nbsp;,&nbsp;{{ props.userInfo.nickname }}&nbsp;,&nbsp;快来写一篇吧!</h2>
+    <h2>🤗&nbsp;欢迎回来&nbsp;,&nbsp;{{ props.userInfo["nickname"] }}&nbsp;,&nbsp;快来写一篇吧!</h2>
 
     <h5>
       {{ heardCardInfo.hitokoto }}

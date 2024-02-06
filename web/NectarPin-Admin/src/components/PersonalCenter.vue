@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 [1][UserInfoData]
  */
 const props = defineProps(['userInfo']);
-
+console.log(props.userInfo)
 
 
 /*
@@ -32,16 +32,6 @@ const editInfo_Form = ref({
   email: props.userInfo["email"],
   avater_url: props.userInfo["avater_url"],
 });
-//监听userInfo
-watch(
-    () => props.userInfo, // 要监视的表达式
-    (newValue, oldValue) => {
-      editInfo_Form.value.username = newValue["username"]
-
-    },
-    { deep: true } // 深度监听对象属性的变化
-);
-
 
 
 //编辑资料模态框的函数[PC]
@@ -93,6 +83,15 @@ const editInfo_handleCancel_PC = () => {
     <a-form :model="editInfo_Form">
       <a-form-item field="username" label="用户名">
         <a-input v-model="editInfo_Form.username" />
+      </a-form-item>
+      <a-form-item field="nickname" label="昵称">
+        <a-input v-model="editInfo_Form.nickname" />
+      </a-form-item>
+      <a-form-item field="email" label="邮箱">
+        <a-input v-model="editInfo_Form.email" />
+      </a-form-item>
+      <a-form-item field="avater_url" label="头像外链">
+        <a-input v-model="editInfo_Form.avater_url" />
       </a-form-item>
     </a-form>
   </a-modal>
