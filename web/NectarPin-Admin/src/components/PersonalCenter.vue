@@ -47,7 +47,14 @@ const editInfo_handleBeforeOk_PC = (done:any) => {
         Message.success({content: res.data.msg, showIcon: true});
       }, 3000)
     }else {
-      Message.error({content: res.data.msg, showIcon: true});
+      window.setTimeout(() => {
+        editInfo_Form.username = props.userInfo["username"]
+        editInfo_Form.nickname = props.userInfo["nickname"]
+        editInfo_Form.email = props.userInfo["email"]
+        editInfo_Form.avater_url = props.userInfo["avater_url"]
+        done()
+        Message.error({content: res.data.msg, showIcon: true});
+      }, 3000)
     }
   })
 };
