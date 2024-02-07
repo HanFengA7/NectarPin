@@ -1,20 +1,21 @@
 <script lang="ts" setup>
 import eventBus from '@/plugin/event-bus/event-bus';
-import {onMounted, reactive, ref, toRefs, watch} from "vue";
+import {reactive, ref} from "vue";
 import router from "@/router";
 import dayjs from 'dayjs';
+import {EditUserInfo} from '@/api/User/user'
+import {Message} from "@arco-design/web-vue";
 
 /*
 接收父组件的数据
 [1][UserInfoData]
  */
 const props = defineProps(['userInfo']);
-console.log(props.userInfo)
-
 
 /*
 传数据给父组件
 [1]设置侧边栏选择选项 [child-data-selectedKeys]
+[2]刷新UserInfo数据 [child-data-userInfo-refresh]
 */
 let SelectedKeys: any = ref(["PersonalCenter"]);
 eventBus.emit("child-data-selectedKeys", SelectedKeys);
@@ -26,7 +27,7 @@ const personalCenterHeardOnBack = () =>{
 
 //编辑资料模态框的函数[公共]
 //定义editInfo_Form
-const editInfo_Form = ref({
+const editInfo_Form = reactive({
   username: props.userInfo["username"],
   nickname: props.userInfo["nickname"],
   email: props.userInfo["email"],
@@ -38,12 +39,17 @@ const editInfo_handleClickPC = () => {
   editInfo_Visible_PC.value = true;
 };
 const editInfo_handleBeforeOk_PC = (done:any) => {
-  console.log(editInfo_Form)
-  window.setTimeout(() => {
-    done()
-    // prevent close
-    // done(false)
-  }, 3000)
+  EditUserInfo(props.userInfo["id"],editInfo_Form).then((res:any) => {
+    if (res.data.code == 200){
+      window.setTimeout(() => {
+        eventBus.emit("child-data-userInfo-refresh", new Date());
+        done()
+        Message.success({content: res.data.msg, showIcon: true});
+      }, 3000)
+    }else {
+      Message.error({content: res.data.msg, showIcon: true});
+    }
+  })
 };
 const editInfo_handleCancel_PC = () => {
   editInfo_Visible_PC.value = false;

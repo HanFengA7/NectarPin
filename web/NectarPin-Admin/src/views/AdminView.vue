@@ -33,26 +33,29 @@ const UserInfoData = reactive({
   "last_longin_ip_address": "",
 })
 const isUserInfoData = ref(false)
-TokenGetUserInfo(token).then((res: any) => {
-  if (res.data.code == 200) {
-    GetUserInfo(res.data["tokenData"].id).then((res: any) => {
-      UserInfoData.id = res.data.data[0]["id"]
-      UserInfoData.username = res.data.data[0]["username"]
-      UserInfoData.nickname = res.data.data[0]["nickname"]
-      UserInfoData.email = res.data.data[0]["email"]
-      UserInfoData.role = res.data.data[0]["role"]
-      UserInfoData.avater_url = res.data.data[0]["avater_url"]
-      UserInfoData.this_longin_date = res.data.data[0]["this_longin_date"]
-      UserInfoData.this_longin_ip_address = res.data.data[0]["this_longin_ip_address"]
-      UserInfoData.last_longin_date = res.data.data[0]["last_longin_date"]
-      UserInfoData.last_longin_ip_address = res.data.data[0]["last_longin_ip_address"]
-      isUserInfoData.value = true
-    })
-  } else {
-    isUserInfoData.value = false
-    Message.error({content: res.data.msg, showIcon: true});
-  }
-})
+const LoadUserInfo = () => {
+  TokenGetUserInfo(token).then((res: any) => {
+    if (res.data.code == 200) {
+      GetUserInfo(res.data["tokenData"].id).then((res: any) => {
+        UserInfoData.id = res.data.data[0]["id"]
+        UserInfoData.username = res.data.data[0]["username"]
+        UserInfoData.nickname = res.data.data[0]["nickname"]
+        UserInfoData.email = res.data.data[0]["email"]
+        UserInfoData.role = res.data.data[0]["role"]
+        UserInfoData.avater_url = res.data.data[0]["avater_url"]
+        UserInfoData.this_longin_date = res.data.data[0]["this_longin_date"]
+        UserInfoData.this_longin_ip_address = res.data.data[0]["this_longin_ip_address"]
+        UserInfoData.last_longin_date = res.data.data[0]["last_longin_date"]
+        UserInfoData.last_longin_ip_address = res.data.data[0]["last_longin_ip_address"]
+        isUserInfoData.value = true
+      })
+    } else {
+      isUserInfoData.value = false
+      Message.error({content: res.data.msg, showIcon: true});
+    }
+  })
+}
+LoadUserInfo()
 //provide('UserInfoData', UserInfoData);
 //onMounted(LoadUserInfoData);
 // watch(
@@ -76,15 +79,28 @@ const Logout = () => {
   })
 }
 
+const refreshKey = ref(new Date())
+
 //接收子组件数据
 onBeforeMount(() => {
   // 监听事件
   eventBus.on('child-data-selectedKeys', (newData: any) => {
     // 处理从子组件接收到的数据
     selectedKeys.value = newData.value;
-    console.log(newData.value)
   });
+
+  eventBus.on('child-data-userInfo-refresh', (refreshKey: any) => {
+    //数据更新DataKey
+    isUserInfoData.value = false
+    LoadUserInfo()
+    isUserInfoData.value = true
+    refreshKey.value = refreshKey
+  });
+
 });
+
+
+
 </script>
 
 <template>
@@ -205,7 +221,7 @@ onBeforeMount(() => {
       </a-layout-header>
       <a-layout>
 
-        <RouterView :userInfo="UserInfoData" v-if="isUserInfoData"></RouterView>
+        <RouterView :userInfo="UserInfoData" v-if="isUserInfoData" :key="refreshKey"></RouterView>
 
         <a-layout-footer>
           <div class="footer">

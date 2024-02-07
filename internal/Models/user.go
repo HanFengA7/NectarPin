@@ -267,7 +267,7 @@ func EditUserInfo(id int, values *User) (msgData string, statusCode int) {
 	maps["nickname"] = values.NickName
 	maps["email"] = values.Email
 	maps["avater_url"] = values.AvatarUrl
-	maps["role"] = values.Role
+	//maps["role"] = values.Role
 
 	//判断用户名是否重复
 	rows := db.Select("id,username").Where("username = ?", values.Username).First(&user).RowsAffected

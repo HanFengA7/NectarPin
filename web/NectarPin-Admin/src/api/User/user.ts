@@ -1,6 +1,6 @@
 import Service from "/src/plugin/axios/axios"
 
-export async function TokenGetUserInfo(data:any){
+export async function TokenGetUserInfo(data: any) {
     try {
         return await Service({
             url: '/User/tokenInfo',
@@ -23,6 +23,19 @@ export async function GetUserInfo(id: any) {
         });
     } catch (error) {
         console.error("Error in GetUserInfo:", error);
+        throw error;
+    }
+}
+
+export async function EditUserInfo(id: int,data: any) {
+    try {
+        return await Service({
+            url: '/User/editInfo/'+ id,
+            method: 'put',
+            data
+        })
+    } catch (error) {
+        console.error("Error in EditUserInfo:", error);
         throw error;
     }
 }
