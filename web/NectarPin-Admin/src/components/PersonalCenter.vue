@@ -32,8 +32,6 @@ const editInfo_Form = ref({
   email: props.userInfo["email"],
   avater_url: props.userInfo["avater_url"],
 });
-
-
 //编辑资料模态框的函数[PC]
 const editInfo_Visible_PC = ref(false);
 const editInfo_handleClickPC = () => {

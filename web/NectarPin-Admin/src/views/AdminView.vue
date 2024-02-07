@@ -95,7 +95,7 @@ onBeforeMount(() => {
         :collapsed="collapsed"
     >
       <div id="logo">
-        <h1 style="text-align: center;font-weight: 200">NectarPin</h1>
+        <h1 style="text-align: center;font-weight: 200">{{ collapsed ? "" : "NectarPin" }}</h1>
       </div>
       <a-menu
           :defaultSelectedKeys="['Dashboard']"
