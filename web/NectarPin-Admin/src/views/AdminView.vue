@@ -191,7 +191,7 @@ onBeforeMount(() => {
           <IconCaretRight v-if="collapsed"/>
           <IconCaretLeft v-else/>
         </a-button>
-        <a-button shape="round" style="margin-left: 15px">
+        <a-button shape="round" style="margin-left: 15px" @click="router.go(0)">
           <icon-sync/>
         </a-button>
 

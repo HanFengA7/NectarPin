@@ -269,6 +269,7 @@ const editPwd_handleCancel_PC = () => {
       <a-avatar
           :size="128"
           trigger-type="mask"
+          @click="editInfo_handleClickPC"
       >
         <img
             alt="avatar"

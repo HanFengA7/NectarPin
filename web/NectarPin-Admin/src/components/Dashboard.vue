@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {computed, ref, reactive, onBeforeMount, onMounted, watch, toRaw, watchEffect, inject} from 'vue'
+import {computed, ref, reactive} from 'vue'
 import axios from "axios";
 import eventBus from "@/plugin/event-bus/event-bus.js";
 
@@ -90,12 +90,6 @@ const heardCardInfo = reactive({
   sign:"",
   lastIpProvince:"",
 })
-// axios.get('https://api.xygeng.cn/openapi/day')
-//     .then(({ data }) => {
-//       heardCardInfo.date = data.data.date
-//       heardCardInfo.solarDay = data.data["solar"].day
-//       heardCardInfo.sign = data.data["sign"]
-//     })
 axios.get('https://international.v1.hitokoto.cn/?c=d')
     .then(res =>{
       heardCardInfo.hitokoto = res.data["hitokoto"] + "--《" +res.data["from"]+"》"
@@ -103,10 +97,6 @@ axios.get('https://international.v1.hitokoto.cn/?c=d')
 
 //接收父组件的UserInfoData数据
 const props = defineProps(['userInfo']);
-console.log(props.userInfo)
-// watchEffect(() => {
-//   console.log(props.userInfo)
-// });
 
 //传数据给父组件
 //eventBus.emit('child-data-selectedKeys', ["Dashboard"]);
