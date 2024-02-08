@@ -1,5 +1,6 @@
 import Service from "/src/plugin/axios/axios"
 
+//Token信息解密 [TokenGetUserInfo]
 export async function TokenGetUserInfo(data: any) {
     try {
         return await Service({
@@ -15,6 +16,7 @@ export async function TokenGetUserInfo(data: any) {
     }
 }
 
+//获取用户信息 [GetUserInfo]
 export async function GetUserInfo(id: any) {
     try {
         return await Service({
@@ -27,6 +29,7 @@ export async function GetUserInfo(id: any) {
     }
 }
 
+//编辑用户信息 [EditUserInfo]
 export async function EditUserInfo(id: int,data: any) {
     try {
         return await Service({
