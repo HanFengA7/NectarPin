@@ -15,7 +15,6 @@ const props = defineProps(['userInfo']);
 /*
 传数据给父组件
 [1]设置侧边栏选择选项 [child-data-selectedKeys]
-[2]刷新UserInfo数据 [child-data-userInfo-refresh]
 */
 let SelectedKeys: any = ref(["PersonalCenter"]);
 eventBus.emit("child-data-selectedKeys", SelectedKeys);
@@ -25,6 +24,10 @@ const personalCenterHeardOnBack = () =>{
   router.push({ name: 'Dashboard' })
 }
 
+
+/*
+编辑资料模态框 [Start]
+ */
 //编辑资料模态框的函数[公共]
 //定义editInfo_Form
 const editInfo_Form = reactive({
@@ -42,6 +45,7 @@ const editInfo_handleBeforeOk_PC = (done:any) => {
   EditUserInfo(props.userInfo["id"],editInfo_Form).then((res:any) => {
     if (res.data.code == 200){
       window.setTimeout(() => {
+        //刷新UserInfo数据 [child-data-userInfo-refresh]
         eventBus.emit("child-data-userInfo-refresh", new Date());
         done()
         Message.success({content: res.data.msg, showIcon: true});
@@ -61,7 +65,9 @@ const editInfo_handleBeforeOk_PC = (done:any) => {
 const editInfo_handleCancel_PC = () => {
   editInfo_Visible_PC.value = false;
 }
-
+/*
+编辑资料模态框 [End]
+ */
 </script>
 
 <template>
@@ -135,7 +141,7 @@ const editInfo_handleCancel_PC = () => {
           <p>用户名 : {{props.userInfo["username"]}}</p>
           <p>昵称 : {{props.userInfo["nickname"]}}</p>
           <p>邮箱 : {{props.userInfo["email"]}}</p>
-          <p>权限 : {{props.userInfo["role"] == "1" ? "超级管理员" : "管理员"}}</p>
+          <p>权限 : {{props.userInfo["role"] == "0" ? "管理员" : "编辑者"}}</p>
         </div>
       </a-col>
       <a-col :span="12">

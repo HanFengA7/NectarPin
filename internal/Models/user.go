@@ -22,6 +22,7 @@ User [用户表结构][231209][0.1]
 	Password            	string				密码
 	Email               	string				电子邮箱
 	AvatarUrl          		string				头像地址
+	PSignatures				string				个性签名
 	Role                	int					角色码 [0:管理员 1:编辑者 2:订阅者]
 	ThisLonginIPAddress 	string				这次登录IP地址
 	ThisLonginDate      	string				这次登录时间
@@ -38,6 +39,7 @@ type User struct {
 	Password            string         `gorm:"column:password; type: varchar(255); not null" json:"password,omitempty"`
 	Email               string         `gorm:"column:email; type: varchar(255); not null" json:"email"`
 	AvatarUrl           string         `gorm:"column:avater_url; type: longtext" json:"avater_url"`
+	PSignatures         string         `gorm:"column:p_signatures; type: longtext" json:"p_signatures"`
 	Role                int            `gorm:"column:role; type: int; DEFAULT:2; not null" json:"role"`
 	ThisLonginIPAddress string         `gorm:"column:this_longin_ip_address; type: varchar(255);" json:"this_longin_ip_address,omitempty"`
 	ThisLonginDate      string         `gorm:"column:this_longin_date; type: varchar(255);datetime;not null" json:"this_longin_date"`
@@ -110,14 +112,14 @@ func GetUser(key int, values interface{}) (msgData []User, statusCode int) {
 	if key == 0 {
 		switch values.(type) {
 		case int:
-			err := db.Select("id,username,nickname,email,avater_url,role").Where("id = ?", values).
+			err := db.Select("id,username,nickname,email,avater_url,role,p_signatures").Where("id = ?", values).
 				Find(&user).Error
 			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, errmsg.ERROR
 			}
 			return user, errmsg.SUCCESS
 		case string:
-			err := db.Select("id,username,nickname,email,avater_url,role").Where("username = ?", values).
+			err := db.Select("id,username,nickname,email,avater_url,role,p_signatures").Where("username = ?", values).
 				Find(&user).Error
 			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, errmsg.ERROR
@@ -130,7 +132,7 @@ func GetUser(key int, values interface{}) (msgData []User, statusCode int) {
 		switch values.(type) {
 		case int:
 			err := db.Select(
-				"id,created_at,updated_at,username,nickname,email,avater_url,role,last_longin_ip_address,last_longin_date,this_longin_ip_address,this_longin_date",
+				"id,created_at,updated_at,username,nickname,email,avater_url,role,p_signatures,last_longin_ip_address,last_longin_date,this_longin_ip_address,this_longin_date",
 			).Where("id = ?", values).Find(&user).Error
 			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, errmsg.ERROR
@@ -138,7 +140,7 @@ func GetUser(key int, values interface{}) (msgData []User, statusCode int) {
 			return user, errmsg.SUCCESS
 		case string:
 			err := db.Select(
-				"id,created_at,updated_at,username,nickname,email,avater_url,role,last_longin_ip_address,last_longin_date,this_longin_ip_address,this_longin_date",
+				"id,created_at,updated_at,username,nickname,email,avater_url,role,p_signatures,last_longin_ip_address,last_longin_date,this_longin_ip_address,this_longin_date",
 			).Where("username = ?", values).Find(&user).Error
 			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, errmsg.ERROR
@@ -184,7 +186,7 @@ func GetUserList(username string, pageSize int, pageNum int) (data []User, total
 	switch {
 	case len(username) == 0:
 		err = db.Select(
-			"id,created_at,updated_at,username,nickname,email,avater_url,role,last_longin_ip_address,last_longin_date,this_longin_ip_address,this_longin_date",
+			"id,created_at,updated_at,username,nickname,email,avater_url,role,p_signatures,last_longin_ip_address,last_longin_date,this_longin_ip_address,this_longin_date",
 		).Limit(pageSize).Offset(offset).Find(&data).Error
 		err = db.Model(&data).Count(&total).Error
 		if err != nil {
@@ -194,7 +196,7 @@ func GetUserList(username string, pageSize int, pageNum int) (data []User, total
 
 	case len(username) != 0:
 		err = db.Select(
-			"id,created_at,updated_at,username,nickname,email,avater_url,role,last_longin_ip_address,last_longin_date,this_longin_ip_address,this_longin_date",
+			"id,created_at,updated_at,username,nickname,email,avater_url,role,p_signatures,last_longin_ip_address,last_longin_date,this_longin_ip_address,this_longin_date",
 		).Where("username LIKE ?", username+"%").Limit(pageSize).Offset(offset).Find(&data).Error
 		err = db.Model(&data).Where("username LIKE ?", username+"%").Count(&total).Error
 		if err != nil {
@@ -267,6 +269,7 @@ func EditUserInfo(id int, values *User) (msgData string, statusCode int) {
 	maps["nickname"] = values.NickName
 	maps["email"] = values.Email
 	maps["avater_url"] = values.AvatarUrl
+	maps["p_signatures"] = values.PSignatures
 	//maps["role"] = values.Role
 
 	//判断用户名是否重复
