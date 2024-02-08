@@ -30,15 +30,32 @@ export async function GetUserInfo(id: any) {
 }
 
 //编辑用户信息 [EditUserInfo]
-export async function EditUserInfo(id: int,data: any) {
+export async function EditUserInfo(id: int, data: any) {
     try {
         return await Service({
-            url: '/User/editInfo/'+ id,
+            url: '/User/editInfo/' + id,
             method: 'put',
             data
         })
     } catch (error) {
         console.error("Error in EditUserInfo:", error);
+        throw error;
+    }
+}
+
+//修改用户密码 [EditUserPwd]
+export async function EditUserPwd(username: string, password: string) {
+    try {
+        return await Service({
+            url: '/User/editPwd',
+            method: 'put',
+            data:{
+                "username":username,
+                "password":password
+            }
+        })
+    } catch (error){
+        console.error("Error in EditUserPwd:", error);
         throw error;
     }
 }
