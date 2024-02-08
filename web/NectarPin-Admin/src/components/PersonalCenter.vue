@@ -139,6 +139,26 @@ const editPwd_handleClickPC = () => {
   editPwd_Visible_PC.value = true;
 };
 const editPwd_handleBeforeOk_PC = (done:any) => {
+  if (editPwd_Form.old_password != "" && editPwd_Form.new_password != "" && editPwd_Form.confirm_password != ""){
+    if (editPwd_Form.old_password === editPwd_Form.new_password){
+      Message.error({content: "不能与原始密码相同", showIcon: true});
+      done(false)
+      return
+    }
+    if (editPwd_Form.new_password !== editPwd_Form.confirm_password){
+      Message.error({content: "两次密码不一致", showIcon: true});
+      done(false)
+      return
+    }
+
+    Message.success({content: "yes", showIcon: true});
+    done()
+
+  }else {
+    Message.error({content: "请勿提交空值", showIcon: true});
+    done(false)
+  }
+
 };
 const editPwd_handleCancel_PC = () => {
   editPwd_Visible_PC.value = false;
