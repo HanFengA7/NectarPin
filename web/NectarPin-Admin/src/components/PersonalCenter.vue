@@ -5,6 +5,7 @@ import router from "@/router";
 import dayjs from 'dayjs';
 import {EditUserInfo} from '@/api/User/user'
 import {Message} from "@arco-design/web-vue";
+import {storeToRefs} from "pinia";
 
 /*
 接收父组件的数据
@@ -48,8 +49,6 @@ const editInfo_handleBeforeOk_PC = (done:any) => {
       window.setTimeout(() => {
         //刷新UserInfo数据 [child-data-userInfo-refresh]
         eventBus.emit("child-data-userInfo-refresh", new Date());
-        console.log(editInfo_Form)
-        console.log(res)
         done()
         Message.success({content: res.data.msg, showIcon: true});
       }, 3000)
@@ -72,6 +71,83 @@ const editInfo_handleCancel_PC = () => {
 /*
 编辑资料模态框 [End]
  */
+
+
+
+/*
+修改密码模态框 [Start]
+ */
+
+/*
+  编辑资料模态框的函数[公共]
+  [1]定义editPwd_Form
+  [2]修改密码表单规则
+ */
+const editPwd_Form = reactive({
+  old_password : '',
+  new_password : '',
+  confirm_password : '',
+});
+const editPwd_Form_Rules = {
+  old_password: [
+    {
+      required: true,
+      message:'请输入原始密码',
+    },
+  ],
+  new_password: [
+    {
+      required: true,
+      message:'请输入新密码',
+    },
+    {
+      validator: (value:any, cb:any) => {
+        if (value === editPwd_Form.old_password) {
+          cb('不能与原始密码相同')
+        } else {
+          cb()
+        }
+      }
+    }
+  ],
+  confirm_password: [
+    {
+      required: true,
+      message:'请输入确认密码',
+    },
+    {
+      validator: (value:any, cb:any) => {
+        if (value !== editPwd_Form.new_password) {
+            cb('两次密码不一致')
+        } else {
+          cb()
+        }
+      }
+    }
+  ],
+}
+const reset_editPwd_Form = () => {
+  editPwd_Form.old_password = '';
+  editPwd_Form.new_password = '';
+  editPwd_Form.confirm_password = '';
+};
+
+//修改密码模态框的函数[PC]
+
+const editPwd_Visible_PC = ref(false);
+const editPwd_handleClickPC = () => {
+  editPwd_Visible_PC.value = true;
+};
+const editPwd_handleBeforeOk_PC = (done:any) => {
+};
+const editPwd_handleCancel_PC = () => {
+  editPwd_Visible_PC.value = false;
+  reset_editPwd_Form()
+}
+
+/*
+修改密码模态框 [End]
+ */
 </script>
 
 <template>
@@ -93,13 +169,13 @@ const editInfo_handleCancel_PC = () => {
       <template #extra>
         <a-space>
           <a-button @click="editInfo_handleClickPC">编辑资料</a-button>
-          <a-button>修改密码</a-button>
+          <a-button @click="editPwd_handleClickPC">修改密码</a-button>
         </a-space>
       </template>
     </a-page-header>
   </div>
 
-  <!--[编辑资料][模态框][PC]-->
+  <!--[编辑资料][模态框][PC][Start]-->
   <a-modal v-model:visible="editInfo_Visible_PC" title="编辑资料" @cancel="editInfo_handleCancel_PC" @before-ok="editInfo_handleBeforeOk_PC">
     <a-form :model="editInfo_Form">
       <a-form-item field="username" label="用户名">
@@ -119,6 +195,29 @@ const editInfo_handleCancel_PC = () => {
       </a-form-item>
     </a-form>
   </a-modal>
+  <!--[编辑资料][模态框][PC][End]-->
+
+  <!--[修改密码][模态框][PC][Start]-->
+  <a-modal
+      v-model:visible="editPwd_Visible_PC"
+      title="修改密码"
+      @cancel="editPwd_handleCancel_PC"
+      @before-ok="editPwd_handleBeforeOk_PC"
+      :closable = false
+  >
+    <a-form :model="editPwd_Form" :rules="editPwd_Form_Rules">
+      <a-form-item field="old_password" label="原始密码" validate-trigger="blur">
+        <a-input-password v-model="editPwd_Form.old_password" />
+      </a-form-item>
+      <a-form-item field="new_password" label="新密码" validate-trigger="blur">
+        <a-input-password v-model="editPwd_Form.new_password"/>
+      </a-form-item>
+      <a-form-item field="confirm_password" label="确认密码" validate-trigger="blur">
+        <a-input-password v-model="editPwd_Form.confirm_password"/>
+      </a-form-item>
+    </a-form>
+  </a-modal>
+  <!--[修改密码][模态框][PC][End]-->
 
   <a-watermark
       :content="[props.userInfo.username,dayjs().format('YYYY-MM-DD H:mm:ss')]"
@@ -145,6 +244,7 @@ const editInfo_handleCancel_PC = () => {
     <a-row class="personalCenter-heardBox-Card-row1-PC">
       <a-col :span="12">
         <div class="personalCenter-heardBox-Card1-PC">
+          <p>ID : {{props.userInfo["id"]}}</p>
           <p>用户名 : {{props.userInfo["username"]}}</p>
           <p>昵称 : {{props.userInfo["nickname"]}}</p>
           <p>邮箱 : {{props.userInfo["email"]}}</p>
