@@ -3,9 +3,9 @@ import eventBus from '@/plugin/event-bus/event-bus';
 import {reactive, ref} from "vue";
 import router from "@/router";
 import dayjs from 'dayjs';
-import {EditUserInfo} from '@/api/User/user'
+import {EditUserInfo, EditUserPwd} from '@/api/User/user'
 import {Message} from "@arco-design/web-vue";
-import {storeToRefs} from "pinia";
+import {md5} from "js-md5";
 
 /*
 接收父组件的数据
@@ -21,8 +21,8 @@ let SelectedKeys: any = ref(["PersonalCenter"]);
 eventBus.emit("child-data-selectedKeys", SelectedKeys);
 
 //返回Dashboard的函数
-const personalCenterHeardOnBack = () =>{
-  router.push({ name: 'Dashboard' })
+const personalCenterHeardOnBack = () => {
+  router.push({name: 'Dashboard'})
 }
 
 
@@ -43,16 +43,16 @@ const editInfo_Visible_PC = ref(false);
 const editInfo_handleClickPC = () => {
   editInfo_Visible_PC.value = true;
 };
-const editInfo_handleBeforeOk_PC = (done:any) => {
-  EditUserInfo(props.userInfo["id"],editInfo_Form).then((res:any) => {
-    if (res.data.code == 200){
+const editInfo_handleBeforeOk_PC = (done: any) => {
+  EditUserInfo(props.userInfo["id"], editInfo_Form).then((res: any) => {
+    if (res.data.code == 200) {
       window.setTimeout(() => {
         //刷新UserInfo数据 [child-data-userInfo-refresh]
         eventBus.emit("child-data-userInfo-refresh", new Date());
         done()
         Message.success({content: res.data.msg, showIcon: true});
       }, 3000)
-    }else {
+    } else {
       window.setTimeout(() => {
         editInfo_Form.username = props.userInfo["username"]
         editInfo_Form.nickname = props.userInfo["nickname"]
@@ -84,24 +84,24 @@ const editInfo_handleCancel_PC = () => {
   [2]修改密码表单规则
  */
 const editPwd_Form = reactive({
-  old_password : '',
-  new_password : '',
-  confirm_password : '',
+  old_password: '',
+  new_password: '',
+  confirm_password: '',
 });
 const editPwd_Form_Rules = {
   old_password: [
     {
       required: true,
-      message:'请输入原始密码',
+      message: '请输入原始密码',
     },
   ],
   new_password: [
     {
       required: true,
-      message:'请输入新密码',
+      message: '请输入新密码',
     },
     {
-      validator: (value:any, cb:any) => {
+      validator: (value: any, cb: any) => {
         if (value === editPwd_Form.old_password) {
           cb('不能与原始密码相同')
         } else {
@@ -113,12 +113,12 @@ const editPwd_Form_Rules = {
   confirm_password: [
     {
       required: true,
-      message:'请输入确认密码',
+      message: '请输入确认密码',
     },
     {
-      validator: (value:any, cb:any) => {
+      validator: (value: any, cb: any) => {
         if (value !== editPwd_Form.new_password) {
-            cb('两次密码不一致')
+          cb('两次密码不一致')
         } else {
           cb()
         }
@@ -138,25 +138,45 @@ const editPwd_Visible_PC = ref(false);
 const editPwd_handleClickPC = () => {
   editPwd_Visible_PC.value = true;
 };
-const editPwd_handleBeforeOk_PC = (done:any) => {
-  if (editPwd_Form.old_password != "" && editPwd_Form.new_password != "" && editPwd_Form.confirm_password != ""){
-    if (editPwd_Form.old_password === editPwd_Form.new_password){
+const editPwd_handleBeforeOk_PC = (done: any) => {
+  if (editPwd_Form.old_password != "" && editPwd_Form.new_password != "" && editPwd_Form.confirm_password != "") {
+    if (editPwd_Form.old_password === editPwd_Form.new_password) {
       Message.error({content: "不能与原始密码相同", showIcon: true});
       done(false)
       return
     }
-    if (editPwd_Form.new_password !== editPwd_Form.confirm_password){
+    if (editPwd_Form.new_password !== editPwd_Form.confirm_password) {
       Message.error({content: "两次密码不一致", showIcon: true});
       done(false)
       return
     }
 
-    Message.success({content: "yes", showIcon: true});
-    done()
+    editPwd_Form.old_password = md5(editPwd_Form.old_password)
+    editPwd_Form.new_password = md5(editPwd_Form.new_password)
+    editPwd_Form.confirm_password = md5(editPwd_Form.confirm_password)
+    EditUserPwd(props.userInfo["username"], editPwd_Form.old_password, editPwd_Form.new_password).then((res: any) => {
+      if (res.data.code === 200) {
+        window.setTimeout(() => {
+          Message.success({content: res.data.msg, showIcon: true});
+          done()
+          reset_editPwd_Form()
+          return
+        }, 2000)
+      } else {
+        window.setTimeout(() => {
+          Message.error({content: res.data.msg, showIcon: true});
+          console.log(editPwd_Form)
+          done(false)
+          reset_editPwd_Form()
+          return
+        }, 2000)
+      }
+    })
 
-  }else {
+  } else {
     Message.error({content: "请勿提交空值", showIcon: true});
     done(false)
+    return
   }
 
 };
@@ -177,7 +197,7 @@ const editPwd_handleCancel_PC = () => {
         title="个人中心"
         subtitle="PersonalCenter"
         :show-back="true"
-        @back = personalCenterHeardOnBack
+        @back=personalCenterHeardOnBack
     >
       <template #breadcrumb>
         <a-breadcrumb>
@@ -196,22 +216,23 @@ const editPwd_handleCancel_PC = () => {
   </div>
 
   <!--[编辑资料][模态框][PC][Start]-->
-  <a-modal v-model:visible="editInfo_Visible_PC" title="编辑资料" @cancel="editInfo_handleCancel_PC" @before-ok="editInfo_handleBeforeOk_PC">
+  <a-modal v-model:visible="editInfo_Visible_PC" title="编辑资料" @cancel="editInfo_handleCancel_PC"
+           @before-ok="editInfo_handleBeforeOk_PC">
     <a-form :model="editInfo_Form">
       <a-form-item field="username" label="用户名">
-        <a-input v-model="editInfo_Form.username" />
+        <a-input v-model="editInfo_Form.username"/>
       </a-form-item>
       <a-form-item field="nickname" label="昵称">
-        <a-input v-model="editInfo_Form.nickname" />
+        <a-input v-model="editInfo_Form.nickname"/>
       </a-form-item>
       <a-form-item field="email" label="邮箱">
-        <a-input v-model="editInfo_Form.email" />
+        <a-input v-model="editInfo_Form.email"/>
       </a-form-item>
       <a-form-item field="p_signatures" label="个性签名">
-        <a-input v-model="editInfo_Form.p_signatures" />
+        <a-input v-model="editInfo_Form.p_signatures"/>
       </a-form-item>
       <a-form-item field="avater_url" label="头像外链">
-        <a-input v-model="editInfo_Form.avater_url" />
+        <a-input v-model="editInfo_Form.avater_url"/>
       </a-form-item>
     </a-form>
   </a-modal>
@@ -223,11 +244,11 @@ const editPwd_handleCancel_PC = () => {
       title="修改密码"
       @cancel="editPwd_handleCancel_PC"
       @before-ok="editPwd_handleBeforeOk_PC"
-      :closable = false
+      :closable=false
   >
     <a-form :model="editPwd_Form" :rules="editPwd_Form_Rules">
       <a-form-item field="old_password" label="原始密码" validate-trigger="blur">
-        <a-input-password v-model="editPwd_Form.old_password" />
+        <a-input-password v-model="editPwd_Form.old_password"/>
       </a-form-item>
       <a-form-item field="new_password" label="新密码" validate-trigger="blur">
         <a-input-password v-model="editPwd_Form.new_password"/>
@@ -254,7 +275,7 @@ const editPwd_handleCancel_PC = () => {
             :src=props.userInfo.avater_url
         />
         <template #trigger-icon>
-          <IconEdit />
+          <IconEdit/>
         </template>
       </a-avatar>
       <h2>{{ props.userInfo["nickname"] }}</h2>
@@ -264,17 +285,17 @@ const editPwd_handleCancel_PC = () => {
     <a-row class="personalCenter-heardBox-Card-row1-PC">
       <a-col :span="12">
         <div class="personalCenter-heardBox-Card1-PC">
-          <p>ID : {{props.userInfo["id"]}}</p>
-          <p>用户名 : {{props.userInfo["username"]}}</p>
-          <p>昵称 : {{props.userInfo["nickname"]}}</p>
-          <p>邮箱 : {{props.userInfo["email"]}}</p>
-          <p>权限 : {{props.userInfo["role"] == "0" ? "管理员" : "编辑者"}}</p>
+          <p>ID : {{ props.userInfo["id"] }}</p>
+          <p>用户名 : {{ props.userInfo["username"] }}</p>
+          <p>昵称 : {{ props.userInfo["nickname"] }}</p>
+          <p>邮箱 : {{ props.userInfo["email"] }}</p>
+          <p>权限 : {{ props.userInfo["role"] == "0" ? "管理员" : "编辑者" }}</p>
         </div>
       </a-col>
       <a-col :span="12">
         <div class="personalCenter-heardBox-Card2-PC">
-          <p>上次登录时间 : {{props.userInfo["last_longin_date"]}}</p>
-          <p>上次登录IP : {{props.userInfo["last_longin_ip_address"]}}</p>
+          <p>上次登录时间 : {{ props.userInfo["last_longin_date"] }}</p>
+          <p>上次登录IP : {{ props.userInfo["last_longin_ip_address"] }}</p>
         </div>
       </a-col>
     </a-row>
@@ -287,7 +308,8 @@ const editPwd_handleCancel_PC = () => {
   padding: 0 50px 5px 25px;
   height: 100px;
 }
-.personalCenter-heardBox-PC{
+
+.personalCenter-heardBox-PC {
   border-radius: 15px;
   margin: 50px;
   padding: 25px;
@@ -295,24 +317,26 @@ const editPwd_handleCancel_PC = () => {
   height: 550px;
 }
 
-.personalCenter-heardBox-avatar-PC{
+.personalCenter-heardBox-avatar-PC {
   text-align: center;
 }
-.personalCenter-heardBox-avatar-PC h2,h3{
+
+.personalCenter-heardBox-avatar-PC h2, h3 {
   font-weight: lighter;
 }
 
-.personalCenter-heardBox-Card-row1-PC{
+.personalCenter-heardBox-Card-row1-PC {
   margin: 35px;
 }
 
-.personalCenter-heardBox-Card1-PC{
+.personalCenter-heardBox-Card1-PC {
   border-radius: 10px;
   margin-right: 25px;
   padding: 20px;
   background: #f2f3f5d4;
 }
-.personalCenter-heardBox-Card2-PC{
+
+.personalCenter-heardBox-Card2-PC {
   border-radius: 10px;
   margin-left: 25px;
   padding: 20px;

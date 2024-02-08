@@ -256,13 +256,18 @@ EditUserPwd [ 编辑用户密码 ] [ 240116 ] [ 0.1 ]
 ------------------------------------------------------------------------------------------------------------------------
 */
 func EditUserPwd(c *gin.Context) {
-	var data Models.User
+	type editUserPwdJson struct {
+		Username    string `json:"username"`
+		OldPassword string `json:"old_password"`
+		NewPassword string `json:"new_password"`
+	}
+	var data editUserPwdJson
 	_ = c.ShouldBindJSON(&data)
 	existUserCode, _ := Models.ExistUser(data.Username)
 	if existUserCode == 1 {
-		jmPassword, jmStatusCode := Models.UserPwdEnCrypto(data.Password)
+		jmPassword, jmStatusCode := Models.UserPwdEnCrypto(data.NewPassword)
 		if jmStatusCode == 200 {
-			editUserPwdMsg, editUserPwdCode := Models.EditUserPwd(data.Username, jmPassword)
+			editUserPwdMsg, editUserPwdCode := Models.EditUserPwd(data.Username, data.OldPassword, jmPassword)
 			c.JSON(
 				http.StatusOK,
 				gin.H{

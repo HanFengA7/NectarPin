@@ -44,17 +44,18 @@ export async function EditUserInfo(id: int, data: any) {
 }
 
 //修改用户密码 [EditUserPwd]
-export async function EditUserPwd(username: string, password: string) {
+export async function EditUserPwd(username: string, old_password: string, new_password: string) {
     try {
         return await Service({
             url: '/User/editPwd',
             method: 'put',
-            data:{
-                "username":username,
-                "password":password
+            data: {
+                "username": username,
+                "old_password": old_password,
+                "new_password": new_password
             }
         })
-    } catch (error){
+    } catch (error) {
         console.error("Error in EditUserPwd:", error);
         throw error;
     }
