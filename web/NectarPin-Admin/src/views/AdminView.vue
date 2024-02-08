@@ -27,6 +27,7 @@ const UserInfoData = reactive({
   "email": "",
   "role": "",
   "avater_url": "",
+  "p_signatures":"",
   "this_longin_date": "",
   "this_longin_ip_address": "",
   "last_longin_date": "",
@@ -43,6 +44,7 @@ const LoadUserInfo = () => {
         UserInfoData.email = res.data.data[0]["email"]
         UserInfoData.role = res.data.data[0]["role"]
         UserInfoData.avater_url = res.data.data[0]["avater_url"]
+        UserInfoData.p_signatures = res.data.data[0]["p_signatures"]
         UserInfoData.this_longin_date = res.data.data[0]["this_longin_date"]
         UserInfoData.this_longin_ip_address = res.data.data[0]["this_longin_ip_address"]
         UserInfoData.last_longin_date = res.data.data[0]["last_longin_date"]

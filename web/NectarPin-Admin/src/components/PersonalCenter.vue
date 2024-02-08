@@ -35,6 +35,7 @@ const editInfo_Form = reactive({
   nickname: props.userInfo["nickname"],
   email: props.userInfo["email"],
   avater_url: props.userInfo["avater_url"],
+  p_signatures: props.userInfo["p_signatures"],
 });
 //编辑资料模态框的函数[PC]
 const editInfo_Visible_PC = ref(false);
@@ -47,6 +48,8 @@ const editInfo_handleBeforeOk_PC = (done:any) => {
       window.setTimeout(() => {
         //刷新UserInfo数据 [child-data-userInfo-refresh]
         eventBus.emit("child-data-userInfo-refresh", new Date());
+        console.log(editInfo_Form)
+        console.log(res)
         done()
         Message.success({content: res.data.msg, showIcon: true});
       }, 3000)
@@ -56,6 +59,7 @@ const editInfo_handleBeforeOk_PC = (done:any) => {
         editInfo_Form.nickname = props.userInfo["nickname"]
         editInfo_Form.email = props.userInfo["email"]
         editInfo_Form.avater_url = props.userInfo["avater_url"]
+        editInfo_Form.p_signatures = props.userInfo["p_signatures"]
         done()
         Message.error({content: res.data.msg, showIcon: true});
       }, 3000)
@@ -107,6 +111,9 @@ const editInfo_handleCancel_PC = () => {
       <a-form-item field="email" label="邮箱">
         <a-input v-model="editInfo_Form.email" />
       </a-form-item>
+      <a-form-item field="p_signatures" label="个性签名">
+        <a-input v-model="editInfo_Form.p_signatures" />
+      </a-form-item>
       <a-form-item field="avater_url" label="头像外链">
         <a-input v-model="editInfo_Form.avater_url" />
       </a-form-item>
@@ -131,8 +138,8 @@ const editInfo_handleCancel_PC = () => {
           <IconEdit />
         </template>
       </a-avatar>
-      <h2>HanFengA7</h2>
-      <h3>Stay Hungry, Stay Foolish.</h3>
+      <h2>{{ props.userInfo["nickname"] }}</h2>
+      <h3>{{ (props.userInfo["p_signatures"]) == "" ? "这个人很懒，什么都没写！" : props.userInfo["p_signatures"] }}</h3>
     </div>
 
     <a-row class="personalCenter-heardBox-Card-row1-PC">
