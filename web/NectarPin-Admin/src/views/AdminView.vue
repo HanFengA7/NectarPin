@@ -15,6 +15,10 @@ const onCollapse = () => {
 
 //点击侧边栏事件
 function onClickMenuItem(key: any) {
+  if (key == 'Fast/Article/add'){
+    router.push({name: 'Article/add'})
+    return
+  }
   router.push({name: key})
 }
 
@@ -129,7 +133,7 @@ onBeforeMount(() => {
           <icon-idcard/>
           个人中心
         </a-menu-item>
-        <a-menu-item key="0_3">
+        <a-menu-item key="Fast/Article/add">
           <icon-pushpin/>
           开始写作
         </a-menu-item>
@@ -137,7 +141,7 @@ onBeforeMount(() => {
           <template #title>
             <span><icon-pen/>撰写</span>
           </template>
-          <a-menu-item key="1_1">撰写文章</a-menu-item>
+          <a-menu-item key="Article/add">撰写文章</a-menu-item>
           <a-menu-item key="1_2">撰写说说</a-menu-item>
           <a-menu-item key="1_3">撰写页面</a-menu-item>
         </a-sub-menu>

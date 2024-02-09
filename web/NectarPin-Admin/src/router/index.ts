@@ -37,7 +37,16 @@ const router = createRouter({
                         title: 'NectarPin - 个人中心'
                     },
                     component: () => import('../components/PersonalCenter.vue')
-                }
+                },
+                // [Article]
+                {
+                    path:'/Article/add',
+                    name: 'Article/add',
+                    meta:{
+                        title: 'NectarPin - 撰写文章'
+                    },
+                    component: () => import('../components/Article/add.vue')
+                },
             ],
         }
     ]
