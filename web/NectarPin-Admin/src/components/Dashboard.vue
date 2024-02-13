@@ -1,9 +1,48 @@
 <script lang="ts" setup>
-import {computed, ref, reactive} from 'vue'
+import {computed, reactive, ref} from 'vue'
 import axios from "axios";
 import eventBus from "@/plugin/event-bus/event-bus.js";
+import router from "@/router";
 
+/*
+快捷入口
+[1] [写作]  QuickEntryBtn(1)
+[2] [文章管理]  QuickEntryBtn(2)
+[3] [博客首页]  QuickEntryBtn(3)
+[4] [To Do] QuickEntryBtn(4)
+[5] [基本设置]  QuickEntryBtn(5)
+[6] [NectarPin Github]  QuickEntryBtn(6)
+ */
+const QuickEntryBtn = (id: number) => {
+  switch (id) {
+    //[1] [写作]
+    case 1:
+      router.push({name: 'Article/add'})
+      return
+    //[2] [文章管理] [todo]
+    case 2:
+      router.push({name: 'Article/add'})
+      return
+    //[3] [博客首页] [todo]
+    case 3:
+      router.push({name: 'Article/add'})
+      return
+    //[4] [To Do]  [todo]
+    case 4:
+      router.push({name: 'Article/add'})
+      return
+    //[5] [基本设置]  [todo]
+    case 5:
+      router.push({name: 'Article/add'})
+      return
+    //[6] [NectarPin Github]
+    case 6:
+      window.location.href='https://github.com/HanFengA7/NectarPin'
+      return
+  }
+}
 
+//图表
 const data = [
   ['2024-1-8', 1],
   ['2024-1-9', 5],
@@ -80,19 +119,17 @@ const option = computed(() => {
 })
 
 
-
-
 //头部卡片信息
 const heardCardInfo = reactive({
-  hitokoto:"",
-  date:"",
-  solarDay:"",
-  sign:"",
-  lastIpProvince:"",
+  hitokoto: "",
+  date: "",
+  solarDay: "",
+  sign: "",
+  lastIpProvince: "",
 })
 axios.get('https://international.v1.hitokoto.cn/?c=d')
-    .then(res =>{
-      heardCardInfo.hitokoto = res.data["hitokoto"] + "--《" +res.data["from"]+"》"
+    .then(res => {
+      heardCardInfo.hitokoto = res.data["hitokoto"] + "--《" + res.data["from"] + "》"
     })
 
 //接收父组件的UserInfoData数据
@@ -175,7 +212,7 @@ eventBus.emit("child-data-selectedKeys", SelectedKeys);
             <a-row class="dashboard-card1-box-PC">
               <a-col :lg="{span: 2}">
                 <a-tooltip content="写作">
-                  <div class="dashboard-card1-box-btn-bg-PC">
+                  <div class="dashboard-card1-box-btn-bg-PC" @click="QuickEntryBtn(1)">
                     <div class="dashboard-card1-box-btn-PC">
                       <icon-edit/>
                     </div>
@@ -185,7 +222,7 @@ eventBus.emit("child-data-selectedKeys", SelectedKeys);
 
               <a-col :lg="{span: 2, offset: 2}">
                 <a-tooltip content="文章管理">
-                  <div class="dashboard-card1-box-btn-bg-PC">
+                  <div class="dashboard-card1-box-btn-bg-PC" @click="QuickEntryBtn(2)">
                     <div class="dashboard-card1-box-btn-PC">
                       <icon-sort/>
                     </div>
@@ -195,7 +232,7 @@ eventBus.emit("child-data-selectedKeys", SelectedKeys);
 
               <a-col :lg="{span: 2, offset: 2}">
                 <a-tooltip content="博客首页">
-                  <div class="dashboard-card1-box-btn-bg-PC">
+                  <div class="dashboard-card1-box-btn-bg-PC" @click="QuickEntryBtn(3)">
                     <div class="dashboard-card1-box-btn-PC">
                       <icon-home/>
                     </div>
@@ -204,8 +241,8 @@ eventBus.emit("child-data-selectedKeys", SelectedKeys);
               </a-col>
 
               <a-col :lg="{span: 2, offset: 2}">
-                <a-tooltip content="Todo">
-                  <div class="dashboard-card1-box-btn-bg-PC">
+                <a-tooltip content="ToDo">
+                  <div class="dashboard-card1-box-btn-bg-PC" @click="QuickEntryBtn(4)">
                     <div class="dashboard-card1-box-btn-PC">
                       <icon-mind-mapping/>
                     </div>
@@ -215,7 +252,7 @@ eventBus.emit("child-data-selectedKeys", SelectedKeys);
 
               <a-col :lg="{span: 2, offset: 2}">
                 <a-tooltip content="基本设置">
-                  <div class="dashboard-card1-box-btn-bg-PC">
+                  <div class="dashboard-card1-box-btn-bg-PC" @click="QuickEntryBtn(5)">
                     <div class="dashboard-card1-box-btn-PC">
                       <icon-settings/>
                     </div>
@@ -225,7 +262,7 @@ eventBus.emit("child-data-selectedKeys", SelectedKeys);
 
               <a-col :lg="{span: 2, offset: 2}">
                 <a-tooltip content="NectarPin Github">
-                  <div class="dashboard-card1-box-btn-bg-PC">
+                  <div class="dashboard-card1-box-btn-bg-PC" @click="QuickEntryBtn(6)">
                     <div class="dashboard-card1-box-btn-PC">
                       <icon-github/>
                     </div>
