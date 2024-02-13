@@ -12,7 +12,10 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
+    "@bytemd/plugin-gfm": "^1.21.0",
+    "@bytemd/vue-next": "^1.21.0",
     "axios": "^1.6.5",
+    "bytemd": "^1.21.0",
     "echarts": "^5.4.3",
     "js-md5": "^0.8.3",
     "mdui": "^2.0.3",
