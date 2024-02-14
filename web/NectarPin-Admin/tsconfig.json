@@ -4,6 +4,9 @@
     "src/plugin/axios/axios.ts",
     "src/plugin/debounce/debounce.ts"
   ],
+  "compilerOptions": {
+    "verbatimModuleSyntax": true
+  },
   "references": [
     {
       "path": "./tsconfig.node.json"

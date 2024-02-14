@@ -1,9 +1,9 @@
-<script setup lang="ts">
+<script setup>
 import eventBus from "@/plugin/event-bus/event-bus";
 import {ref} from "vue";
 import router from "@/router";
 
-
+const text = ref('')
 /*
 接收父组件数据
 */
@@ -14,7 +14,7 @@ const props = defineProps(['userInfo']);
 传数据给父组件
 */
 //[1]设置侧边栏选择选项
-let SelectedKeys: any = ref(["Article/add"]);
+let SelectedKeys = ref(["Article/add"]);
 eventBus.emit("child-data-selectedKeys", SelectedKeys);
 
 /*
@@ -48,14 +48,26 @@ const HeardCardOnBack = () => {
     </a-page-header>
   </div>
 
-  <br/>
+  <div class="ArticleAdd-body-PC">
+    <v-md-editor
+        left-toolbar="undo redo clear | h bold italic strikethrough quote | ul ol table hr | link image code emoji todo-list | save"
+        v-model="text"
+        height="700px"
+    />
+  </div>
+
 
 </template>
 
 <style scoped>
-.ArticleAdd-heard-PC{
+.ArticleAdd-heard-PC {
   background: #ffffff;
   padding: 0 50px 5px 25px;
   height: 100px;
+}
+
+.ArticleAdd-body-PC{
+  background: #ffffff;
+  margin: 25px;
 }
 </style>
