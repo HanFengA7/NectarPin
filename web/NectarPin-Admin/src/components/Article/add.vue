@@ -183,7 +183,6 @@ const HeardCardOnBack = () => {
           left-toolbar="undo redo clear | h bold italic strikethrough quote | ul ol table hr | link image code emoji todo-list | save"
           v-model="ArticleForm.Content"
           height="700px"
-          style="border-radius: 10px;"
       />
     </a-form>
   </div>
@@ -199,12 +198,15 @@ const HeardCardOnBack = () => {
 }
 
 .ArticleAdd-body-PC {
-  border-radius: 15px;
+  border-radius: 18px;
   background: #ffffff;
   margin: 25px;
 }
 
 .ArticleAdd-body-config-PC {
   padding: 20px;
+}
+.v-md-editor{
+  border-radius: 18px;
 }
 </style>
