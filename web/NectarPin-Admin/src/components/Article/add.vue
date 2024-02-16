@@ -2,6 +2,7 @@
 import eventBus from "@/plugin/event-bus/event-bus";
 import {reactive, ref, watch, watchEffect} from "vue";
 import router from "@/router";
+import {CreateArticle} from "@/api/Article/post";
 
 /*
 接收父组件数据
@@ -15,16 +16,16 @@ const props = defineProps(['userInfo']);
 //分类数据
 const CategoryForm = reactive([
   {
-    cid: '1',
+    cid: 1,
     label: '默认分类',
   }, {
-    cid: '2',
+    cid: 2,
     label: '胡言乱语',
   }, {
-    cid: '3',
+    cid: 3,
     label: '悠然心喜',
   }, {
-    cid: '4',
+    cid: 4,
     label: '悄悄代码',
   }])
 //标签数据
@@ -62,7 +63,7 @@ const aif_encryptHandleChange = () => {
 //文章数据
 const ArticleForm = reactive({
   uid: props.userInfo["id"],
-  cid: '1',
+  cid: 1,
   title: '',
   tags: '',
   desc: '',
@@ -77,7 +78,7 @@ const ArticleForm = reactive({
 //文章数据重置
 const RestArticleForm = () => {
   ArticleForm.uid = props.userInfo["id"]
-  ArticleForm.cid = '1'
+  ArticleForm.cid = 1
   ArticleForm.title = ''
   ArticleForm.desc = ''
   ArticleForm.content = ''
@@ -87,24 +88,6 @@ const RestArticleForm = () => {
   ArticleForm.aif_encrypt = 0
   ArticleForm.aif_encrypt_pwd = ''
 }
-
-//
-// let IFIMGExistsKey = ref(new Date())
-// const IFIMGExists = () => {
-//   let image = new Image();
-//
-//   // watch(ArticleForm.img_url, (newValue, oldValue) => {
-//   //   image.onerror = function () {
-//   //     imageV = false
-//   //   };
-//   //   image.onload = function () {
-//   //     imageV = true
-//   //   };
-//   //   image.src = newValue
-//   //   return imageV
-//   // })
-//   return imageV
-// }
 
 //判断图片是否存在
 let imageV = ref(0)
@@ -125,7 +108,10 @@ watch(() => ArticleForm.img_url, (newValue) => {
 
 //发布文章
 const PostArticle = (data) => {
-  console.log(data)
+  CreateArticle(data.values).then(res => {
+    console.log(res.data)
+  })
+  console.log(data.values)
 }
 
 
@@ -282,10 +268,12 @@ const HeardCardOnBack = () => {
 .ArticleAdd-body-config-PC {
   padding: 20px;
 }
-.ArticleAdd-WZIMG-config-1-PC{
+
+.ArticleAdd-WZIMG-config-1-PC {
   padding: 15px 100px;
 }
-.ArticleAdd-WZIMG-config-2-PC{
+
+.ArticleAdd-WZIMG-config-2-PC {
   box-sizing: border-box;
   width: 100%;
   padding: 15px;
