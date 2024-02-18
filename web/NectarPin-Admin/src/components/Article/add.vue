@@ -74,7 +74,6 @@ const ArticleForm = reactive({
   aif_encrypt: 0,
   aif_encrypt_pwd: '',
 })
-
 //文章数据重置
 const RestArticleForm = () => {
   ArticleForm.uid = props.userInfo["id"]
@@ -88,7 +87,15 @@ const RestArticleForm = () => {
   ArticleForm.aif_encrypt = 0
   ArticleForm.aif_encrypt_pwd = ''
 }
-
+//文章表单规则
+const ArticleFormRules = {
+  title: [
+    {
+      required: true,
+      message: '请输入文章的标题',
+    },
+  ],
+}
 //判断图片是否存在
 let imageV = ref(0)
 watch(() => ArticleForm.img_url, (newValue) => {
@@ -134,6 +141,7 @@ const HeardCardOnBack = () => {
   <a-form
       :model="ArticleForm"
       @submit="PostArticle"
+      :rules="ArticleFormRules"
   >
 
     <div class="ArticleAdd-heard-PC">
@@ -163,7 +171,7 @@ const HeardCardOnBack = () => {
       <div class="ArticleAdd-body-config-PC">
         <a-row>
           <a-col :span="12">
-            <a-form-item field="title" label="文章标题" label-col-flex="80px">
+            <a-form-item field="title" label="文章标题" label-col-flex="80px" validate-trigger="change" hide-asterisk>
               <a-input v-model="ArticleForm.title"/>
             </a-form-item>
           </a-col>
