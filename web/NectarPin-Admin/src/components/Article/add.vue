@@ -1,9 +1,9 @@
 <script setup>
 import eventBus from "@/plugin/event-bus/event-bus";
-import {reactive, ref, watch, watchEffect} from "vue";
+import {reactive, ref, watch} from "vue";
 import router from "@/router";
 import {CreateArticle} from "@/api/Article/post";
-
+import {Notification} from "@arco-design/web-vue"
 /*
 接收父组件数据
 */
@@ -61,6 +61,7 @@ const aif_encryptHandleChange = () => {
   }
 };
 //文章数据
+const ArticleFormRef = ref();
 const ArticleForm = reactive({
   uid: props.userInfo["id"],
   cid: 1,
@@ -86,6 +87,7 @@ const RestArticleForm = () => {
   ArticleForm.aif_hide = 0
   ArticleForm.aif_encrypt = 0
   ArticleForm.aif_encrypt_pwd = ''
+  ArticleFormRef.value["clearValidate"](['title', 'desc'])
 }
 //文章表单规则
 const ArticleFormRules = {
@@ -95,6 +97,18 @@ const ArticleFormRules = {
       message: '请输入文章的标题',
     },
   ],
+  desc: [
+    {
+      required: true,
+      message: '请输入文章的简介',
+    },
+  ],
+  aif_encrypt_pwd: [
+    {
+      required: true,
+      message: '请输入文章的密码',
+    },
+  ]
 }
 //判断图片是否存在
 let imageV = ref(0)
@@ -115,12 +129,19 @@ watch(() => ArticleForm.img_url, (newValue) => {
 
 //发布文章
 const PostArticle = (data) => {
-  CreateArticle(data.values).then(res => {
-    console.log(res.data)
-  })
-  console.log(data.values)
+  if (data.errors === undefined && ArticleForm.content !== ""){
+    CreateArticle(data.values).then(res => {
+      if (res.data.code === 200){
+        Notification.success("文章发布成功")
+        RestArticleForm()
+      }else {
+        Notification.error(res.data.msg)
+      }
+    })
+  }else {
+    Notification.error('请提交完整数据')
+  }
 }
-
 
 /*
 传数据给父组件
@@ -139,6 +160,7 @@ const HeardCardOnBack = () => {
 
 <template>
   <a-form
+      ref="ArticleFormRef"
       :model="ArticleForm"
       @submit="PostArticle"
       :rules="ArticleFormRules"
@@ -171,7 +193,13 @@ const HeardCardOnBack = () => {
       <div class="ArticleAdd-body-config-PC">
         <a-row>
           <a-col :span="12">
-            <a-form-item field="title" label="文章标题" label-col-flex="80px" validate-trigger="change" hide-asterisk>
+            <a-form-item
+                field="title"
+                label="文章标题"
+                label-col-flex="80px"
+                validate-trigger="change"
+                hide-asterisk
+            >
               <a-input v-model="ArticleForm.title"/>
             </a-form-item>
           </a-col>
@@ -183,7 +211,7 @@ const HeardCardOnBack = () => {
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item field="desc" label="文章简介" label-col-flex="80px">
+            <a-form-item field="desc" label="文章简介" label-col-flex="80px" validate-trigger="change" hide-asterisk>
               <a-textarea v-model="ArticleForm.desc" :max-length="200" :show-word-limit="true" auto-size/>
             </a-form-item>
           </a-col>
