@@ -254,7 +254,7 @@ const HeardCardOnBack = () => {
             </a-form-item>
           </a-col>
           <a-col :span="12" v-if="ArticleForm.aif_encrypt === 1">
-            <a-form-item field="aif_encrypt_pwd" label="文章密码" label-col-flex="80px">
+            <a-form-item field="aif_encrypt_pwd" label="文章密码" label-col-flex="80px" hide-asterisk>
               <a-input-password v-model="ArticleForm.aif_encrypt_pwd"/>
             </a-form-item>
           </a-col>
