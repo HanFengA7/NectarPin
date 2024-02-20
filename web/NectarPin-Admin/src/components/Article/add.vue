@@ -154,7 +154,7 @@ eventBus.emit("child-data-selectedKeys", SelectedKeys);
 [HeardCardOnBack] 返回函数
 */
 const HeardCardOnBack = () => {
-  router.push({name: 'Dashboard'})
+  router.push({name: 'Article'})
 }
 </script>
 
