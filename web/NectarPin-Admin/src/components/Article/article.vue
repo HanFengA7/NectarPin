@@ -23,8 +23,8 @@ eventBus.emit("child-data-selectedKeys", SelectedKeys);
 const rowSelection = reactive({
   type: 'checkbox',
   showCheckedAll: true,
-  onlyCurrent: false,
 });
+const selectedKeys = ref([]);
 const pagination = {pageSize: 5}
 const scroll = {
   x: 1000,
@@ -42,6 +42,10 @@ const columns = [
     dataIndex: 'category',
   },
   {
+    title: '标签',
+    dataIndex: 'tags',
+  },
+  {
     title: '创作时间',
     dataIndex: 'date',
   },
@@ -55,19 +59,29 @@ const columns = [
 const data = reactive([{
   key: '1',
   title: '每个人都是自己命运的工匠',
+  tags: '1,2,3',
   category: '励志鸡汤',
   date: '2023年9月2日 13:19',
-},{
+}, {
   key: '2',
   title: '每个人都是自己命运的工匠2',
+  tags: '',
   category: '励志鸡汤',
   date: '2023年9月2日 13:19',
-},{
+}, {
   key: '3',
   title: '每个人都是自己命运的工匠3',
+  tags: '',
   category: '励志鸡汤',
   date: '2023年9月2日 13:19',
 }])
+//文章列表数据
+
+
+//选择器
+const GetSelectedKey = (key: any) => {
+  selectedKeys.value = key
+}
 
 /*
 [HeardCardOnBack] 返回函数
@@ -100,6 +114,7 @@ const HeardCardOnBack = () => {
           <template #extra>
             <a-space>
               <a-button @click="router.push({name:'Article/add'})">发布文章</a-button>
+              <a-button @click="console.log(selectedKeys)">批量删除</a-button>
             </a-space>
           </template>
         </a-page-header>
@@ -108,26 +123,40 @@ const HeardCardOnBack = () => {
 
       <!--[2] 文章列表 [Start]-->
       <div class="Article-Table-PC">
-      <a-table
-          row-key="name"
-          :columns="columns"
-          :data="data"
-          :row-selection="rowSelection"
-          :pagination="pagination"
-          :sticky-header="100"
-      >
-        <template #columns>
-          <a-table-column title="标题" data-index="title"></a-table-column>
-          <a-table-column title="分类" data-index="category"></a-table-column>
-          <a-table-column title="时间" data-index="date"></a-table-column>
-          <a-table-column title="更多操作">
-            <template #cell="{ record }">
-              <a-button style="right: 10px">编辑</a-button>
-              <a-button >删除</a-button>
-            </template>
-          </a-table-column>
-        </template>
-      </a-table>
+        <a-table
+            row-key="key"
+            :columns="columns"
+            :data="data"
+            :row-selection="rowSelection"
+            :pagination="pagination"
+            :sticky-header="100"
+            @select="GetSelectedKey"
+        >
+          <template #columns>
+            <a-table-column title="标题" data-index="title"></a-table-column>
+            <a-table-column title="分类" data-index="category"></a-table-column>
+            <a-table-column title="标签">
+              <template #cell="{ record }">
+                <a-tag
+                    v-for="tag in record.tags.split(',')"
+                    :key="tag"
+                    :color="'gray'"
+                    bordered
+                    style="margin-right: 5px;"
+                >
+                  {{ tag }}
+                </a-tag>
+              </template>
+            </a-table-column>
+            <a-table-column title="时间" data-index="date"></a-table-column>
+            <a-table-column title="更多操作">
+              <template #cell="{ record }">
+                <a-button style="right: 10px">编辑</a-button>
+                <a-button>删除</a-button>
+              </template>
+            </a-table-column>
+          </template>
+        </a-table>
       </div>
       <!--[2] 文章列表 [End]-->
     </a-col>
@@ -159,6 +188,7 @@ const HeardCardOnBack = () => {
             row-key="name"
             :columns="columns"
             :data="data"
+            v-model:selectedKeys="selectedKeys"
             :row-selection="rowSelection"
             :pagination="pagination"
             :sticky-header="100"
@@ -172,7 +202,7 @@ const HeardCardOnBack = () => {
             <a-table-column title="">
               <template #cell="{ record }">
                 <a-button style="right: 10px">编辑</a-button>
-                <a-button >删除</a-button>
+                <a-button>删除</a-button>
               </template>
             </a-table-column>
           </template>
@@ -204,7 +234,7 @@ const HeardCardOnBack = () => {
 /*
 [2] 文章表格 CSS
 */
-.Article-Table-PC{
+.Article-Table-PC {
   margin: 30px 35px;
   padding: 10px;
   background: #ffffff;
