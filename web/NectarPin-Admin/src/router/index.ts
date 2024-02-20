@@ -47,6 +47,14 @@ const router = createRouter({
                     },
                     component: () => import('../components/Article/add.vue')
                 },
+                {
+                    path:'/Article',
+                    name: 'Article',
+                    meta:{
+                        title: 'NectarPin - 文章管理'
+                    },
+                    component: () => import('../components/Article/article.vue')
+                },
             ],
         }
     ]

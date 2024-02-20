@@ -7,12 +7,26 @@ import {GetUserInfo, TokenGetUserInfo} from '@/api/User/user'
 import eventBus from "@/plugin/event-bus/event-bus";
 
 const router = useRouter()
+
+/*
+侧边栏模块
+ */
+//侧边栏数据
 const selectedKeys = ref();
-const collapsed = ref(false);
+let collapsed = ref(false);
+let screenWidth: any
 const onCollapse = () => {
   collapsed.value = !collapsed.value;
 };
-
+//响应式侧边栏
+window.onresize = () => {
+  screenWidth = ref(document.body.clientWidth)
+  if (screenWidth.value > 992) {
+    collapsed.value = false
+  } else {
+    collapsed.value = true
+  }
+}
 //点击侧边栏事件
 function onClickMenuItem(key: any) {
   if (key == 'Fast/Article/add'){
@@ -62,16 +76,6 @@ const LoadUserInfo = () => {
   })
 }
 LoadUserInfo()
-//provide('UserInfoData', UserInfoData);
-//onMounted(LoadUserInfoData);
-// watch(
-//     () => UserInfoData, // 要监视的表达式
-//     (newValue) => {
-//       console.log(newValue)
-//       provide('UserInfoData', UserInfoData);
-//     },
-//     {deep: true} // 深度监听对象属性的变化
-// )
 
 
 //退出登录
@@ -149,7 +153,7 @@ onBeforeMount(() => {
           <template #title>
             <span><icon-relation/>管理</span>
           </template>
-          <a-menu-item key="4_1">文章</a-menu-item>
+          <a-menu-item key="Article">文章</a-menu-item>
           <a-menu-item key="4_2">页面</a-menu-item>
           <a-menu-item key="4_3">评论</a-menu-item>
           <a-menu-item key="4_4">分类</a-menu-item>
