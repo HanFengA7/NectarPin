@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {onBeforeMount, provide, reactive, ref} from 'vue';
+import {onBeforeMount, onMounted, provide, reactive, ref, watch} from 'vue';
 import {Message, Notification} from '@arco-design/web-vue';
 import {IconCaretLeft, IconCaretRight,} from '@arco-design/web-vue/es/icon';
 import {useRouter} from 'vue-router';
@@ -18,15 +18,12 @@ let screenWidth: any
 const onCollapse = () => {
   collapsed.value = !collapsed.value;
 };
-//响应式侧边栏
-window.onresize = () => {
-  screenWidth = ref(document.body.clientWidth)
-  if (screenWidth.value > 992) {
-    collapsed.value = false
-  } else {
-    collapsed.value = true
+onMounted(
+  window.onresize = () => {
+    screenWidth = ref(document.body.clientWidth)
+    collapsed.value = screenWidth.value <= 992;
   }
-}
+)
 //点击侧边栏事件
 function onClickMenuItem(key: any) {
   if (key == 'Fast/Article/add'){
