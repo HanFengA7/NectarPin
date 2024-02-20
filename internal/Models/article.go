@@ -74,8 +74,9 @@ GetArticle [ 查询文章 ] [ 0.1 ] [ 240131 ]
 ------------------------------------------------------------------------------------------------------------------------
 
 	//:[入参]
-	[1] [id] [int] : 文章的ID
-	[2] [password] [string] : 文章密码
+	[1]	[key] [int] : 权限值(前台:0 后台:1)
+	[2] [id] [int] : 文章的ID
+	[3] [password] [string] : 文章密码
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -86,24 +87,53 @@ GetArticle [ 查询文章 ] [ 0.1 ] [ 240131 ]
 
 ------------------------------------------------------------------------------------------------------------------------
 */
-func GetArticle(id int, password string) (data any, message string, statusCode int) {
+func GetArticle(key int, id int, password string) (data any, message string, statusCode int) {
 	var article Article
 	var articleV Article
 	db := constant.DB
 
-	//获取文章数据进行校验[1]
+	//获取文章数据进行校验
 	if err := db.Where("id = ?", id).First(&articleV).Error; err != nil {
 		return nil, "文章不存在", 500
 	}
 
-	//判断文章是否隐藏[2]
-	if articleV.AIFHide == 1 {
-		return nil, "文章被作者隐藏", 500
+	//文章查询-前台-[0]
+	if key == 0 {
+		//判断文章是否隐藏[1]
+		if articleV.AIFHide == 1 {
+			return nil, "文章被作者隐藏", 500
+		}
+
+		//判断文章是否加密[2]
+		if len(password) == 0 && articleV.AIFEncrypt == 0 {
+			//非加密的文章
+			if err := db.Joins(
+				"User", db.Select("id", "username", "nickname", "email", "avater_url", "role", "last_longin_date"),
+			).Joins("Category").Where("article.id = ?", id).Select(
+				"article.uid", "article.cid", "article.title", "article.tags", "article.desc", "article.content", "article.img_url", "article.aif_comment", "article.aif_hide", "article.aif_encrypt",
+			).First(&article).Error; err != nil {
+				return nil, "查询文章失败", 500
+			}
+			return article, "查询文章成功", 200
+		} else {
+			//加密的文章
+			if strings.TrimLeft(password, "/") != articleV.AIFEncryptPwd {
+				return nil, "文章密码错误", 500
+			}
+
+			if err := db.Joins(
+				"User", db.Select("id", "username", "nickname", "email", "avater_url", "role", "last_longin_date"),
+			).Joins("Category").Where("article.id = ?", id).Select(
+				"article.uid", "article.cid", "article.title", "article.tags", "article.desc", "article.content", "article.img_url", "article.aif_comment", "article.aif_hide", "article.aif_encrypt",
+			).First(&article).Error; err != nil {
+				return nil, "查询文章失败", 500
+			}
+			return article, "查询文章成功", 200
+		}
 	}
 
-	//判断文章是否加密[3]
-	if len(password) == 0 && articleV.AIFEncrypt == 0 {
-		//非加密的文章
+	//文章查询-后台-[1]
+	if key == 1 {
 		if err := db.Joins(
 			"User", db.Select("id", "username", "nickname", "email", "avater_url", "role", "last_longin_date"),
 		).Joins("Category").Where("article.id = ?", id).Select(
@@ -112,19 +142,7 @@ func GetArticle(id int, password string) (data any, message string, statusCode i
 			return nil, "查询文章失败", 500
 		}
 		return article, "查询文章成功", 200
-	} else {
-		//加密的文章
-		if strings.TrimLeft(password, "/") != articleV.AIFEncryptPwd {
-			return nil, "文章密码错误", 500
-		}
-
-		if err := db.Joins(
-			"User", db.Select("id", "username", "nickname", "email", "avater_url", "role", "last_longin_date"),
-		).Joins("Category").Where("article.id = ?", id).Select(
-			"article.uid", "article.cid", "article.title", "article.tags", "article.desc", "article.content", "article.img_url", "article.aif_comment", "article.aif_hide", "article.aif_encrypt",
-		).First(&article).Error; err != nil {
-			return nil, "查询文章失败", 500
-		}
-		return article, "查询文章成功", 200
 	}
+
+	return nil, "查询文章失败", 500
 }

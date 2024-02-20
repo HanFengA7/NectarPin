@@ -69,10 +69,10 @@ func CreateArticle(ctx *gin.Context) {
 }
 
 /*
-GetArticle [查询文章API接口] [240131] [0.1]
+GetArticle0 [查询文章API接口-前台(0)] [240131] [0.1]
 ------------------------------------------------------------------------------------------------------------------------
 
-	[API] [Public] : api.GetArticle
+	[API] [Public] : api.GetArticle0
 	[URL] [GET] : /api/Article/0/:id/:toType
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ GetArticle [查询文章API接口] [240131] [0.1]
 
 ------------------------------------------------------------------------------------------------------------------------
 */
-func GetArticle(ctx *gin.Context) {
+func GetArticle0(ctx *gin.Context) {
 
 	//[1]:入参Param数据
 	id, _ := strconv.Atoi(ctx.Param("id"))
@@ -101,7 +101,7 @@ func GetArticle(ctx *gin.Context) {
 	//Markdown转HTML输出
 
 	case "Markdown":
-		data, message, statusCode := Models.GetArticle(id, aPassword)
+		data, message, statusCode := Models.GetArticle(0, id, aPassword)
 		ctx.JSON(http.StatusOK, gin.H{
 			"code":    statusCode,
 			"data":    data,
@@ -115,5 +115,31 @@ func GetArticle(ctx *gin.Context) {
 			"message": "请正确传入'toType'的值。[HTML|Markdown]",
 		})
 	}
+
+}
+
+/*
+GetArticleList1 [查询文章列表API接口-后台(1)] [240220] [0.1]
+------------------------------------------------------------------------------------------------------------------------
+
+	[API] [Public] : api.GetArticleList1
+	[URL] [GET] : /api/Article/list/1/:pageSize/:pageNum/
+
+------------------------------------------------------------------------------------------------------------------------
+
+	//:[入参]
+	[1]: [GET]-->[Param][:pageSize]: 代表每页的数据条数
+	[2]: [GET]-->[Param][:pageNum]: 代表当前请求的页数
+
+	//:[回参]
+	[1]: [code]: 状态码 (200|500)
+	[2]: [data]: 数据
+	[3]: [message]: 消息
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func GetArticleList1(ctx *gin.Context) {
+	pageSize := ctx.Param("pageSize")
+	pageNum := ctx.Param("pageNum")
 
 }
