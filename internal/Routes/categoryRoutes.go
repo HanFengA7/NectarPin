@@ -42,6 +42,6 @@ func CategoryRoutes(router *gin.Engine) {
 		//[查询分类-单个] [GET] [Public] [/api/Category/:id]
 		notAuthCategoryAPI.GET("/:id", api.GetCategory)
 		//[查询分类-列表] [GET] [Public] [/api/Category/list/:pageSize/:pageNum]
-		notAuthCategoryAPI.GET("/list/:pageSize/:pageNum")
+		notAuthCategoryAPI.GET("/list/:pageSize/:pageNum", api.GetCategoryList)
 	}
 }

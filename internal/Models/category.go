@@ -65,3 +65,27 @@ func GetCategory(id int) (msgData []Category, statusCode int) {
 
 	return category, 200
 }
+
+// GetCategoryList 查询分类列表
+func GetCategoryList(pageSize int, pageNum int) (data []Category, total int64, statusCode int) {
+
+	if pageSize <= 0 {
+		//每页的数据条数
+		pageSize = 5
+	}
+	if pageNum <= 0 {
+		//当前请求的页数
+		pageNum = 1
+	}
+
+	var err error
+	db := constant.DB
+	offset := (pageNum - 1) * pageSize
+
+	err = db.Limit(pageSize).Offset(offset).Find(&data).Error
+	err = db.Model(&data).Count(&total).Error
+	if err != nil {
+		return nil, 0, 500
+	}
+	return data, total, 200
+}

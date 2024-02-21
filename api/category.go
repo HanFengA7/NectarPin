@@ -67,8 +67,8 @@ func CreateCategory(ctx *gin.Context) {
 GetCategory [查询分类API接口] [240221] [0.1]
 ------------------------------------------------------------------------------------------------------------------------
 
-	[API] [Private] : api.GetCategory
-	[URL] [POST] : /api/Category/:id
+	[API] [Public] : api.GetCategory
+	[URL] [GET] : /api/Category/:id
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -102,5 +102,54 @@ func GetCategory(ctx *gin.Context) {
 			"code": code,
 			"data": data,
 			"msg":  "查询分类成功!",
+		})
+}
+
+/*
+GetCategoryList [查询分类列表API接口] [240221] [0.1]
+------------------------------------------------------------------------------------------------------------------------
+
+	[API] [Public] : api.GetCategoryList
+	[URL] [GET] : /api/Category/list/:pageSize/:pageNum
+
+------------------------------------------------------------------------------------------------------------------------
+
+	//:[入参]
+	[1]: [GET]-->[Param][:pageSize]: 代表每页的数据条数
+	[2]: [GET]-->[Param][:pageNum]: 代表当前请求的页数
+
+	//:[回参]
+	[1]: [code]: 状态码 (200|500)
+	[2]: [data]: 数据
+	[3]: [total]: 统计数量
+	[4]: [msg]: 消息
+
+------------------------------------------------------------------------------------------------------------------------
+*/
+func GetCategoryList(ctx *gin.Context) {
+	pageSize, _ := strconv.Atoi(ctx.Param("pageSize"))
+	pageNum, _ := strconv.Atoi(ctx.Param("pageNum"))
+
+	data, total, code := Models.GetCategoryList(pageSize, pageNum)
+
+	if code != 200 {
+		ctx.JSON(
+			http.StatusOK,
+			gin.H{
+				"code":  code,
+				"data":  nil,
+				"total": total,
+				"msg":   "查询分类列表失败！",
+			})
+		return
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		gin.H{
+			"code":  code,
+			"data":  data,
+			"total": total,
+			"msg":   "查询分类列表成功！",
 		})
 }
