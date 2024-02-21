@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import eventBus from "@/plugin/event-bus/event-bus";
-import {reactive, ref} from "vue";
+import {reactive, ref, onMounted} from "vue";
 import router from "@/router";
 import {GetCategoryList} from "@/api/Category/get";
 import {Message, Notification} from "@arco-design/web-vue";
@@ -26,14 +26,9 @@ eventBus.emit("child-data-selectedKeys", SelectedKeys);
 分类数据
  */
 //分类数据定义
-const CategoryForm = reactive([{
-  id: 1,
-  name: '',
-  short_name: '',
-  desc: '',
-  parent_id: 0,
-  depth: 1,
-}]);
+const CategoryForm = ref([]);
+
+
 //分类树数据定义[Max：三级]
 const CategoryTreeData = ref([{
   title: '',
@@ -52,17 +47,15 @@ const CategoryTreeData = ref([{
   ],
 }])
 //分类数据获取
-const GetCategoryListDataFunc = () => {
-  GetCategoryList(200, 1).then((res: any) => {
+const GetCategoryListDataFunc = async () => {
+ await GetCategoryList(200, 1).then((res: any) => {
     if (res.data.code == 200) {
-      for (let i = 0; i < res.data.data.length; i++) {
-        CategoryForm[i] = res.data.data[i]
-        console.log(CategoryForm)
-      }
+      CategoryForm.value = res.data.data
+      console.log(CategoryForm.value)
+
       let TreeDataF1 = res.data.data.filter((item: any) => item.depth === 1)
       let TreeDataF2 = res.data.data.filter((item: any) => item.depth === 2)
       let TreeDataF3 = res.data.data.filter((item: any) => item.depth === 3)
-
       //[depth]:1
       for (let j = 0; j < TreeDataF1.length; j++) {
         CategoryTreeData.value[j] = TreeDataF1[j]
@@ -91,12 +84,67 @@ const GetCategoryListDataFunc = () => {
           }
         }
       }
+
     } else {
       Message.error('获取分类列表数据异常')
     }
   })
 }
-GetCategoryListDataFunc()
+
+onMounted(async () => {
+  await GetCategoryListDataFunc()
+});
+
+
+/*
+分类表格
+*/
+const CategoryTableSelectedKeys = ref([]);
+const CategoryTablePagination = {pageSize: 5}
+const CategoryTableScroll = {
+  x: 1000,
+  y: 200
+}
+const CategoryTableColumns = [
+  {
+    title: '分类ID',
+    dataIndex: 'id',
+    key: 'id',
+    fixed: 'left',
+    width: 10,
+  },
+  {
+    title: '分类名称',
+    dataIndex: 'name',
+    key: 'name',
+  },
+  {
+    title: '分类缩略名',
+    dataIndex: 'short_name',
+    key: 'short_name',
+  },
+  {
+    title: '父级分类',
+    dataIndex: 'parent_id',
+    key: 'parent_id',
+  },
+  {
+    title: '分类层级',
+    dataIndex: 'depth',
+    key: 'depth',
+  },
+  {
+    title: '分类描述',
+    dataIndex: 'desc',
+    key: 'desc',
+  },
+  {
+    title: '更多操作',
+    slotName: 'optional',
+    fixed: 'right',
+    width: 50
+  },
+]
 
 /*
 添加分类
@@ -119,7 +167,6 @@ const addCategoryHandleClick = () => {
 //[添加分类][添加事件]
 const addCategoryHandleBeforeOk = (done: any) => {
   CreateCategory(addCategoryForm).then((res: any) => {
-    console.log(res.data.code)
     if (res.data.code == 200) {
       Notification.success('添加分类成功！')
       //刷新分类列表数据
@@ -149,6 +196,7 @@ const addCategoryHandleCancel = () => {
 const HeardCardOnBack = () => {
   router.push({name: 'Dashboard'})
 }
+
 </script>
 
 <template>
@@ -220,11 +268,27 @@ const HeardCardOnBack = () => {
 
       <!--[2] 文章列表 [Start]-->
       <div class="Category-Table-PC">
-        {{CategoryTreeData}}
-        <a-tree
-            :data="CategoryTreeData"
-            :show-line="true"
-        />
+        {{CategoryForm}}
+        <a-table
+            row-key="id"
+            :columns="CategoryTableColumns"
+            :data="CategoryForm"
+            :pagination="CategoryTablePagination"
+            :sticky-header="100"
+        >
+          <template #columns>
+            <a-table-column title="分类ID" data-index="id"></a-table-column>
+            <a-table-column title="分类名称" data-index="name"></a-table-column>
+            <a-table-column title="分类缩略名" data-index="short_name"></a-table-column>
+            <a-table-column title="父级分类" data-index="parent_id"></a-table-column>
+            <a-table-column title="分类层级" data-index="depth"></a-table-column>
+            <a-table-column title="分类描述" data-index="desc"></a-table-column>
+          </template>
+        </a-table>
+<!--        <a-tree-->
+<!--            :data="CategoryTreeData"-->
+<!--            :show-line="true"-->
+<!--        />-->
 
       </div>
       <!--[2] 文章列表 [End]-->

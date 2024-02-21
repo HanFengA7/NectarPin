@@ -1,8 +1,41 @@
 <script setup lang="ts">
 import eventBus from "@/plugin/event-bus/event-bus";
-import {ref} from "vue";
-import router from "@/router";
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 
+const columns = [
+  { title: 'ID', dataIndex: 'id', key: 'id' },
+  { title: 'Name', dataIndex: 'name', key: 'name' },
+  { title: 'Short Name', dataIndex: 'short_name', key: 'short_name' },
+  { title: 'Description', dataIndex: 'desc', key: 'desc' },
+  { title: 'Parent ID', dataIndex: 'parent_id', key: 'parent_id' },
+  { title: 'Depth', dataIndex: 'depth', key: 'depth' },
+];
+
+const data = ref([]);
+const pagination = ref({
+  current: 1,
+  pageSize: 10,
+  total: data.value.length,
+});
+const rowSelection = ref({
+  onChange: (selectedRowKeys, selectedRows) => {
+    console.log('selectedRowKeys:', selectedRowKeys);
+    console.log('selectedRows:', selectedRows);
+  },
+});
+const stickyHeader = ref(100);
+
+onMounted(async () => {
+  try {
+    const response = await axios.get('http://localhost:3001/api/Category/list/10/1');
+    data.value = response.data.data;
+    console.log(response.data.data)
+    //pagination.value.total = response.data.length;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+});
 
 /*
 接收父组件数据
@@ -28,7 +61,14 @@ const HeardCardOnBack = () => {
 </script>
 
 <template>
-分类
+  <a-table
+      :columns="columns"
+      :data="data"
+      :pagination="pagination"
+      :row-selection="rowSelection"
+      :sticky-header="stickyHeader"
+      row-key="id"
+  />
 </template>
 
 <style scoped>
