@@ -113,9 +113,32 @@ EditCategory [编辑分类API接口] [240221] [0.1]
 */
 func EditCategory(ctx *gin.Context) {
 	var data Models.Category
+	validatorErrMsg := make(map[string]string)
+
+	//[1]:入参Json数据
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	_ = ctx.ShouldBindJSON(&data)
 
+	//[2]:入参数据校验
+	if len(data.Name) == 0 {
+		validatorErrMsg["name"] = "分类名称不能为空!"
+	}
+	if len(data.ShortName) == 0 {
+		validatorErrMsg["short_name"] = "分类缩略名不能为空!"
+	}
+	ExistCategoryMsg, ExistCategoryBool := Models.ExistCategory(data.Name, data.ShortName)
+	if ExistCategoryBool == false {
+		validatorErrMsg["exist_category"] = ExistCategoryMsg
+	}
+	if len(validatorErrMsg) != 0 {
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 500,
+			"msg":  validatorErrMsg,
+		})
+		return
+	}
+
+	//[3]:将数据写入数据库中
 	msg, code := Models.EditCategory(id, &data)
 	ctx.JSON(
 		http.StatusOK,
