@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import eventBus from "@/plugin/event-bus/event-bus";
-import {reactive, ref, onMounted} from "vue";
+import {onMounted, reactive, ref} from "vue";
 import router from "@/router";
 import {GetCategoryList} from "@/api/Category/get";
-import {Message, Notification} from "@arco-design/web-vue";
+import {Notification} from "@arco-design/web-vue";
 import {CreateCategory} from "@/api/Category/post";
 
 
@@ -29,78 +29,15 @@ eventBus.emit("child-data-selectedKeys", SelectedKeys);
 const CategoryForm = ref([]);
 
 
-//分类树数据定义[Max：三级]
-const CategoryTreeData = ref([{
-  title: '',
-  key: '',
-  children: [
-    {
-      title: '',
-      key: '',
-      children: [
-        {
-          title: '',
-          key: ''
-        },
-      ],
-    },
-  ],
-}])
-//分类数据获取
-const GetCategoryListDataFunc = async () => {
- await GetCategoryList(200, 1).then((res: any) => {
-    if (res.data.code == 200) {
-      CategoryForm.value = res.data.data
-      console.log(CategoryForm.value)
-
-      let TreeDataF1 = res.data.data.filter((item: any) => item.depth === 1)
-      let TreeDataF2 = res.data.data.filter((item: any) => item.depth === 2)
-      let TreeDataF3 = res.data.data.filter((item: any) => item.depth === 3)
-      //[depth]:1
-      for (let j = 0; j < TreeDataF1.length; j++) {
-        CategoryTreeData.value[j] = TreeDataF1[j]
-        CategoryTreeData.value[j].title = TreeDataF1[j].name
-        CategoryTreeData.value[j].key = TreeDataF1[j].id
-        CategoryTreeData.value[j].children = []
-        //[depth]:2
-        if (TreeDataF2.length != 0) {
-          for (let k = 0; k < TreeDataF2.length; k++) {
-            if (CategoryTreeData.value[j].key === TreeDataF2[k].parent_id) {
-              CategoryTreeData.value[j].children[k] = TreeDataF2[k]
-              CategoryTreeData.value[j].children[k].title = TreeDataF2[k].name
-              CategoryTreeData.value[j].children[k].key = TreeDataF2[k].id
-              CategoryTreeData.value[j].children[k].children = []
-              //[depth]:3
-              if (TreeDataF3.length != 0) {
-                for (let i = 0; i < TreeDataF3.length; i++) {
-                  if (CategoryTreeData.value[j].children[k].key === TreeDataF3[i].parent_id) {
-                    CategoryTreeData.value[j].children[k].children[i] = TreeDataF3[i]
-                    CategoryTreeData.value[j].children[k].children[i].title = TreeDataF3[i].name
-                    CategoryTreeData.value[j].children[k].children[i].key = TreeDataF3[i].id
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-
-    } else {
-      Message.error('获取分类列表数据异常')
-    }
-  })
-}
-
-onMounted(async () => {
-  await GetCategoryListDataFunc()
-});
-
-
 /*
 分类表格
 */
+const CategoryTableRowSelection = reactive({
+  type: 'checkbox',
+  showCheckedAll: true,
+});
 const CategoryTableSelectedKeys = ref([]);
-const CategoryTablePagination = {pageSize: 5}
+const CategoryTablePagination = {pageSize: 15}
 const CategoryTableScroll = {
   x: 1000,
   y: 200
@@ -125,8 +62,8 @@ const CategoryTableColumns = [
   },
   {
     title: '父级分类',
-    dataIndex: 'parent_id',
-    key: 'parent_id',
+    dataIndex: 'parent_name',
+    key: 'parent_name',
   },
   {
     title: '分类层级',
@@ -145,6 +82,18 @@ const CategoryTableColumns = [
     width: 50
   },
 ]
+//选择器
+const CategoryTableGetSelectedKey = (key: any) => {
+  CategoryTableSelectedKeys.value = key
+  console.log(key)
+}
+//getParentName
+const getParentName = (parentId:any) =>{
+  //return CategoryForm.value.find(item => item.id === parentId)
+  console.log(CategoryForm.value)
+  return parentId
+}
+
 
 /*
 添加分类
@@ -196,6 +145,32 @@ const addCategoryHandleCancel = () => {
 const HeardCardOnBack = () => {
   router.push({name: 'Dashboard'})
 }
+
+
+onMounted(async () => {
+  try {
+    const response = await GetCategoryList(200, 1);
+    CategoryForm.valu = response.data.data
+    CategoryForm.value = response.data.data.map(item => ({
+      ...item,
+      parent_name: ,
+    }));
+
+    for (let i = 0; i <  response.data.data.length; i++) {
+      CategoryForm.valu[i].parent_name = response.data.data[i].name
+    }
+
+
+
+
+
+    //console.log(CategoryForm.value.find(item => item.id === 19).name)
+    //pagination.value.total = response.data.length;
+  } catch (error) {
+    console.log(error)
+  }
+})
+
 
 </script>
 
@@ -268,27 +243,32 @@ const HeardCardOnBack = () => {
 
       <!--[2] 文章列表 [Start]-->
       <div class="Category-Table-PC">
-        {{CategoryForm}}
         <a-table
             row-key="id"
             :columns="CategoryTableColumns"
             :data="CategoryForm"
+            :row-selection="CategoryTableRowSelection"
             :pagination="CategoryTablePagination"
             :sticky-header="100"
+            @select="CategoryTableGetSelectedKey"
         >
           <template #columns>
             <a-table-column title="分类ID" data-index="id"></a-table-column>
             <a-table-column title="分类名称" data-index="name"></a-table-column>
             <a-table-column title="分类缩略名" data-index="short_name"></a-table-column>
-            <a-table-column title="父级分类" data-index="parent_id"></a-table-column>
+            <a-table-column title="父级分类" data-index="parent_name"></a-table-column>
             <a-table-column title="分类层级" data-index="depth"></a-table-column>
             <a-table-column title="分类描述" data-index="desc"></a-table-column>
+            <a-table-column title="更多操作">
+              <template #cell="{ record }">
+                {{record["parent_id"] === CategoryForm.values }}
+                <br/>
+                <a-button style="right: 10px">编辑</a-button>
+                <a-button>删除</a-button>
+              </template>
+            </a-table-column>
           </template>
         </a-table>
-<!--        <a-tree-->
-<!--            :data="CategoryTreeData"-->
-<!--            :show-line="true"-->
-<!--        />-->
 
       </div>
       <!--[2] 文章列表 [End]-->

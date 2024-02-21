@@ -81,6 +81,7 @@ const data = reactive([{
 //选择器
 const GetSelectedKey = (key: any) => {
   selectedKeys.value = key
+  console.log(key)
 }
 
 /*

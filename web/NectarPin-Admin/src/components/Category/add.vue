@@ -2,6 +2,7 @@
 import eventBus from "@/plugin/event-bus/event-bus";
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import {GetCategoryList} from "@/api/Category/get";
 
 const columns = [
   { title: 'ID', dataIndex: 'id', key: 'id' },
@@ -9,6 +10,7 @@ const columns = [
   { title: 'Short Name', dataIndex: 'short_name', key: 'short_name' },
   { title: 'Description', dataIndex: 'desc', key: 'desc' },
   { title: 'Parent ID', dataIndex: 'parent_id', key: 'parent_id' },
+  { title: 'Parent Name', dataIndex: 'parent_name', key: 'parent_name' },
   { title: 'Depth', dataIndex: 'depth', key: 'depth' },
 ];
 
@@ -28,9 +30,25 @@ const stickyHeader = ref(100);
 
 onMounted(async () => {
   try {
-    const response = await axios.get('http://localhost:3001/api/Category/list/10/1');
-    data.value = response.data.data;
-    console.log(response.data.data)
+
+    const response = await GetCategoryList(200, 1);
+    data.value = response.data.data.map(item => ({
+      ...item,
+      parent_name: '',
+    }))
+
+
+
+    for (let i = 0; i < data.value.length; i++) {
+      for (let j = 0; j < data.value.length; j++) {
+        if (data.value[j].id === data.value[i].parent_id) {
+          data.value[i].parent_name = data.value[j].name
+        }
+      }
+    }
+
+
+
     //pagination.value.total = response.data.length;
   } catch (error) {
     console.error('Error fetching data:', error);
