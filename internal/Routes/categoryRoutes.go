@@ -1,6 +1,7 @@
 package Routes
 
 import (
+	"NectarPin/api"
 	"NectarPin/middleware"
 	"github.com/gin-gonic/gin"
 )
@@ -17,8 +18,8 @@ CategoryRoutes [文章路由接口] [V1.0] [20240221]
 ------------------------------------------------------------------------------------------------------------------------
 
 	╒[不需要授权] [notAuthCategoryAPI]
-	╞═[1]═[查询分类-单个] [GET] [/api/Article/:id]
-	╘═[2]═[查询分类-列表] [GET] [/api/Article/list/:pageSize/:pageNum]
+	╞═[1]═[查询分类-单个] [GET] [/api/Category/:id]
+	╘═[2]═[查询分类-列表] [GET] [/api/Category/list/:pageSize/:pageNum]
 
 ------------------------------------------------------------------------------------------------------------------------
 */
@@ -28,7 +29,7 @@ func CategoryRoutes(router *gin.Engine) {
 	authCategoryAPI := router.Group("api/Category").Use(middleware.AuthJWT())
 	{
 		//[创建分类] [POST] [Private] [/api/Category]
-		authCategoryAPI.POST("")
+		authCategoryAPI.POST("", api.CreateCategory)
 		//[编辑分类] [PUT] [Private] [/api/Category/:id]
 		authCategoryAPI.PUT("/:id")
 		//[删除分类] [DELETE] [Private] [/api/Category/:id]
@@ -36,11 +37,11 @@ func CategoryRoutes(router *gin.Engine) {
 	}
 
 	//[不需要授权] [notAuthUserAPI]
-	notAuthCategoryAPI := router.Group("api/Article")
+	notAuthCategoryAPI := router.Group("api/Category")
 	{
-		//[查询分类-单个] [GET] [Public] [/api/Article/:id]
-		notAuthCategoryAPI.GET("/:id")
-		//[查询分类-列表] [GET] [Public] [/api/Article/list/:pageSize/:pageNum]
+		//[查询分类-单个] [GET] [Public] [/api/Category/:id]
+		notAuthCategoryAPI.GET("/:id", api.GetCategory)
+		//[查询分类-列表] [GET] [Public] [/api/Category/list/:pageSize/:pageNum]
 		notAuthCategoryAPI.GET("/list/:pageSize/:pageNum")
 	}
 }

@@ -32,22 +32,36 @@ type Category struct {
 }
 
 // ExistCategory 检查分类是否存在
-func ExistCategory(name string, shortName string) (msgData string, statusCode int) {
+func ExistCategory(name string, shortName string) (msgData string, statusCode bool) {
 	var category Category
 	db := constant.DB
 
 	if db.Where("name = ?", name).Or("short_name = ?", shortName).Find(&category).RowsAffected > 0 {
-		return "分类名或分类缩略名已存在", 500
+		return "分类名或分类缩略名已存在", false
 	}
 
-	return "分类名或分类缩略名不存在", 200
+	return "分类名或分类缩略名不存在", true
 }
 
 // CreateCategory 创建分类
 func CreateCategory(data *Category) (msgData string, statusCode int) {
 	db := constant.DB
+
 	if err := db.Create(&data).Error; err != nil {
 		return "分类存入数据库失败!", 500
 	}
 	return "创建分类成功！", 200
+}
+
+// GetCategory 查询分类
+func GetCategory(id int) (msgData []Category, statusCode int) {
+	var category []Category
+	db := constant.DB
+
+	err := db.Where("id = ?", id).Find(&category).Error
+	if err != nil {
+		return nil, 500
+	}
+
+	return category, 200
 }

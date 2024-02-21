@@ -41,6 +41,8 @@ func Router() *gin.Engine {
 	Routes.UserRoutes(router)
 	//文章路由
 	Routes.ArticleRoutes(router)
+	//分类路由
+	Routes.CategoryRoutes(router)
 	//评论路由
 	Routes.CommentRoutes(router)
 	//友链路由
