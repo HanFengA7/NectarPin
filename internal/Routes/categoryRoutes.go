@@ -31,7 +31,7 @@ func CategoryRoutes(router *gin.Engine) {
 		//[创建分类] [POST] [Private] [/api/Category]
 		authCategoryAPI.POST("", api.CreateCategory)
 		//[编辑分类] [PUT] [Private] [/api/Category/:id]
-		authCategoryAPI.PUT("/:id")
+		authCategoryAPI.PUT("/:id", api.EditCategory)
 		//[删除分类] [DELETE] [Private] [/api/Category/:id]
 		authCategoryAPI.DELETE("/:id", api.DeleteCategory)
 	}

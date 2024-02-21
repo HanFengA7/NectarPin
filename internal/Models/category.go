@@ -31,7 +31,7 @@ type Category struct {
 	Desc      string         `gorm:"column:desc; type: longtext" json:"desc"`
 }
 
-// ExistCategory 检查分类是否存在
+// ExistCategory 检查分类是否存在[0]
 func ExistCategory(name string, shortName string) (msgData string, statusCode bool) {
 	var category Category
 	db := constant.DB
@@ -43,6 +43,17 @@ func ExistCategory(name string, shortName string) (msgData string, statusCode bo
 	return "分类名或分类缩略名不存在", true
 }
 
+// ExistCategory1 检查分类是否存在[1]
+func ExistCategory1(id int) (msgData string, statusCode bool) {
+	var category Category
+	db := constant.DB
+
+	if db.Where("id = ?", id).Find(&category).RowsAffected > 0 {
+		return "分类存在", true
+	}
+	return "分类不存在", false
+}
+
 // CreateCategory 创建分类
 func CreateCategory(data *Category) (msgData string, statusCode int) {
 	db := constant.DB
@@ -51,6 +62,51 @@ func CreateCategory(data *Category) (msgData string, statusCode int) {
 		return "分类存入数据库失败!", 500
 	}
 	return "创建分类成功！", 200
+}
+
+// DeleteCategory 删除分类
+func DeleteCategory(id int) (msgData string, statusCode int) {
+	var category Category
+	var err error
+	db := constant.DB
+
+	if id != 0 {
+		err = db.Where("id = ?", id).Or("parent_id = ?", id).Unscoped().Delete(&category).Error
+		if err != nil {
+			return "删除分类失败!", 500
+		}
+		return "删除分类成功", 200
+	} else {
+		return "删除分类失败!", 500
+	}
+}
+
+// EditCategory 编辑分类
+func EditCategory(id int, oldData *Category) (msgData string, statusCode int) {
+	var category Category
+	var err error
+	var maps = make(map[string]interface{})
+	db := constant.DB
+
+	//要编辑的数据
+	maps["name"] = oldData.Name
+	maps["short_name"] = oldData.ShortName
+	maps["desc"] = oldData.Desc
+	maps["parent_id"] = oldData.ParentID
+	maps["depth"] = oldData.Depth
+
+	//判断分类是否存在
+	ExistCategoryMsg, ExistCategoryBool := ExistCategory1(id)
+	if ExistCategoryBool != true {
+		return ExistCategoryMsg, 500
+	}
+
+	//编辑分类信息
+	err = db.Model(&category).Where("id = ?", id).Updates(maps).Error
+	if err != nil {
+		return "编辑分类信息失败", 500
+	}
+	return "编辑分类信息成功", 200
 }
 
 // GetCategory 查询分类
@@ -88,17 +144,4 @@ func GetCategoryList(pageSize int, pageNum int) (data []Category, total int64, s
 		return nil, 0, 500
 	}
 	return data, total, 200
-}
-
-// DeleteCategory 删除分类
-func DeleteCategory(id int) (msgData string, statusCode int) {
-	var category Category
-	var err error
-	db := constant.DB
-
-	err = db.Where("id = ?", id).Unscoped().Delete(&category).Error
-	if err != nil {
-		return "删除分类失败!", 500
-	}
-	return "删除分类成功", 200
 }
