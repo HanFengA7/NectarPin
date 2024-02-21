@@ -80,6 +80,7 @@ GetArticle0 [查询文章API接口-前台(0)] [240131] [0.1]
 	//:[入参]
 	[1]: [GET]-->[Param][:id]: 文章的ID
 	[2]: [GET]-->[Param][:toType]: 输出文章的类型 [HTML|Markdown]
+	[3]: [GET]-->[Param][:password]: [可选] 文章的密码
 
 	//:[回参]
 	[1]: [code]: 状态码 (200|500)
@@ -139,7 +140,7 @@ GetArticleList1 [查询文章列表API接口-后台(1)] [240220] [0.1]
 ------------------------------------------------------------------------------------------------------------------------
 */
 func GetArticleList1(ctx *gin.Context) {
-	pageSize := ctx.Param("pageSize")
-	pageNum := ctx.Param("pageNum")
+	//pageSize := ctx.Param("pageSize")
+	//pageNum := ctx.Param("pageNum")
 
 }
