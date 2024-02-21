@@ -34,7 +34,7 @@ onMounted(async () => {
     const response = await GetCategoryList(200, 1);
     data.value = response.data.data.map(item => ({
       ...item,
-      parent_name: '',
+      parent_name: '父级分类',
     }))
 
 

@@ -153,11 +153,15 @@ onMounted(async () => {
     CategoryForm.valu = response.data.data
     CategoryForm.value = response.data.data.map(item => ({
       ...item,
-      parent_name: ,
+      parent_name: '父级分类' ,
     }));
 
-    for (let i = 0; i <  response.data.data.length; i++) {
-      CategoryForm.valu[i].parent_name = response.data.data[i].name
+    for (let i = 0; i < CategoryForm.value.length; i++) {
+      for (let j = 0; j < CategoryForm.value.length; j++) {
+        if (CategoryForm.value[j].id === CategoryForm.value[i].parent_id) {
+          CategoryForm.value[i].parent_name = CategoryForm.value[j].name
+        }
+      }
     }
 
 
