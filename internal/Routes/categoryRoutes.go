@@ -33,7 +33,7 @@ func CategoryRoutes(router *gin.Engine) {
 		//[编辑分类] [PUT] [Private] [/api/Category/:id]
 		authCategoryAPI.PUT("/:id")
 		//[删除分类] [DELETE] [Private] [/api/Category/:id]
-		authCategoryAPI.DELETE("/:id")
+		authCategoryAPI.DELETE("/:id", api.DeleteCategory)
 	}
 
 	//[不需要授权] [notAuthUserAPI]

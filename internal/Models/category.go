@@ -89,3 +89,16 @@ func GetCategoryList(pageSize int, pageNum int) (data []Category, total int64, s
 	}
 	return data, total, 200
 }
+
+// DeleteCategory 删除分类
+func DeleteCategory(id int) (msgData string, statusCode int) {
+	var category Category
+	var err error
+	db := constant.DB
+
+	err = db.Where("id = ?", id).Unscoped().Delete(&category).Error
+	if err != nil {
+		return "删除分类失败!", 500
+	}
+	return "删除分类成功", 200
+}
