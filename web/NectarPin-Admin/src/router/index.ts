@@ -40,6 +40,14 @@ const router = createRouter({
                 },
                 // [Article]
                 {
+                    path:'/Article',
+                    name: 'Article',
+                    meta:{
+                        title: 'NectarPin - 文章管理'
+                    },
+                    component: () => import('../components/Article/article.vue')
+                },
+                {
                     path:'/Article/add',
                     name: 'Article/add',
                     meta:{
@@ -47,13 +55,22 @@ const router = createRouter({
                     },
                     component: () => import('../components/Article/add.vue')
                 },
+                // [Category]
                 {
-                    path:'/Article',
-                    name: 'Article',
+                    path:'/Category',
+                    name: 'Category',
                     meta:{
-                        title: 'NectarPin - 文章管理'
+                        title: 'NectarPin - 分类管理'
                     },
-                    component: () => import('../components/Article/article.vue')
+                    component: () => import('../components/Category/category.vue')
+                },
+                {
+                    path:'/Category/add',
+                    name: 'Category/add',
+                    meta:{
+                        title: 'NectarPin - 添加分类'
+                    },
+                    component: () => import('../components/Category/add.vue')
                 },
             ],
         }
