@@ -58,7 +58,7 @@ func GetCategory(id int) (msgData []Category, statusCode int) {
 	var category []Category
 	db := constant.DB
 
-	err := db.Where("id = ?", id).Find(&category).Error
+	err := db.Where("id = ?", id).First(&category).Error
 	if err != nil {
 		return nil, 500
 	}
