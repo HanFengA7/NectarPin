@@ -2,6 +2,9 @@
 import eventBus from "@/plugin/event-bus/event-bus";
 import {reactive, ref} from "vue";
 import router from "@/router";
+import {GetCategoryList} from "@/api/Category/get";
+import {Message,Notification} from "@arco-design/web-vue";
+import {CreateCategory} from "@/api/Category/post";
 
 
 /*
@@ -22,29 +25,67 @@ eventBus.emit("child-data-selectedKeys", SelectedKeys);
 /*
 分类数据
  */
+//分类树数据定义
+const CategoryTreeData = [
+  {
+    title: 'Trunk 1',
+    key: '0-0',
+    children: [
+      {
+        title: 'Trunk 1-0',
+        key: '0-0-0',
+        children: [
+          { title: 'leaf', key: '0-0-0-0' },
+          {
+            title: 'leaf',
+            key: '0-0-0-1',
+            children: [{ title: 'leaf', key: '0-0-0-1-0' }],
+          },
+          { title: 'leaf', key: '0-0-0-2' },
+        ],
+      },
+      {
+        title: 'Trunk 1-1',
+        key: '0-0-1',
+      },
+      {
+        title: 'Trunk 1-2',
+        key: '0-0-2',
+        children: [
+          { title: 'leaf', key: '0-0-2-0' },
+          {
+            title: 'leaf',
+            key: '0-0-2-1',
+          },
+        ],
+      },
+    ],
+  },
+];
+//分类数据定义
 const CategoryForm = reactive([{
   id: 1,
-  name: '默认分类',
-  short_name: 'mysql',
-  desc: 'mysql',
-  parent_id: 0,
-  depth: 1,
-},{
-  id: 2,
-  name: '默认分类1',
-  short_name: 'mysql',
-  desc: 'mysql',
-  parent_id: 0,
-  depth: 1,
-},{
-  id: 3,
-  name: '默认分类2',
-  short_name: 'mysql',
-  desc: 'mysql',
+  name: '',
+  short_name: '',
+  desc: '',
   parent_id: 0,
   depth: 1,
 }]);
+//分类数据获取
+const GetCategoryListDataFunc = () =>{
+  GetCategoryList(10,1).then((res:any)=>{
+    if (res.data.code == 200){
+      for (let i=0; i< res.data.data.length ; i++){
+        CategoryForm[i] = res.data.data[i]
+      }
 
+      console.log(CategoryForm)
+    }else {
+      Message.error('获取分类列表数据异常')
+    }
+  })
+}
+GetCategoryListDataFunc()
 
 /*
 添加分类
@@ -65,16 +106,25 @@ const addCategoryHandleClick = () => {
   addCategoryVisible.value = true;
 };
 //[添加分类][添加事件]
-const addCategoryHandleBeforeOk = (done:any) => {
-  console.log(addCategoryForm)
+const addCategoryHandleBeforeOk = (done: any) => {
+  CreateCategory(addCategoryForm).then((res:any)=>{
+    console.log(res.data.code)
+    if (res.data.code == 200){
+      Notification.success('添加分类成功！')
+    }else {
+      Notification.error('添加分类失败，请检查数据是否合法!')
+    }
+  })
   window.setTimeout(() => {
     done()
-    // prevent close
-    // done(false)
-  }, 3000)
+  }, 2000)
+  //刷新分类列表数据
+  GetCategoryListDataFunc()
 };
 //[添加分类][取消事件]
 const addCategoryHandleCancel = () => {
+  //刷新分类列表数据
+  GetCategoryListDataFunc()
   addCategoryVisible.value = false;
   addCategoryFormRef.value['resetFields'](['name'])
 }
@@ -104,15 +154,15 @@ const HeardCardOnBack = () => {
           @before-ok="addCategoryHandleBeforeOk">
         <a-form ref="addCategoryFormRef" :model="addCategoryForm">
           <a-form-item field="name" label="分类名称">
-            <a-input v-model="addCategoryForm.name" />
+            <a-input v-model="addCategoryForm.name"/>
           </a-form-item>
           <a-form-item field="name" label="分类缩略名">
-            <a-input v-model="addCategoryForm.short_name" />
+            <a-input v-model="addCategoryForm.short_name"/>
           </a-form-item>
           <a-form-item field="parent_id" label="父级分类">
             <a-select v-model="addCategoryForm.parent_id">
               <a-option :value="0">不选择</a-option>
-              <a-option v-for="item of CategoryForm" :value="item.id" :label="item.name" />
+              <a-option v-for="item of CategoryForm" :value="item.id" :label="item.name"/>
             </a-select>
           </a-form-item>
           <a-form-item field="depth" label="分类层级">
@@ -157,6 +207,12 @@ const HeardCardOnBack = () => {
 
       <!--[2] 文章列表 [Start]-->
       <div class="Category-Table-PC">
+
+        <a-tree
+            :default-selected-keys="['0-0-1']"
+            :data="treeData"
+            :show-line="true"
+        />
 
       </div>
       <!--[2] 文章列表 [End]-->
