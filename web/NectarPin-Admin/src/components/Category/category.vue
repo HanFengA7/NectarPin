@@ -3,7 +3,7 @@ import eventBus from "@/plugin/event-bus/event-bus";
 import {reactive, ref} from "vue";
 import router from "@/router";
 import {GetCategoryList} from "@/api/Category/get";
-import {Message,Notification} from "@arco-design/web-vue";
+import {Message, Notification} from "@arco-design/web-vue";
 import {CreateCategory} from "@/api/Category/post";
 
 
@@ -25,43 +25,6 @@ eventBus.emit("child-data-selectedKeys", SelectedKeys);
 /*
 分类数据
  */
-//分类树数据定义
-const CategoryTreeData = [
-  {
-    title: 'Trunk 1',
-    key: '0-0',
-    children: [
-      {
-        title: 'Trunk 1-0',
-        key: '0-0-0',
-        children: [
-          { title: 'leaf', key: '0-0-0-0' },
-          {
-            title: 'leaf',
-            key: '0-0-0-1',
-            children: [{ title: 'leaf', key: '0-0-0-1-0' }],
-          },
-          { title: 'leaf', key: '0-0-0-2' },
-        ],
-      },
-      {
-        title: 'Trunk 1-1',
-        key: '0-0-1',
-      },
-      {
-        title: 'Trunk 1-2',
-        key: '0-0-2',
-        children: [
-          { title: 'leaf', key: '0-0-2-0' },
-          {
-            title: 'leaf',
-            key: '0-0-2-1',
-          },
-        ],
-      },
-    ],
-  },
-];
 //分类数据定义
 const CategoryForm = reactive([{
   id: 1,
@@ -71,16 +34,64 @@ const CategoryForm = reactive([{
   parent_id: 0,
   depth: 1,
 }]);
+//分类树数据定义[Max：三级]
+const CategoryTreeData = ref([{
+  title: '',
+  key: '',
+  children: [
+    {
+      title: '',
+      key: '',
+      children: [
+        {
+          title: '',
+          key: ''
+        },
+      ],
+    },
+  ],
+}])
 //分类数据获取
-const GetCategoryListDataFunc = () =>{
-  GetCategoryList(10,1).then((res:any)=>{
-    if (res.data.code == 200){
-      for (let i=0; i< res.data.data.length ; i++){
+const GetCategoryListDataFunc = () => {
+  GetCategoryList(200, 1).then((res: any) => {
+    if (res.data.code == 200) {
+      for (let i = 0; i < res.data.data.length; i++) {
         CategoryForm[i] = res.data.data[i]
+        console.log(CategoryForm)
       }
+      let TreeDataF1 = res.data.data.filter((item: any) => item.depth === 1)
+      let TreeDataF2 = res.data.data.filter((item: any) => item.depth === 2)
+      let TreeDataF3 = res.data.data.filter((item: any) => item.depth === 3)
 
-      console.log(CategoryForm)
-    }else {
+      //[depth]:1
+      for (let j = 0; j < TreeDataF1.length; j++) {
+        CategoryTreeData.value[j] = TreeDataF1[j]
+        CategoryTreeData.value[j].title = TreeDataF1[j].name
+        CategoryTreeData.value[j].key = TreeDataF1[j].id
+        CategoryTreeData.value[j].children = []
+        //[depth]:2
+        if (TreeDataF2.length != 0) {
+          for (let k = 0; k < TreeDataF2.length; k++) {
+            if (CategoryTreeData.value[j].key === TreeDataF2[k].parent_id) {
+              CategoryTreeData.value[j].children[k] = TreeDataF2[k]
+              CategoryTreeData.value[j].children[k].title = TreeDataF2[k].name
+              CategoryTreeData.value[j].children[k].key = TreeDataF2[k].id
+              CategoryTreeData.value[j].children[k].children = []
+              //[depth]:3
+              if (TreeDataF3.length != 0) {
+                for (let i = 0; i < TreeDataF3.length; i++) {
+                  if (CategoryTreeData.value[j].children[k].key === TreeDataF3[i].parent_id) {
+                    CategoryTreeData.value[j].children[k].children[i] = TreeDataF3[i]
+                    CategoryTreeData.value[j].children[k].children[i].title = TreeDataF3[i].name
+                    CategoryTreeData.value[j].children[k].children[i].key = TreeDataF3[i].id
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    } else {
       Message.error('获取分类列表数据异常')
     }
   })
@@ -107,26 +118,28 @@ const addCategoryHandleClick = () => {
 };
 //[添加分类][添加事件]
 const addCategoryHandleBeforeOk = (done: any) => {
-  CreateCategory(addCategoryForm).then((res:any)=>{
+  CreateCategory(addCategoryForm).then((res: any) => {
     console.log(res.data.code)
-    if (res.data.code == 200){
+    if (res.data.code == 200) {
       Notification.success('添加分类成功！')
-    }else {
+      //刷新分类列表数据
+      GetCategoryListDataFunc()
+      addCategoryFormRef.value['resetFields'](['name','short_name','desc','parent_id','depth'])
+    } else {
       Notification.error('添加分类失败，请检查数据是否合法!')
+      addCategoryFormRef.value['resetFields'](['name','short_name','desc','parent_id','depth'])
     }
   })
   window.setTimeout(() => {
     done()
   }, 2000)
-  //刷新分类列表数据
-  GetCategoryListDataFunc()
 };
 //[添加分类][取消事件]
 const addCategoryHandleCancel = () => {
   //刷新分类列表数据
   GetCategoryListDataFunc()
   addCategoryVisible.value = false;
-  addCategoryFormRef.value['resetFields'](['name'])
+  addCategoryFormRef.value['resetFields'](['name','short_name','desc','parent_id','depth'])
 }
 
 
@@ -207,10 +220,9 @@ const HeardCardOnBack = () => {
 
       <!--[2] 文章列表 [Start]-->
       <div class="Category-Table-PC">
-
+        {{CategoryTreeData}}
         <a-tree
-            :default-selected-keys="['0-0-1']"
-            :data="treeData"
+            :data="CategoryTreeData"
             :show-line="true"
         />
 
