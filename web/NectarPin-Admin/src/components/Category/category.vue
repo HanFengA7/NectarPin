@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import eventBus from "@/plugin/event-bus/event-bus";
-import {onMounted, reactive, ref, toRefs} from "vue";
+import {onMounted, reactive, ref} from "vue";
 import router from "@/router";
 import {GetCategoryList} from "@/api/Category/get";
 import {Notification} from "@arco-design/web-vue";
@@ -73,9 +73,12 @@ const CategoryTableColumns = [
   {
     title: '分类ID',
     dataIndex: 'id',
-    key: 'id',
+    sortable: {
+      sortDirections: ['ascend', 'descend'],
+      defaultSortOrder: 'descend'
+    },
     fixed: 'left',
-    width: 10,
+    width: 100,
   },
   {
     title: '分类名称',
@@ -104,16 +107,16 @@ const CategoryTableColumns = [
   },
   {
     title: '更多操作',
-    slotName: 'optional',
+    slotName: 'cell',
     fixed: 'right',
-    width: 50
+    width: 200
   },
 ]
 //选择器
 const CategoryTableGetSelectedKey = (key: any) => {
   CategoryTableSelectedKeys.value = key
 }
-const CategoryTableGetSelectedKeyALL = () =>{
+const CategoryTableGetSelectedKeyALL = () => {
   let temp = <any>ref([])
   for (let i = 0; i < CategoryForm.value.length; i++) {
     temp.value[i] = CategoryForm.value[i]["id"];
@@ -142,7 +145,7 @@ const addCategoryForm = reactive({
 //[添加分类][父级分类列表数据获取]
 const GetCategoryFormDataListAdd = async () => {
   const response = await GetCategoryList(100000, 1);
-  CategoryFormListAdd.value = response.data.data.filter((item:any) => item.depth === 1 || item.depth === 2);
+  CategoryFormListAdd.value = response.data.data.filter((item: any) => item.depth === 1 || item.depth === 2);
 }
 //[添加分类][模态框显示]
 const addCategoryVisible = ref(false);
@@ -183,29 +186,33 @@ const addCategoryHandleCancel = () => {
   addCategoryVisible.value = false;
   addCategoryFormRef.value['resetFields'](['name', 'short_name', 'desc', 'parent_id', 'depth'])
 }
-
+//
+const addCategoryParentChange = (id: any) => {
+  //id -> depth
+  addCategoryForm.depth = CategoryFormListAdd.value.find(item => item.id === id).depth +1
+}
 
 /*
 [模块]删除分类
  */
 //删除分类[单个]
-const DeleteCategoryFunc = async (id:number) =>{
-  await DeleteCategory(id).then((res:any) =>{
-    if (res.data.code === 200){
+const DeleteCategoryFunc = async (id: number) => {
+  await DeleteCategory(id).then((res: any) => {
+    if (res.data.code === 200) {
       Notification.success(res.data.msg)
-    }else {
+    } else {
       Notification.error(res.data.msg)
     }
     GetCategoryFormData()
   })
 }
 //删除分类[批量删除]
-const DeleteCategoryListFunc = async () =>{
+const DeleteCategoryListFunc = async () => {
   for (let i = 0; i < CategoryTableSelectedKeys.value.length; i++) {
-    await DeleteCategory(CategoryTableSelectedKeys.value[i]).then((res:any) =>{
-      if (res.data.code === 200){
+    await DeleteCategory(CategoryTableSelectedKeys.value[i]).then((res: any) => {
+      if (res.data.code === 200) {
         Notification.success(res.data.msg)
-      }else {
+      } else {
         Notification.error(res.data.msg)
       }
     })
@@ -246,16 +253,43 @@ const HeardCardOnBack = () => {
             <a-input v-model="addCategoryForm.short_name"/>
           </a-form-item>
           <a-form-item field="parent_id" label="父级分类">
-            <a-select v-model="addCategoryForm.parent_id">
+            <a-select
+                v-model="addCategoryForm.parent_id"
+                @change="addCategoryParentChange"
+            >
               <a-option :value="0">不选择</a-option>
-              <a-option v-for="item of CategoryFormListAdd" :value="item.id" :label="item.name"/>
+              <a-option v-for="item in CategoryFormListAdd.reverse()" :value="item.id" :label="item.name"/>
             </a-select>
           </a-form-item>
-          <a-form-item field="depth" label="分类层级">
+          <a-form-item v-if="addCategoryForm.parent_id > 0 && addCategoryForm.depth === 1" field="depth"
+                       label="分类层级">
             <a-select v-model="addCategoryForm.depth">
-              <a-option :value="1">一级分类</a-option>
+              <a-option :value="1" disabled>一级分类</a-option>
               <a-option :value="2">二级分类</a-option>
               <a-option :value="3">三级分类</a-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item v-if="addCategoryForm.parent_id > 0 && addCategoryForm.depth === 2" field="depth"
+                       label="分类层级">
+            <a-select v-model="addCategoryForm.depth">
+              <a-option :value="1" disabled>一级分类</a-option>
+              <a-option :value="2" >二级分类</a-option>
+              <a-option :value="3" disabled>三级分类</a-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item v-if="addCategoryForm.parent_id > 0 && addCategoryForm.depth === 3" field="depth"
+                       label="分类层级">
+            <a-select v-model="addCategoryForm.depth">
+              <a-option :value="1" disabled>一级分类</a-option>
+              <a-option :value="2" disabled>二级分类</a-option>
+              <a-option :value="3" >三级分类</a-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item v-if="addCategoryForm.parent_id === 0" field="depth" label="分类层级">
+            <a-select v-model="addCategoryForm.depth">
+              <a-option :value="1">一级分类</a-option>
+              <a-option :value="2" disabled>二级分类</a-option>
+              <a-option :value="3" disabled>三级分类</a-option>
             </a-select>
           </a-form-item>
           <a-form-item field="desc" label="分类描述">
@@ -300,24 +334,15 @@ const HeardCardOnBack = () => {
             :row-selection="CategoryTableRowSelection"
             :pagination="CategoryTablePagination"
             :sticky-header="100"
+            :filter-icon-align-left="false"
             @select-all="CategoryTableGetSelectedKeyALL"
             @select="CategoryTableGetSelectedKey"
             @page-change="CategoryTablePageChange"
         >
-          <template #columns>
-            <a-table-column title="分类ID" data-index="id"></a-table-column>
-            <a-table-column title="分类名称" data-index="name"></a-table-column>
-            <a-table-column title="分类缩略名" data-index="short_name"></a-table-column>
-            <a-table-column title="父级分类" data-index="parent_name"></a-table-column>
-            <a-table-column title="分类层级" data-index="depth"></a-table-column>
-            <a-table-column title="分类描述" data-index="desc"></a-table-column>
-            <a-table-column>
               <template #cell="{ record }">
                 <a-button style="right: 10px">编辑</a-button>
                 <a-button @click="DeleteCategoryFunc(record.id)">删除</a-button>
               </template>
-            </a-table-column>
-          </template>
         </a-table>
 
       </div>
