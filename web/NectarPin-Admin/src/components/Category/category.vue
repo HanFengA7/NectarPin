@@ -28,22 +28,24 @@ eventBus.emit("child-data-selectedKeys", SelectedKeys);
 //分类数据定义
 const CategoryForm = <any>ref([]);
 //分类数据获取
-onMounted(async () => {
-  try {
-    const response = await GetCategoryList(200, 1);
-    CategoryForm.value = response.data.data.map((item:any) => ({
-      ...item,
-      parent_name: '父级' ,
-    }));
-
-    for (let i = 0; i < CategoryForm.value.length; i++) {
-      for (let j = 0; j < CategoryForm.value.length; j++) {
-        if (CategoryForm.value[j].id === CategoryForm.value[i].parent_id) {
-          CategoryForm.value[i].parent_name = CategoryForm.value[j].name
-        }
+const GetCategoryFormData = async () => {
+  const response = await GetCategoryList(CategoryTablePagination.value.pageSize, CategoryTablePagination.value.pageNum);
+  CategoryForm.value = response.data.data.map((item: any) => ({
+    ...item,
+    parent_name: '父级',
+  }));
+  CategoryTablePagination.value.total = response.data.total
+  for (let i = 0; i < CategoryForm.value.length; i++) {
+    for (let j = 0; j < CategoryForm.value.length; j++) {
+      if (CategoryForm.value[j].id === CategoryForm.value[i].parent_id) {
+        CategoryForm.value[i].parent_name = CategoryForm.value[j].name
       }
     }
-
+  }
+}
+onMounted(async () => {
+  try {
+    await GetCategoryFormData()
   } catch (error) {
     console.log(error)
   }
@@ -57,7 +59,11 @@ const CategoryTableRowSelection = reactive({
   showCheckedAll: true,
 });
 const CategoryTableSelectedKeys = ref([]);
-const CategoryTablePagination = {pageSize: 15}
+const CategoryTablePagination = ref({
+  pageSize: 10,
+  pageNum: 1,
+  total: 0,
+})
 const CategoryTableScroll = {
   x: 1000,
   y: 200
@@ -105,14 +111,25 @@ const CategoryTableColumns = [
 //选择器
 const CategoryTableGetSelectedKey = (key: any) => {
   CategoryTableSelectedKeys.value = key
-  console.log(key)
 }
-
+//分页
+const CategoryTablePageChange = (page: number) => {
+  CategoryTablePagination.value.pageNum = page
+  GetCategoryFormData()
+}
 
 /*
 添加分类
  */
 //[添加分类][表单数据]
+const CategoryFormListAdd = <any>ref([])
+//数据获取
+const GetCategoryFormDataListAdd = async () => {
+  const response = await GetCategoryList(100000, 1);
+  CategoryFormListAdd.value = response.data.data.filter(item => item.depth === 1 || item.depth === 2);
+}
+
+
 const addCategoryFormRef = ref()
 const addCategoryForm = reactive({
   name: '',
@@ -125,6 +142,7 @@ const addCategoryForm = reactive({
 const addCategoryVisible = ref(false);
 //[添加分类][点击添加分类事件]
 const addCategoryHandleClick = () => {
+  GetCategoryFormDataListAdd()
   addCategoryVisible.value = true;
 };
 //[添加分类][添加事件]
@@ -134,16 +152,21 @@ const addCategoryHandleBeforeOk = (done: any) => {
       window.setTimeout(() => {
         done()
         Notification.success('添加分类成功！')
-        addCategoryFormRef.value['resetFields'](['name','short_name','desc','parent_id','depth'])
+        addCategoryFormRef.value['resetFields'](['name', 'short_name', 'desc', 'parent_id', 'depth'])
+        GetCategoryFormData()
+        GetCategoryFormDataListAdd()
       }, 2000)
     } else {
       window.setTimeout(() => {
         done(false)
-         if (res.data.msg.name !== undefined){
-           Notification.error(res.data.msg.name)
-         }
-        if (res.data.msg.short_name !== undefined){
-          Notification.error(res.data.msg.short_name)
+        if (res.data.msg["name"] !== undefined) {
+          Notification.error(res.data.msg["name"])
+        }
+        if (res.data.msg["short_nam"] !== undefined) {
+          Notification.error(res.data.msg["short_name"])
+        }
+        if (res.data.msg["exist_category"] !== undefined) {
+          Notification.error(res.data.msg["exist_category"])
         }
       }, 3000)
     }
@@ -152,7 +175,7 @@ const addCategoryHandleBeforeOk = (done: any) => {
 //[添加分类][取消事件]
 const addCategoryHandleCancel = () => {
   addCategoryVisible.value = false;
-  addCategoryFormRef.value['resetFields'](['name','short_name','desc','parent_id','depth'])
+  addCategoryFormRef.value['resetFields'](['name', 'short_name', 'desc', 'parent_id', 'depth'])
 }
 
 
@@ -162,9 +185,6 @@ const addCategoryHandleCancel = () => {
 const HeardCardOnBack = () => {
   router.push({name: 'Dashboard'})
 }
-
-
-
 
 
 </script>
@@ -193,7 +213,7 @@ const HeardCardOnBack = () => {
           <a-form-item field="parent_id" label="父级分类">
             <a-select v-model="addCategoryForm.parent_id">
               <a-option :value="0">不选择</a-option>
-              <a-option v-for="item of CategoryForm" :value="item.id" :label="item.name"/>
+              <a-option v-for="item of CategoryFormListAdd" :value="item.id" :label="item.name"/>
             </a-select>
           </a-form-item>
           <a-form-item field="depth" label="分类层级">
@@ -246,6 +266,7 @@ const HeardCardOnBack = () => {
             :pagination="CategoryTablePagination"
             :sticky-header="100"
             @select="CategoryTableGetSelectedKey"
+            @page-change="CategoryTablePageChange"
         >
           <template #columns>
             <a-table-column title="分类ID" data-index="id"></a-table-column>
