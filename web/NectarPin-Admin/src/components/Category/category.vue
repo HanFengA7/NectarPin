@@ -26,8 +26,28 @@ eventBus.emit("child-data-selectedKeys", SelectedKeys);
 分类数据
  */
 //分类数据定义
-const CategoryForm = ref([]);
+const CategoryForm = <any>ref([]);
+//分类数据获取
+onMounted(async () => {
+  try {
+    const response = await GetCategoryList(200, 1);
+    CategoryForm.value = response.data.data.map((item:any) => ({
+      ...item,
+      parent_name: '父级' ,
+    }));
 
+    for (let i = 0; i < CategoryForm.value.length; i++) {
+      for (let j = 0; j < CategoryForm.value.length; j++) {
+        if (CategoryForm.value[j].id === CategoryForm.value[i].parent_id) {
+          CategoryForm.value[i].parent_name = CategoryForm.value[j].name
+        }
+      }
+    }
+
+  } catch (error) {
+    console.log(error)
+  }
+})
 
 /*
 分类表格
@@ -87,12 +107,6 @@ const CategoryTableGetSelectedKey = (key: any) => {
   CategoryTableSelectedKeys.value = key
   console.log(key)
 }
-//getParentName
-const getParentName = (parentId:any) =>{
-  //return CategoryForm.value.find(item => item.id === parentId)
-  console.log(CategoryForm.value)
-  return parentId
-}
 
 
 /*
@@ -117,23 +131,26 @@ const addCategoryHandleClick = () => {
 const addCategoryHandleBeforeOk = (done: any) => {
   CreateCategory(addCategoryForm).then((res: any) => {
     if (res.data.code == 200) {
-      Notification.success('添加分类成功！')
-      //刷新分类列表数据
-      GetCategoryListDataFunc()
-      addCategoryFormRef.value['resetFields'](['name','short_name','desc','parent_id','depth'])
+      window.setTimeout(() => {
+        done()
+        Notification.success('添加分类成功！')
+        addCategoryFormRef.value['resetFields'](['name','short_name','desc','parent_id','depth'])
+      }, 2000)
     } else {
-      Notification.error('添加分类失败，请检查数据是否合法!')
-      addCategoryFormRef.value['resetFields'](['name','short_name','desc','parent_id','depth'])
+      window.setTimeout(() => {
+        done(false)
+         if (res.data.msg.name !== undefined){
+           Notification.error(res.data.msg.name)
+         }
+        if (res.data.msg.short_name !== undefined){
+          Notification.error(res.data.msg.short_name)
+        }
+      }, 3000)
     }
   })
-  window.setTimeout(() => {
-    done()
-  }, 2000)
 };
 //[添加分类][取消事件]
 const addCategoryHandleCancel = () => {
-  //刷新分类列表数据
-  GetCategoryListDataFunc()
   addCategoryVisible.value = false;
   addCategoryFormRef.value['resetFields'](['name','short_name','desc','parent_id','depth'])
 }
@@ -147,33 +164,7 @@ const HeardCardOnBack = () => {
 }
 
 
-onMounted(async () => {
-  try {
-    const response = await GetCategoryList(200, 1);
-    CategoryForm.valu = response.data.data
-    CategoryForm.value = response.data.data.map(item => ({
-      ...item,
-      parent_name: '父级分类' ,
-    }));
 
-    for (let i = 0; i < CategoryForm.value.length; i++) {
-      for (let j = 0; j < CategoryForm.value.length; j++) {
-        if (CategoryForm.value[j].id === CategoryForm.value[i].parent_id) {
-          CategoryForm.value[i].parent_name = CategoryForm.value[j].name
-        }
-      }
-    }
-
-
-
-
-
-    //console.log(CategoryForm.value.find(item => item.id === 19).name)
-    //pagination.value.total = response.data.length;
-  } catch (error) {
-    console.log(error)
-  }
-})
 
 
 </script>
@@ -263,10 +254,8 @@ onMounted(async () => {
             <a-table-column title="父级分类" data-index="parent_name"></a-table-column>
             <a-table-column title="分类层级" data-index="depth"></a-table-column>
             <a-table-column title="分类描述" data-index="desc"></a-table-column>
-            <a-table-column title="更多操作">
+            <a-table-column>
               <template #cell="{ record }">
-                {{record["parent_id"] === CategoryForm.values }}
-                <br/>
                 <a-button style="right: 10px">编辑</a-button>
                 <a-button>删除</a-button>
               </template>
