@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import eventBus from "@/plugin/event-bus/event-bus";
-import {onMounted, reactive, ref} from "vue";
+import {onMounted, reactive, ref, toRefs} from "vue";
 import router from "@/router";
 import {GetCategoryList} from "@/api/Category/get";
 import {Notification} from "@arco-design/web-vue";
 import {CreateCategory} from "@/api/Category/post";
+import {DeleteCategory} from "@/api/Category/detele";
 
 
 /*
@@ -58,9 +59,9 @@ const CategoryTableRowSelection = reactive({
   type: 'checkbox',
   showCheckedAll: true,
 });
-const CategoryTableSelectedKeys = ref([]);
+const CategoryTableSelectedKeys = <any>ref([]);
 const CategoryTablePagination = ref({
-  pageSize: 10,
+  pageSize: 15,
   pageNum: 1,
   total: 0,
 })
@@ -112,6 +113,13 @@ const CategoryTableColumns = [
 const CategoryTableGetSelectedKey = (key: any) => {
   CategoryTableSelectedKeys.value = key
 }
+const CategoryTableGetSelectedKeyALL = () =>{
+  let temp = <any>ref([])
+  for (let i = 0; i < CategoryForm.value.length; i++) {
+    temp.value[i] = CategoryForm.value[i]["id"];
+  }
+  CategoryTableSelectedKeys.value = temp.value
+}
 //分页
 const CategoryTablePageChange = (page: number) => {
   CategoryTablePagination.value.pageNum = page
@@ -119,17 +127,10 @@ const CategoryTablePageChange = (page: number) => {
 }
 
 /*
-添加分类
+[模块]添加分类
  */
 //[添加分类][表单数据]
 const CategoryFormListAdd = <any>ref([])
-//数据获取
-const GetCategoryFormDataListAdd = async () => {
-  const response = await GetCategoryList(100000, 1);
-  CategoryFormListAdd.value = response.data.data.filter(item => item.depth === 1 || item.depth === 2);
-}
-
-
 const addCategoryFormRef = ref()
 const addCategoryForm = reactive({
   name: '',
@@ -138,6 +139,11 @@ const addCategoryForm = reactive({
   parent_id: 0,
   depth: 1,
 });
+//[添加分类][父级分类列表数据获取]
+const GetCategoryFormDataListAdd = async () => {
+  const response = await GetCategoryList(100000, 1);
+  CategoryFormListAdd.value = response.data.data.filter((item:any) => item.depth === 1 || item.depth === 2);
+}
 //[添加分类][模态框显示]
 const addCategoryVisible = ref(false);
 //[添加分类][点击添加分类事件]
@@ -180,6 +186,35 @@ const addCategoryHandleCancel = () => {
 
 
 /*
+[模块]删除分类
+ */
+//删除分类[单个]
+const DeleteCategoryFunc = async (id:number) =>{
+  await DeleteCategory(id).then((res:any) =>{
+    if (res.data.code === 200){
+      Notification.success(res.data.msg)
+    }else {
+      Notification.error(res.data.msg)
+    }
+    GetCategoryFormData()
+  })
+}
+//删除分类[批量删除]
+const DeleteCategoryListFunc = async () =>{
+  for (let i = 0; i < CategoryTableSelectedKeys.value.length; i++) {
+    await DeleteCategory(CategoryTableSelectedKeys.value[i]).then((res:any) =>{
+      if (res.data.code === 200){
+        Notification.success(res.data.msg)
+      }else {
+        Notification.error(res.data.msg)
+      }
+    })
+  }
+  await GetCategoryFormData()
+}
+
+
+/*
 [HeardCardOnBack] 返回函数
 */
 const HeardCardOnBack = () => {
@@ -207,7 +242,7 @@ const HeardCardOnBack = () => {
           <a-form-item field="name" label="分类名称">
             <a-input v-model="addCategoryForm.name"/>
           </a-form-item>
-          <a-form-item field="name" label="分类缩略名">
+          <a-form-item field="short_name" label="分类缩略名">
             <a-input v-model="addCategoryForm.short_name"/>
           </a-form-item>
           <a-form-item field="parent_id" label="父级分类">
@@ -249,7 +284,7 @@ const HeardCardOnBack = () => {
           <template #extra>
             <a-space>
               <a-button @click="addCategoryHandleClick">添加分类</a-button>
-              <a-button @click="">批量删除</a-button>
+              <a-button @click="DeleteCategoryListFunc">批量删除</a-button>
             </a-space>
           </template>
         </a-page-header>
@@ -265,6 +300,7 @@ const HeardCardOnBack = () => {
             :row-selection="CategoryTableRowSelection"
             :pagination="CategoryTablePagination"
             :sticky-header="100"
+            @select-all="CategoryTableGetSelectedKeyALL"
             @select="CategoryTableGetSelectedKey"
             @page-change="CategoryTablePageChange"
         >
@@ -278,7 +314,7 @@ const HeardCardOnBack = () => {
             <a-table-column>
               <template #cell="{ record }">
                 <a-button style="right: 10px">编辑</a-button>
-                <a-button>删除</a-button>
+                <a-button @click="DeleteCategoryFunc(record.id)">删除</a-button>
               </template>
             </a-table-column>
           </template>
