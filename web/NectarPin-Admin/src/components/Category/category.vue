@@ -162,6 +162,7 @@ const addCategoryHandleBeforeOk = (done: any) => {
         done()
         Notification.success('添加分类成功！')
         addCategoryFormRef.value['resetFields'](['name', 'short_name', 'desc', 'parent_id', 'depth'])
+        addCategoryForm.depth = 1
         GetCategoryFormData()
         GetCategoryFormDataListAdd()
       }, 2000)
@@ -185,11 +186,44 @@ const addCategoryHandleBeforeOk = (done: any) => {
 const addCategoryHandleCancel = () => {
   addCategoryVisible.value = false;
   addCategoryFormRef.value['resetFields'](['name', 'short_name', 'desc', 'parent_id', 'depth'])
+  addCategoryForm.depth = 1
 }
 //
 const addCategoryParentChange = (id: any) => {
   //id -> depth
-  addCategoryForm.depth = CategoryFormListAdd.value.find(item => item.id === id).depth +1
+  if (id === 0) {
+    addCategoryForm.depth = 1
+  } else {
+    addCategoryForm.depth = CategoryFormListAdd.value.find((item:any) => item.id === id).depth + 1
+  }
+}
+
+/*
+[模块]编辑分类
+ */
+//[编辑分类][数据]
+const form = reactive({
+  name: '',
+  post: ''
+});
+//[编辑分类][模态框显示]
+const editCategoryVisible = ref(false);
+//[编辑分类][点击添加分类事件]
+const editCategoryHandleClick = () => {
+  editCategoryVisible.value = true
+}
+//[编辑分类][取消事件]
+const editCategoryHandleCancel = () => {
+  editCategoryVisible.value = false;
+}
+//[编辑分类][编辑分类事件]
+const editCategoryHandleBeforeOk = (done:any) => {
+  console.log(form)
+  window.setTimeout(() => {
+    done()
+    // prevent close
+    // done(false)
+  }, 3000)
 }
 
 /*
@@ -273,7 +307,7 @@ const HeardCardOnBack = () => {
                        label="分类层级">
             <a-select v-model="addCategoryForm.depth">
               <a-option :value="1" disabled>一级分类</a-option>
-              <a-option :value="2" >二级分类</a-option>
+              <a-option :value="2">二级分类</a-option>
               <a-option :value="3" disabled>三级分类</a-option>
             </a-select>
           </a-form-item>
@@ -282,7 +316,7 @@ const HeardCardOnBack = () => {
             <a-select v-model="addCategoryForm.depth">
               <a-option :value="1" disabled>一级分类</a-option>
               <a-option :value="2" disabled>二级分类</a-option>
-              <a-option :value="3" >三级分类</a-option>
+              <a-option :value="3">三级分类</a-option>
             </a-select>
           </a-form-item>
           <a-form-item v-if="addCategoryForm.parent_id === 0" field="depth" label="分类层级">
@@ -294,6 +328,27 @@ const HeardCardOnBack = () => {
           </a-form-item>
           <a-form-item field="desc" label="分类描述">
             <a-textarea v-model="addCategoryForm.desc" :max-length="30" allow-clear show-word-limit auto-size/>
+          </a-form-item>
+        </a-form>
+      </a-modal>
+      <!--[0-2] 编辑分类-->
+      <a-modal
+          v-model:visible="editCategoryVisible"
+          title="编辑分类"
+          @cancel="editCategoryHandleCancel"
+          @before-ok="editCategoryHandleBeforeOk"
+      >
+        <a-form :model="form">
+          <a-form-item field="name" label="Name">
+            <a-input v-model="form.name" />
+          </a-form-item>
+          <a-form-item field="post" label="Post">
+            <a-select v-model="form.post">
+              <a-option value="post1">Post1</a-option>
+              <a-option value="post2">Post2</a-option>
+              <a-option value="post3">Post3</a-option>
+              <a-option value="post4">Post4</a-option>
+            </a-select>
           </a-form-item>
         </a-form>
       </a-modal>
@@ -339,10 +394,10 @@ const HeardCardOnBack = () => {
             @select="CategoryTableGetSelectedKey"
             @page-change="CategoryTablePageChange"
         >
-              <template #cell="{ record }">
-                <a-button style="right: 10px">编辑</a-button>
-                <a-button @click="DeleteCategoryFunc(record.id)">删除</a-button>
-              </template>
+          <template #cell="{ record }">
+            <a-button style="right: 10px" @click="editCategoryHandleClick">编辑</a-button>
+            <a-button @click="DeleteCategoryFunc(record.id)">删除</a-button>
+          </template>
         </a-table>
 
       </div>
