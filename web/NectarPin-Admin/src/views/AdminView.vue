@@ -288,17 +288,17 @@ onBeforeMount(() => {
 }
 
 .footer {
-  padding: 20px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 20px 50px;
   margin-top: 55px;
   display: flex;
-  justify-content: center;
   box-sizing: border-box;
-  width: 100%;
   background-color: #f7f8fa;
 }
 
 .footer-copyright {
-  margin-left: 12px;
   color: var(--color-text-3);
   font-size: 12px;
   line-height: 12px;

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import eventBus from "@/plugin/event-bus/event-bus";
-import {onMounted, reactive, ref} from "vue";
+import {onMounted, reactive, ref, watchEffect} from "vue";
 import router from "@/router";
-import {GetCategoryList} from "@/api/Category/get";
+import {GetCategory, GetCategoryList} from "@/api/Category/get";
 import {Notification} from "@arco-design/web-vue";
 import {CreateCategory} from "@/api/Category/post";
 import {DeleteCategory} from "@/api/Category/detele";
@@ -130,86 +130,30 @@ const CategoryTablePageChange = (page: number) => {
 }
 
 /*
-[模块]添加分类
+[模块]编辑分类
  */
-//[添加分类][表单数据]
-const CategoryFormListAdd = <any>ref([])
-const addCategoryFormRef = ref()
-const addCategoryForm = reactive({
+//[编辑分类][数据]
+const CategoryFormListEdit = <any>ref([])
+const editCategoryFormRef = ref()
+const editCategoryForm = reactive({
   name: '',
   short_name: '',
   desc: '',
   parent_id: 0,
   depth: 1,
-});
-//[添加分类][父级分类列表数据获取]
-const GetCategoryFormDataListAdd = async () => {
-  const response = await GetCategoryList(100000, 1);
-  CategoryFormListAdd.value = response.data.data.filter((item: any) => item.depth === 1 || item.depth === 2);
-}
-//[添加分类][模态框显示]
-const addCategoryVisible = ref(false);
-//[添加分类][点击添加分类事件]
-const addCategoryHandleClick = () => {
-  GetCategoryFormDataListAdd()
-  addCategoryVisible.value = true;
-};
-//[添加分类][添加事件]
-const addCategoryHandleBeforeOk = (done: any) => {
-  CreateCategory(addCategoryForm).then((res: any) => {
-    if (res.data.code == 200) {
-      window.setTimeout(() => {
-        done()
-        Notification.success('添加分类成功！')
-        addCategoryFormRef.value['resetFields'](['name', 'short_name', 'desc', 'parent_id', 'depth'])
-        addCategoryForm.depth = 1
-        GetCategoryFormData()
-        GetCategoryFormDataListAdd()
-      }, 2000)
-    } else {
-      window.setTimeout(() => {
-        done(false)
-        if (res.data.msg["name"] !== undefined) {
-          Notification.error(res.data.msg["name"])
-        }
-        if (res.data.msg["short_nam"] !== undefined) {
-          Notification.error(res.data.msg["short_name"])
-        }
-        if (res.data.msg["exist_category"] !== undefined) {
-          Notification.error(res.data.msg["exist_category"])
-        }
-      }, 3000)
-    }
-  })
-};
-//[添加分类][取消事件]
-const addCategoryHandleCancel = () => {
-  addCategoryVisible.value = false;
-  addCategoryFormRef.value['resetFields'](['name', 'short_name', 'desc', 'parent_id', 'depth'])
-  addCategoryForm.depth = 1
-}
-//
-const addCategoryParentChange = (id: any) => {
-  //id -> depth
-  if (id === 0) {
-    addCategoryForm.depth = 1
-  } else {
-    addCategoryForm.depth = CategoryFormListAdd.value.find((item:any) => item.id === id).depth + 1
-  }
-}
-
-/*
-[模块]编辑分类
- */
-//[编辑分类][数据]
-const form = reactive({
-  name: '',
-  post: ''
-});
+})
 //[编辑分类][模态框显示]
 const editCategoryVisible = ref(false);
 //[编辑分类][点击添加分类事件]
-const editCategoryHandleClick = () => {
+const editCategoryHandleClick = async (id: number) => {
+  await GetCategory(id).then((res: any) => {
+    editCategoryForm.name = res.data.data[0].name
+    editCategoryForm.short_name = res.data.data[0].short_name
+    editCategoryForm.desc = res.data.data[0].desc
+    editCategoryForm.parent_id = res.data.data[0].parent_id
+    editCategoryForm.depth = res.data.data[0].depth
+    console.log(editCategoryForm)
+  })
   editCategoryVisible.value = true
 }
 //[编辑分类][取消事件]
@@ -217,8 +161,8 @@ const editCategoryHandleCancel = () => {
   editCategoryVisible.value = false;
 }
 //[编辑分类][编辑分类事件]
-const editCategoryHandleBeforeOk = (done:any) => {
-  console.log(form)
+const editCategoryHandleBeforeOk = (done: any) => {
+  console.log(editCategoryForm)
   window.setTimeout(() => {
     done()
     // prevent close
@@ -273,82 +217,25 @@ const HeardCardOnBack = () => {
 
       <!--[0] 模态框 [Start]-->
 
-      <!--[0-1] 添加分类-->
-      <a-modal
-          v-model:visible="addCategoryVisible"
-          title="添加分类"
-          @cancel="addCategoryHandleCancel"
-          @before-ok="addCategoryHandleBeforeOk">
-        <a-form ref="addCategoryFormRef" :model="addCategoryForm">
-          <a-form-item field="name" label="分类名称">
-            <a-input v-model="addCategoryForm.name"/>
-          </a-form-item>
-          <a-form-item field="short_name" label="分类缩略名">
-            <a-input v-model="addCategoryForm.short_name"/>
-          </a-form-item>
-          <a-form-item field="parent_id" label="父级分类">
-            <a-select
-                v-model="addCategoryForm.parent_id"
-                @change="addCategoryParentChange"
-            >
-              <a-option :value="0">不选择</a-option>
-              <a-option v-for="item in CategoryFormListAdd.reverse()" :value="item.id" :label="item.name"/>
-            </a-select>
-          </a-form-item>
-          <a-form-item v-if="addCategoryForm.parent_id > 0 && addCategoryForm.depth === 1" field="depth"
-                       label="分类层级">
-            <a-select v-model="addCategoryForm.depth">
-              <a-option :value="1" disabled>一级分类</a-option>
-              <a-option :value="2">二级分类</a-option>
-              <a-option :value="3">三级分类</a-option>
-            </a-select>
-          </a-form-item>
-          <a-form-item v-if="addCategoryForm.parent_id > 0 && addCategoryForm.depth === 2" field="depth"
-                       label="分类层级">
-            <a-select v-model="addCategoryForm.depth">
-              <a-option :value="1" disabled>一级分类</a-option>
-              <a-option :value="2">二级分类</a-option>
-              <a-option :value="3" disabled>三级分类</a-option>
-            </a-select>
-          </a-form-item>
-          <a-form-item v-if="addCategoryForm.parent_id > 0 && addCategoryForm.depth === 3" field="depth"
-                       label="分类层级">
-            <a-select v-model="addCategoryForm.depth">
-              <a-option :value="1" disabled>一级分类</a-option>
-              <a-option :value="2" disabled>二级分类</a-option>
-              <a-option :value="3">三级分类</a-option>
-            </a-select>
-          </a-form-item>
-          <a-form-item v-if="addCategoryForm.parent_id === 0" field="depth" label="分类层级">
-            <a-select v-model="addCategoryForm.depth">
-              <a-option :value="1">一级分类</a-option>
-              <a-option :value="2" disabled>二级分类</a-option>
-              <a-option :value="3" disabled>三级分类</a-option>
-            </a-select>
-          </a-form-item>
-          <a-form-item field="desc" label="分类描述">
-            <a-textarea v-model="addCategoryForm.desc" :max-length="30" allow-clear show-word-limit auto-size/>
-          </a-form-item>
-        </a-form>
-      </a-modal>
-      <!--[0-2] 编辑分类-->
+      <!--[0-1] 编辑分类-->
       <a-modal
           v-model:visible="editCategoryVisible"
           title="编辑分类"
           @cancel="editCategoryHandleCancel"
           @before-ok="editCategoryHandleBeforeOk"
       >
-        <a-form :model="form">
-          <a-form-item field="name" label="Name">
-            <a-input v-model="form.name" />
+        <a-form
+            ref="editCategoryFormRef"
+            :model="editCategoryForm"
+        >
+          <a-form-item field="name" label="分类名称">
+            <a-input v-model="editCategoryForm.name"/>
           </a-form-item>
-          <a-form-item field="post" label="Post">
-            <a-select v-model="form.post">
-              <a-option value="post1">Post1</a-option>
-              <a-option value="post2">Post2</a-option>
-              <a-option value="post3">Post3</a-option>
-              <a-option value="post4">Post4</a-option>
-            </a-select>
+          <a-form-item field="short_name" label="分类缩略名">
+            <a-input v-model="editCategoryForm.short_name"/>
+          </a-form-item>
+          <a-form-item field="desc" label="分类描述">
+            <a-textarea v-model="editCategoryForm.desc" :max-length="30" allow-clear show-word-limit auto-size/>
           </a-form-item>
         </a-form>
       </a-modal>
@@ -366,13 +253,13 @@ const HeardCardOnBack = () => {
           <template #breadcrumb>
             <a-breadcrumb>
               <a-breadcrumb-item>后台</a-breadcrumb-item>
-              <a-breadcrumb-item>文章管理</a-breadcrumb-item>
+              <a-breadcrumb-item>分类管理</a-breadcrumb-item>
             </a-breadcrumb>
           </template>
 
           <template #extra>
             <a-space>
-              <a-button @click="addCategoryHandleClick">添加分类</a-button>
+              <a-button @click="router.push({name: 'Category/add'})">添加分类</a-button>
               <a-button @click="DeleteCategoryListFunc">批量删除</a-button>
             </a-space>
           </template>
@@ -395,7 +282,7 @@ const HeardCardOnBack = () => {
             @page-change="CategoryTablePageChange"
         >
           <template #cell="{ record }">
-            <a-button style="right: 10px" @click="editCategoryHandleClick">编辑</a-button>
+            <a-button style="right: 10px" @click="editCategoryHandleClick(record.id)">编辑</a-button>
             <a-button @click="DeleteCategoryFunc(record.id)">删除</a-button>
           </template>
         </a-table>
@@ -418,7 +305,7 @@ const HeardCardOnBack = () => {
           <template #breadcrumb>
             <a-breadcrumb>
               <a-breadcrumb-item>后台</a-breadcrumb-item>
-              <a-breadcrumb-item>文章管理</a-breadcrumb-item>
+              <a-breadcrumb-item>分类管理</a-breadcrumb-item>
             </a-breadcrumb>
           </template>
         </a-page-header>
