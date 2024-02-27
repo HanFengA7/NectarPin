@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import eventBus from "@/plugin/event-bus/event-bus";
-import {onMounted, reactive, ref, watchEffect} from "vue";
+import {computed, onMounted, reactive, ref, watchEffect} from "vue";
 import router from "@/router";
 import {GetCategory, GetCategoryList} from "@/api/Category/get";
-import {Notification} from "@arco-design/web-vue";
+import {Message, Notification} from "@arco-design/web-vue";
 import {CreateCategory} from "@/api/Category/post";
 import {DeleteCategory} from "@/api/Category/detele";
 
@@ -144,15 +144,25 @@ const editCategoryForm = reactive({
 })
 //[编辑分类][模态框显示]
 const editCategoryVisible = ref(false);
-//[编辑分类][点击添加分类事件]
+//[编辑分类][点击编辑分类事件]
 const editCategoryHandleClick = async (id: number) => {
   await GetCategory(id).then((res: any) => {
-    editCategoryForm.name = res.data.data[0].name
-    editCategoryForm.short_name = res.data.data[0].short_name
-    editCategoryForm.desc = res.data.data[0].desc
-    editCategoryForm.parent_id = res.data.data[0].parent_id
-    editCategoryForm.depth = res.data.data[0].depth
-    console.log(editCategoryForm)
+    if (res.data.code === 200) {
+      editCategoryForm.name = res.data.data[0].name
+      editCategoryForm.short_name = res.data.data[0].short_name
+      editCategoryForm.desc = res.data.data[0].desc
+      editCategoryForm.parent_id = res.data.data[0].parent_id
+      editCategoryForm.depth = res.data.data[0].depth
+    }else {
+      Message.error('[01]获取分类数据异常！')
+    }
+  })
+  await GetCategoryList(100000, 1).then((res: any) => {
+    if (res.data.code === 200) {
+      CategoryFormListEdit.value = res.data.data.filter((item: any) => item.depth === 1 || item.depth === 2)
+    } else {
+      Message.error('[02]获取分类数据异常！')
+    }
   })
   editCategoryVisible.value = true
 }
@@ -169,6 +179,18 @@ const editCategoryHandleBeforeOk = (done: any) => {
     // done(false)
   }, 3000)
 }
+//[编辑分类][点击父级分类事件]
+const addCategoryParentChange = (id: any) => {
+  //id -> depth
+  if (id === 0) {
+    editCategoryForm.depth = 1
+  } else {
+    editCategoryForm.depth = CategoryFormListEdit.value.find((item: any) => item.id === id).depth + 1
+  }
+}
+//[编辑分类][获取反转后的CategoryFormListAdd数组]
+const reversedCategoryFormListEdit = computed(() => CategoryFormListEdit.value.slice().reverse())
+
 
 /*
 [模块]删除分类
@@ -234,6 +256,41 @@ const HeardCardOnBack = () => {
           <a-form-item field="short_name" label="分类缩略名">
             <a-input v-model="editCategoryForm.short_name"/>
           </a-form-item>
+          <a-form-item field="parent_id" label="父级分类">
+            <a-select
+                v-model="editCategoryForm.parent_id"
+                @change="addCategoryParentChange"
+            >
+              <a-option :value="0">不选择</a-option>
+              <a-option v-for="item in reversedCategoryFormListEdit" :value="item.id" :label="item.name"/>
+            </a-select>
+          </a-form-item>
+
+          <a-form-item v-if="editCategoryForm.parent_id === 0" field="depth"
+                       label="分类层级">
+            <a-select v-model="editCategoryForm.depth">
+              <a-option :value="1">一级分类</a-option>
+              <a-option :value="2" disabled>二级分类</a-option>
+              <a-option :value="3" disabled>三级分类</a-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item v-if="editCategoryForm.parent_id > 0 && editCategoryForm.depth === 2" field="depth"
+                       label="分类层级">
+            <a-select v-model="editCategoryForm.depth">
+              <a-option :value="1" disabled>一级分类</a-option>
+              <a-option :value="2">二级分类</a-option>
+              <a-option :value="3" disabled>三级分类</a-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item v-if="editCategoryForm.parent_id > 0 && editCategoryForm.depth === 3" field="depth"
+                       label="分类层级">
+            <a-select v-model="editCategoryForm.depth">
+              <a-option :value="1" disabled>一级分类</a-option>
+              <a-option :value="2" disabled>二级分类</a-option>
+              <a-option :value="3">三级分类</a-option>
+            </a-select>
+          </a-form-item>
+
           <a-form-item field="desc" label="分类描述">
             <a-textarea v-model="editCategoryForm.desc" :max-length="30" allow-clear show-word-limit auto-size/>
           </a-form-item>
