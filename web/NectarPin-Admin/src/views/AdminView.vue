@@ -288,7 +288,7 @@ onBeforeMount(() => {
 }
 
 .footer {
-  z-index: 9999;
+  z-index: 11;
   position: absolute;
   bottom: 0;
   width: 100%;

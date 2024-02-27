@@ -170,7 +170,7 @@ const editCategoryHandleClick = async (id: number) => {
 const editCategoryHandleCancel = () => {
   editCategoryVisible.value = false;
 }
-//[编辑分类][编辑分类事件]
+//[编辑分类][编辑分类提交事件]
 const editCategoryHandleBeforeOk = (done: any) => {
   console.log(editCategoryForm)
   window.setTimeout(() => {
