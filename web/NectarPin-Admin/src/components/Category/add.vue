@@ -119,7 +119,7 @@ const addCategoryParentVisibleChange = (bool:boolean) => {
             <template #extra>
               <a-space>
                 <a-button html-type="submit">添加分类</a-button>
-                <a-button>重置表单</a-button>
+                <a-button @click="formRef.resetFields()">重置表单</a-button>
               </a-space>
             </template>
           </a-page-header>
