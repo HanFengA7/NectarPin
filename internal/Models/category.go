@@ -84,7 +84,11 @@ func DeleteCategory(id int) (msgData string, statusCode int) {
 // EditCategory 编辑分类
 func EditCategory(id int, oldData *Category) (msgData string, statusCode int) {
 	var category Category
+	var categoryV1 Category
+	var categoryV2 Category
 	var err error
+	var checkCodeA = 1
+	var checkCodeAMsg = ""
 	var maps = make(map[string]interface{})
 	db := constant.DB
 
@@ -101,12 +105,40 @@ func EditCategory(id int, oldData *Category) (msgData string, statusCode int) {
 		return ExistCategoryMsg, 500
 	}
 
-	//编辑分类信息
-	err = db.Model(&category).Where("id = ?", id).Updates(maps).Error
-	if err != nil {
-		return "编辑分类信息失败", 500
+	//判断分类名是否重复
+	rows1 := db.Select("id,name,short_name").Where("name = ?", oldData.Name).First(&categoryV1).RowsAffected
+	//判断分类缩略名是否重复
+	rows2 := db.Select("id,name,short_name").Where("short_name = ?", oldData.ShortName).First(&categoryV2).RowsAffected
+
+	if rows1 > 0 {
+		if categoryV1.ID != uint(id) {
+			checkCodeA = 0
+			checkCodeAMsg = "分类名重复"
+		}
 	}
-	return "编辑分类信息成功", 200
+	if rows2 > 0 {
+		if categoryV2.ID != uint(id) {
+			checkCodeA = 0
+			checkCodeAMsg = "分类缩略名重复"
+		}
+	}
+	if rows1 > 0 && rows2 > 0 {
+		if categoryV1.ID != uint(id) && categoryV2.ID != uint(id) {
+			checkCodeA = 0
+			checkCodeAMsg = "分类名、分类缩略名存在重复"
+		}
+	}
+
+	//编辑分类信息
+	if checkCodeA == 1 {
+		err = db.Model(&category).Where("id = ?", id).Updates(maps).Error
+		if err != nil {
+			return "编辑分类信息失败", 500
+		}
+		return "编辑分类信息成功", 200
+	} else {
+		return checkCodeAMsg, 500
+	}
 }
 
 // GetCategory 查询分类

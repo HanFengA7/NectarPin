@@ -126,10 +126,6 @@ func EditCategory(ctx *gin.Context) {
 	if len(data.ShortName) == 0 {
 		validatorErrMsg["short_name"] = "分类缩略名不能为空!"
 	}
-	ExistCategoryMsg, ExistCategoryBool := Models.ExistCategory(data.Name, data.ShortName)
-	if ExistCategoryBool == false {
-		validatorErrMsg["exist_category"] = ExistCategoryMsg
-	}
 	if len(validatorErrMsg) != 0 {
 		ctx.JSON(http.StatusOK, gin.H{
 			"code": 500,

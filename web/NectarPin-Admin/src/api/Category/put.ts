@@ -4,7 +4,7 @@ import Service from "/src/plugin/axios/axios"
 export async function editCategory(id: number, data: any) {
     try {
         return await Service({
-            url: '/Category'+id,
+            url: '/Category/'+id,
             method: 'put',
             data
         });

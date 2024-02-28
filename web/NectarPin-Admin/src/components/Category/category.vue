@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import eventBus from "@/plugin/event-bus/event-bus";
-import {computed, onMounted, reactive, ref, watchEffect} from "vue";
+import {computed, onMounted, reactive, ref} from "vue";
 import router from "@/router";
 import {GetCategory, GetCategoryList} from "@/api/Category/get";
 import {Message, Notification} from "@arco-design/web-vue";
-import {CreateCategory} from "@/api/Category/post";
 import {DeleteCategory} from "@/api/Category/detele";
+import {editCategory} from "@/api/Category/put";
 
 
 /*
@@ -136,6 +136,7 @@ const CategoryTablePageChange = (page: number) => {
 const CategoryFormListEdit = <any>ref([])
 const editCategoryFormRef = ref()
 const editCategoryForm = reactive({
+  id: 0,
   name: '',
   short_name: '',
   desc: '',
@@ -148,6 +149,7 @@ const editCategoryVisible = ref(false);
 const editCategoryHandleClick = async (id: number) => {
   await GetCategory(id).then((res: any) => {
     if (res.data.code === 200) {
+      editCategoryForm.id = res.data.data[0].id
       editCategoryForm.name = res.data.data[0].name
       editCategoryForm.short_name = res.data.data[0].short_name
       editCategoryForm.desc = res.data.data[0].desc
@@ -170,13 +172,16 @@ const editCategoryHandleClick = async (id: number) => {
 const editCategoryHandleCancel = () => {
   editCategoryVisible.value = false;
 }
-//[编辑分类][编辑分类提交事件]
-const editCategoryHandleBeforeOk = (done: any) => {
-  console.log(editCategoryForm)
+//[编辑分类][提交事件]
+const editCategoryHandleBeforeOk = async (done: any) => {
+  await editCategory(editCategoryForm.id,editCategoryForm).then((res:any)=>{
+    console.log(res.data)
+    GetCategoryFormData()
+  })
+
+
   window.setTimeout(() => {
     done()
-    // prevent close
-    // done(false)
   }, 3000)
 }
 //[编辑分类][点击父级分类事件]
