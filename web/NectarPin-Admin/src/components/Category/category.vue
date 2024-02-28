@@ -155,7 +155,7 @@ const editCategoryHandleClick = async (id: number) => {
       editCategoryForm.desc = res.data.data[0].desc
       editCategoryForm.parent_id = res.data.data[0].parent_id
       editCategoryForm.depth = res.data.data[0].depth
-    }else {
+    } else {
       Message.error('[01]获取分类数据异常！')
     }
   })
@@ -174,9 +174,30 @@ const editCategoryHandleCancel = () => {
 }
 //[编辑分类][提交事件]
 const editCategoryHandleBeforeOk = async (done: any) => {
-  await editCategory(editCategoryForm.id,editCategoryForm).then((res:any)=>{
-    console.log(res.data)
-    GetCategoryFormData()
+  await editCategory(editCategoryForm.id, editCategoryForm).then((res: any) => {
+    if (res.data.code === 200) {
+      Notification.success(res.data.msg)
+      GetCategoryFormData()
+    } else {
+      if (res.data.msg["name"] !== undefined) {
+        Notification.error(res.data.msg["name"])
+        return
+      }
+
+      if (res.data.msg["short_name"] !== undefined) {
+        Notification.error(res.data.msg["short_name"])
+        return
+      }
+
+      if (res.data.msg["short_name"] !== undefined && res.data.msg["name"]) {
+        Notification.error(res.data.msg["name"])
+        Notification.error(res.data.msg["short_name"])
+        return
+      }
+
+      Notification.error(res.data.msg)
+
+    }
   })
 
 
