@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "@arco-design/web-vue": "^2.55.1",
+    "@nuxtjs/tailwindcss": "^6.11.4",
     "arco-design-nuxt-module": "^0.1.0"
   }
 }
