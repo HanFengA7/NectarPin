@@ -1,0 +1,21 @@
+package repository
+
+import (
+	"gorm.io/gorm"
+)
+
+// Repository 数据访问层基础结构
+type Repository struct {
+	db *gorm.DB
+}
+
+// NewRepository 创建新的 Repository 实例
+func NewRepository(db *gorm.DB) *Repository {
+	return &Repository{
+		db: db,
+	}
+}
+
+// 在这里实现具体的数据访问方法
+// 例如: FindByID, Create, Update, Delete 等
+
