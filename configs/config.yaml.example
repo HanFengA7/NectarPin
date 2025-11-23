@@ -8,11 +8,11 @@ server:
 
 database:
   host: "localhost"
-  port: "3306"
-  user: "root"
-  password: "your_password"
+  port: "5432"
+  user: "nectarpin"
+  password: "5cg2c60gJfdPPX"
   dbname: "nectarpin"
-  charset: "utf8mb4"
+  sslmode: "disable"  # PostgreSQL SSL模式: disable, require, verify-ca, verify-full
 
 # 日志配置
 log:

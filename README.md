@@ -7,7 +7,7 @@
 - **Golang** `1.25.4`
 - **Gin** `1.11.0` - Web 框架
 - **GORM** `1.31.1` - ORM 框架
-- **MySQL** - 数据库驱动
+- **PostgreSQL** - 数据库驱动
 
 ## 项目结构
 ```
@@ -48,7 +48,7 @@ NectarPin/
 
 ### 环境要求
 - Go 1.25.4 或更高版本
-- MySQL 数据库
+- PostgreSQL 数据库
 
 ### 安装依赖
 ```bash

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"nectarpin/internal/config"
+	"nectarpin/internal/database"
 	"net/http"
 	"runtime"
 	"time"
@@ -53,6 +54,17 @@ func (s *Server) setupRoutes() {
 		runtime.ReadMemStats(&m)
 		memoryUsage := m.Alloc // 当前分配的内存（字节）
 
+		// 检查数据库连接状态
+		dbStatus := "disconnected"
+		if database.DB != nil {
+			sqlDB, err := database.DB.DB()
+			if err == nil {
+				if err := sqlDB.Ping(); err == nil {
+					dbStatus = "connected"
+				}
+			}
+		}
+
 		c.JSON(http.StatusOK, gin.H{
 			"status":     "ok",
 			"message":    "NectarPin 服务运行正常",
@@ -61,7 +73,7 @@ func (s *Server) setupRoutes() {
 			"uptime":     time.Since(s.startTime).String(),
 			"memory":     fmt.Sprintf("%.2fMB", float64(memoryUsage)/1024/1024),
 			"goroutines": runtime.NumGoroutine(),
-			"database":   "connected",
+			"database":   dbStatus,
 		})
 	})
 
@@ -93,4 +105,3 @@ func (s *Server) Start() error {
 func (s *Server) Shutdown(ctx context.Context) error {
 	return s.httpServer.Shutdown(ctx)
 }
-
