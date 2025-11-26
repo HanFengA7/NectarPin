@@ -2,12 +2,9 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"nectarpin/internal/config"
-	"nectarpin/internal/database"
 	"net/http"
-	"runtime"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -47,43 +44,7 @@ func (s *Server) setupMiddleware() {
 
 // setupRoutes 设置路由
 func (s *Server) setupRoutes() {
-	// 健康检查
-	s.router.GET("/health", func(c *gin.Context) {
-		// 获取内存统计信息
-		var m runtime.MemStats
-		runtime.ReadMemStats(&m)
-		memoryUsage := m.Alloc // 当前分配的内存（字节）
-
-		// 检查数据库连接状态
-		dbStatus := "disconnected"
-		if database.DB != nil {
-			sqlDB, err := database.DB.DB()
-			if err == nil {
-				if err := sqlDB.Ping(); err == nil {
-					dbStatus = "connected"
-				}
-			}
-		}
-
-		c.JSON(http.StatusOK, gin.H{
-			"status":     "ok",
-			"message":    "NectarPin 服务运行正常",
-			"version":    "1.0.0",
-			"timestamp":  time.Now().Format(time.RFC3339),
-			"uptime":     time.Since(s.startTime).String(),
-			"memory":     fmt.Sprintf("%.2fMB", float64(memoryUsage)/1024/1024),
-			"goroutines": runtime.NumGoroutine(),
-			"database":   dbStatus,
-		})
-	})
-
-	// API v1 路由组
-	apiV1 := s.router.Group("/api/v1")
-	{
-		// 在这里添加你的路由
-		// 例如: apiV1.GET("/moments", handlers.GetMoments)
-		_ = apiV1 // 临时使用，防止未使用变量错误
-	}
+	SetupRoutes(s)
 }
 
 // Start 启动服务器

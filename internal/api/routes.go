@@ -1,4 +1,13 @@
 package api
 
-// 路由定义文件
-// 可以在这里集中管理路由配置
+import (
+	"nectarpin/internal/api/routers"
+)
+
+// SetupRoutes 设置所有路由
+func SetupRoutes(s *Server) {
+	//系统路由
+	routers.SystemRoutes(s.router, s.startTime)
+	//用户路由
+	routers.UserRoutes(s.router)
+}
