@@ -3,7 +3,12 @@
     <n-grid cols="3" item-responsive>
       <!-- 宣传栏 -->
       <n-grid-item span="0 600:1 800:2">
-        <div class="light-green"></div>
+        <div class="promo-section">
+          <div class="promo-content">
+            <h1 class="brand-title">NectarPin</h1>
+            <p class="brand-slogan">钉住花蜜一般的瞬间！</p>
+          </div>
+        </div>
       </n-grid-item>
       <!-- 登录框 -->
       <n-grid-item>
@@ -63,6 +68,37 @@ const LoginFormData = ref({
 
   :deep(.n-grid) {
     height: 100%;
+  }
+}
+
+//宣传栏
+.promo-section {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  
+  .promo-content {
+    text-align: center;
+    color: #fff;
+    
+    .brand-title {
+      font-size: 4rem;
+      font-weight: 700;
+      margin: 0 0 20px 0;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+      letter-spacing: 2px;
+    }
+    
+    .brand-slogan {
+      font-size: 1.5rem;
+      font-weight: 300;
+      margin: 0;
+      opacity: 0.95;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+      letter-spacing: 1px;
+    }
   }
 }
 
