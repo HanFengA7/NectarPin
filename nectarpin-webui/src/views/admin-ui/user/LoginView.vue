@@ -29,21 +29,11 @@
               <p class="login-subtitle">请登录您的账户以继续</p>
             </div>
 
-            <n-form
-              ref="LoginFormRef"
-              :model="LoginFormData"
-              :rules="rules"
-              :show-label="false"
-              size="large"
-              class="login-form"
-            >
+            <n-form ref="LoginFormRef" :model="LoginFormData" :rules="rules" :show-label="false" size="large"
+              class="login-form">
               <n-form-item path="username">
-                <n-input
-                  v-model:value="LoginFormData.username"
-                  placeholder="用户名"
-                  :bordered="false"
-                  class="custom-input"
-                >
+                <n-input v-model:value="LoginFormData.username" placeholder="用户名" :bordered="false"
+                  class="custom-input">
                   <template #prefix>
                     <n-icon :component="PersonIcon" class="input-icon" />
                   </template>
@@ -51,14 +41,8 @@
               </n-form-item>
 
               <n-form-item path="password">
-                <n-input
-                  v-model:value="LoginFormData.password"
-                  type="password"
-                  placeholder="密码"
-                  show-password-on="click"
-                  :bordered="false"
-                  class="custom-input"
-                >
+                <n-input v-model:value="LoginFormData.password" type="password" placeholder="密码"
+                  show-password-on="click" :bordered="false" class="custom-input">
                   <template #prefix>
                     <n-icon :component="LockClosedIcon" class="input-icon" />
                   </template>
@@ -71,15 +55,8 @@
               </div>
 
               <n-form-item>
-                <n-button
-                  type="primary"
-                  attr-type="button"
-                  @click="handleLogin"
-                  :loading="loading"
-                  block
-                  size="large"
-                  class="login-button"
-                >
+                <n-button type="primary" attr-type="button" @click="handleLogin" :loading="loading" block size="large"
+                  class="login-button">
                   登录
                 </n-button>
               </n-form-item>
@@ -92,37 +69,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import {
-  NGrid,
-  NGridItem,
-  NForm,
-  NFormItem,
-  NInput,
-  NButton,
-  NCheckbox,
-  NIcon,
-  useMessage,
-} from 'naive-ui'
-import type { FormInst, FormRules } from 'naive-ui'
-import { PersonOutline as PersonIcon, LockClosedOutline as LockClosedIcon } from '@vicons/ionicons5'
+import { ref } from 'vue';
+import { NGrid, NGridItem, NForm, NFormItem, NInput, NButton, NCheckbox, NIcon, useMessage } from 'naive-ui';
+import type { FormInst, FormRules } from 'naive-ui';
+import { PersonOutline as PersonIcon, LockClosedOutline as LockClosedIcon } from '@vicons/ionicons5';
 
-const message = useMessage()
+const message = useMessage();
 
 //登录表单引用
-const LoginFormRef = ref<FormInst | null>(null)
+const LoginFormRef = ref<FormInst | null>(null);
 
 //登录表单数据
 const LoginFormData = ref({
   username: '',
   password: '',
-})
+});
 
 //记住我
-const rememberMe = ref(false)
+const rememberMe = ref(false);
 
 //加载状态
-const loading = ref(false)
+const loading = ref(false);
 
 //表单验证规则
 const rules: FormRules = {
@@ -131,24 +98,24 @@ const rules: FormRules = {
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, message: '密码长度不能少于6位', trigger: 'blur' },
   ],
-}
+};
 
 //登录处理
 const handleLogin = async () => {
   try {
-    await LoginFormRef.value?.validate()
-    loading.value = true
+    await LoginFormRef.value?.validate();
+    loading.value = true;
 
     // 模拟登录请求
     setTimeout(() => {
-      loading.value = false
-      message.success('登录成功！')
+      loading.value = false;
+      message.success('登录成功！');
       // 这里可以添加实际的登录逻辑
-    }, 1500)
+    }, 1500);
   } catch (error) {
-    console.error('表单验证失败:', error)
+    console.error('表单验证失败:', error);
   }
-}
+};
 </script>
 
 <style scoped lang="scss">
@@ -173,9 +140,11 @@ const handleLogin = async () => {
   0% {
     background-position: 0 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0 50%;
   }
@@ -226,13 +195,16 @@ const handleLogin = async () => {
 }
 
 @keyframes float {
+
   0%,
   100% {
     transform: translate(0, 0) scale(1);
   }
+
   33% {
     transform: translate(30px, -30px) scale(1.1);
   }
+
   66% {
     transform: translate(-20px, 20px) scale(0.9);
   }
@@ -295,6 +267,7 @@ const handleLogin = async () => {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -302,10 +275,12 @@ const handleLogin = async () => {
 }
 
 @keyframes bounce {
+
   0%,
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-20px);
   }
@@ -351,6 +326,7 @@ const handleLogin = async () => {
     opacity: 0;
     transform: translateX(30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
