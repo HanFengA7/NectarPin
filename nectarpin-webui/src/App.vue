@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { RouterView } from 'vue-router'
-import { NConfigProvider, darkTheme } from 'naive-ui'
+import { NConfigProvider, NMessageProvider, darkTheme } from 'naive-ui'
 import { lightThemeOverrides, darkThemeOverrides } from './config/theme'
 
 // 主题切换（可以根据需要改为响应式，比如从 localStorage 读取）
@@ -12,7 +12,9 @@ const themeOverrides = computed(() => isDark.value ? darkThemeOverrides : lightT
 
 <template>
   <NConfigProvider :theme="theme" :theme-overrides="themeOverrides">
-    <RouterView />
+    <NMessageProvider>
+      <RouterView />
+    </NMessageProvider>
   </NConfigProvider>
 </template>
 

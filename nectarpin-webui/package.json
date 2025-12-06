@@ -16,6 +16,8 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
+    "@vicons/ionicons5": "^0.12.0",
+    "axios": "^1.13.2",
     "pinia": "^3.0.4",
     "scss": "^0.2.4",
     "vue": "^3.5.25",
@@ -35,9 +37,9 @@
     "npm-run-all2": "^8.0.4",
     "prettier": "3.6.2",
     "sass-embedded": "^1.93.3",
-    "typescript": "~5.9.0",
-    "vite": "npm:rolldown-vite@latest",
+    "typescript": "~5.9.3",
+    "vite": "npm:rolldown-vite@^7.2.10",
     "vite-plugin-vue-devtools": "^8.0.5",
-    "vue-tsc": "^3.1.5"
+    "vue-tsc": "^3.1.6"
   }
 }
