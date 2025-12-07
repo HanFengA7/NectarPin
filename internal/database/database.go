@@ -8,9 +8,15 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 )
 
 var DB *gorm.DB
+
+// GetDB 获取数据库实例
+func GetDB() *gorm.DB {
+	return DB
+}
 
 // InitDatabase 初始化数据库连接
 func InitDatabase(cfg *config.Config) error {
@@ -42,6 +48,10 @@ func InitDatabase(cfg *config.Config) error {
 	var err error
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: false, // 使用复数表名
+		},
+		DisableForeignKeyConstraintWhenMigrating: true, // 禁用外键约束
 	})
 
 	if err != nil {
@@ -59,6 +69,22 @@ func InitDatabase(cfg *config.Config) error {
 	}
 
 	log.Printf("数据库连接成功: %s@%s:%s/%s", cfg.Database.User, cfg.Database.Host, cfg.Database.Port, cfg.Database.DBName)
+	return nil
+}
+
+// AutoMigrate 自动迁移数据库表结构
+func AutoMigrate(models ...interface{}) error {
+	if DB == nil {
+		return fmt.Errorf("数据库未初始化")
+	}
+
+	log.Println("开始自动迁移数据库表结构...")
+	err := DB.AutoMigrate(models...)
+	if err != nil {
+		return fmt.Errorf("数据库迁移失败: %w", err)
+	}
+
+	log.Println("数据库表结构迁移完成")
 	return nil
 }
 

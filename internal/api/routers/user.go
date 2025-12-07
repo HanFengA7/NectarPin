@@ -6,6 +6,6 @@ import "github.com/gin-gonic/gin"
 func UserRoutes(router *gin.Engine) {
 	// 用户登录
 	router.POST("/user/login", func(ctx *gin.Context) {
-		
+
 	})
 }
