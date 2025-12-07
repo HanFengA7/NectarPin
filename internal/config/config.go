@@ -32,7 +32,7 @@ type DatabaseConfig struct {
 }
 
 // Load 加载配置
-// 优先级：环境变量 > YAML配置文件 > 默认值
+// 优先级：YAML配置文件 > 默认值
 func Load() (*Config, error) {
 	cfg := &Config{
 		Server: ServerConfig{
@@ -50,43 +50,13 @@ func Load() (*Config, error) {
 		},
 	}
 
-	// 先尝试从YAML文件加载配置
+	// 尝试从YAML文件加载配置
 	if err := loadFromYAML(cfg); err != nil {
 		// YAML文件不存在或解析失败时，继续使用默认值
 		// 这是正常的，所以不返回错误，但记录日志以便调试
-		fmt.Printf("警告: 无法从YAML加载配置: %v，将使用默认值或环境变量\n", err)
+		fmt.Printf("警告: 无法从YAML加载配置: %v，将使用默认值\n", err)
 	} else {
 		fmt.Printf("成功从YAML文件加载配置\n")
-	}
-
-	// 环境变量优先级最高，覆盖YAML配置
-	if envValue := os.Getenv("SERVER_HOST"); envValue != "" {
-		cfg.Server.Host = envValue
-	}
-	if envValue := os.Getenv("SERVER_PORT"); envValue != "" {
-		cfg.Server.Port = envValue
-	}
-	if envValue := os.Getenv("GIN_MODE"); envValue != "" {
-		cfg.Server.Mode = envValue
-	}
-
-	if envValue := os.Getenv("DB_HOST"); envValue != "" {
-		cfg.Database.Host = envValue
-	}
-	if envValue := os.Getenv("DB_PORT"); envValue != "" {
-		cfg.Database.Port = envValue
-	}
-	if envValue := os.Getenv("DB_USER"); envValue != "" {
-		cfg.Database.User = envValue
-	}
-	if envValue := os.Getenv("DB_PASSWORD"); envValue != "" {
-		cfg.Database.Password = envValue
-	}
-	if envValue := os.Getenv("DB_NAME"); envValue != "" {
-		cfg.Database.DBName = envValue
-	}
-	if envValue := os.Getenv("DB_SSLMODE"); envValue != "" {
-		cfg.Database.SSLMode = envValue
 	}
 
 	return cfg, nil
@@ -226,12 +196,4 @@ func loadFromYAML(cfg *Config) error {
 		cfg.Database.Host, cfg.Database.Port, cfg.Database.User, cfg.Database.DBName)
 
 	return nil
-}
-
-// getEnv 获取环境变量，如果不存在则返回默认值
-func getEnv(key, defaultValue string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
-	}
-	return defaultValue
 }

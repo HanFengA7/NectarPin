@@ -2,6 +2,7 @@ server:
   host: "0.0.0.0"
   port: "8080"
   mode: "debug"  # debug, release, test
+  jwt_secret: "secret"
 
 database:
   host: "10.1.0.4"
