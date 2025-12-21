@@ -9,5 +9,5 @@ func SetupRoutes(s *Server) {
 	//系统路由
 	routers.SystemRoutes(s.router, s.startTime)
 	//用户路由
-	routers.UserRoutes(s.router)
+	routers.UserRoutes(s.router, s.Config)
 }

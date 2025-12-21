@@ -16,9 +16,11 @@ type Config struct {
 
 // ServerConfig 服务器配置
 type ServerConfig struct {
-	Host string
-	Port string
-	Mode string // debug, release, test
+	Host      string
+	Port      string
+	Mode      string // debug, release, test
+	JWTSecret string // JWT 密钥
+	JWTExpire int    // JWT 过期时间（小时）
 }
 
 // DatabaseConfig 数据库配置
@@ -36,9 +38,11 @@ type DatabaseConfig struct {
 func Load() (*Config, error) {
 	cfg := &Config{
 		Server: ServerConfig{
-			Host: "0.0.0.0",
-			Port: "8080",
-			Mode: "debug",
+			Host:      "0.0.0.0",
+			Port:      "8080",
+			Mode:      "debug",
+			JWTSecret: "your-secret-key",
+			JWTExpire: 24, // 默认24小时
 		},
 		Database: DatabaseConfig{
 			Host:     "localhost",
@@ -144,9 +148,11 @@ func loadFromYAML(cfg *Config) error {
 	// 解析YAML
 	var yamlConfig struct {
 		Server struct {
-			Host string `yaml:"host"`
-			Port string `yaml:"port"`
-			Mode string `yaml:"mode"`
+			Host      string `yaml:"host"`
+			Port      string `yaml:"port"`
+			Mode      string `yaml:"mode"`
+			JWTSecret string `yaml:"jwt_secret"`
+			JWTExpire int    `yaml:"jwt_expire"`
 		} `yaml:"server"`
 		Database struct {
 			Host     string `yaml:"host"`
@@ -154,7 +160,7 @@ func loadFromYAML(cfg *Config) error {
 			User     string `yaml:"user"`
 			Password string `yaml:"password"`
 			DBName   string `yaml:"dbname"`
-			SSLMode  string `yaml:"sslmode"`
+			SSLMode  string `yaml:"ssl_mode"`
 		} `yaml:"database"`
 	}
 
@@ -171,6 +177,12 @@ func loadFromYAML(cfg *Config) error {
 	}
 	if yamlConfig.Server.Mode != "" {
 		cfg.Server.Mode = yamlConfig.Server.Mode
+	}
+	if yamlConfig.Server.JWTSecret != "" {
+		cfg.Server.JWTSecret = yamlConfig.Server.JWTSecret
+	}
+	if yamlConfig.Server.JWTExpire > 0 {
+		cfg.Server.JWTExpire = yamlConfig.Server.JWTExpire
 	}
 
 	if yamlConfig.Database.Host != "" {

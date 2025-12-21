@@ -3,6 +3,7 @@ server:
   port: "8080"
   mode: "debug"  # debug, release, test
   jwt_secret: "secret"
+  jwt_expire: 168  # JWT过期时间（小时），默认7天
 
 database:
   host: "10.1.0.4"

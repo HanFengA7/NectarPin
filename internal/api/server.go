@@ -12,7 +12,7 @@ import (
 
 // Server HTTP 服务器
 type Server struct {
-	config     *config.Config
+	Config     *config.Config
 	router     *gin.Engine
 	httpServer *http.Server
 	startTime  time.Time
@@ -23,7 +23,7 @@ func NewServer(cfg *config.Config) *Server {
 	gin.SetMode(cfg.Server.Mode)
 
 	server := &Server{
-		config:    cfg,
+		Config:    cfg,
 		router:    gin.New(),
 		startTime: time.Now(),
 	}
@@ -49,7 +49,7 @@ func (s *Server) setupRoutes() {
 
 // Start 启动服务器
 func (s *Server) Start() error {
-	addr := s.config.Server.Host + ":" + s.config.Server.Port
+	addr := s.Config.Server.Host + ":" + s.Config.Server.Port
 	s.httpServer = &http.Server{
 		Addr:           addr,
 		Handler:        s.router,
