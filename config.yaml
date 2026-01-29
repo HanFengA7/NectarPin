@@ -1,0 +1,11 @@
+server:
+  port: 3003
+  host: localhost
+  tokenHash: bdshgvvhvcdjshju
+
+database:
+  host: 10.1.0.4
+  port: 5432
+  username: nectarpin
+  password: 5cg2c60gJfdPPX
+  dbName: nectarpin
