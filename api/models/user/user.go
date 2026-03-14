@@ -13,6 +13,7 @@ import (
 type User struct {
 	ID               uint64         `gorm:"primaryKey" json:"id"`                             // 用户唯一标识
 	Username         string         `gorm:"size:50;not null;uniqueIndex" json:"username"`     // 用户名，唯一
+	Password         string         `gorm:"size:32;not null" json:"-"`                        // 密码（MD5加密），不返回给前端
 	Email            string         `gorm:"size:255;not null;uniqueIndex" json:"email"`       // 邮箱地址，唯一
 	Nickname         string         `gorm:"size:100" json:"nickname"`                         // 昵称
 	Avatar           string         `gorm:"size:500" json:"avatar"`                           // 头像 URL

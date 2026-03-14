@@ -29,17 +29,19 @@ func NewUserService(repo *userrepo.UserRepository) *UserService {
 
 // 业务错误定义
 var (
-	ErrUsernameExists = errors.New("用户名已存在") // 用户名重复错误
-	ErrEmailExists    = errors.New("邮箱已存在")  // 邮箱重复错误
-	ErrUserNotFound   = errors.New("用户不存在")  // 用户不存在错误
-	ErrUserDisabled   = errors.New("用户已被禁用") // 用户禁用错误
-	ErrInvalidToken   = errors.New("无效的令牌")  // 令牌无效错误
-	ErrTokenExpired   = errors.New("令牌已过期")  // 令牌过期错误
+	ErrUsernameExists  = errors.New("用户名已存在") // 用户名重复错误
+	ErrEmailExists     = errors.New("邮箱已存在")  // 邮箱重复错误
+	ErrUserNotFound    = errors.New("用户不存在")  // 用户不存在错误
+	ErrUserDisabled    = errors.New("用户已被禁用") // 用户禁用错误
+	ErrInvalidPassword = errors.New("密码错误")   // 密码错误
+	ErrInvalidToken    = errors.New("无效的令牌")  // 令牌无效错误
+	ErrTokenExpired    = errors.New("令牌已过期")  // 令牌过期错误
 )
 
 // RegisterInput 注册请求输入参数
 type RegisterInput struct {
 	Username string `json:"username" binding:"required,min=3,max=50"` // 用户名，必填，3-50字符
+	Password string `json:"password" binding:"required,len=32"`       // 密码（MD5加密），必填，32字符
 	Email    string `json:"email" binding:"required,email"`           // 邮箱，必填，邮箱格式
 	Nickname string `json:"nickname" binding:"omitempty,max=100"`     // 昵称，可选，最大100字符
 }
@@ -47,6 +49,7 @@ type RegisterInput struct {
 // LoginInput 登录请求输入参数
 type LoginInput struct {
 	Username string `json:"username" binding:"required"` // 用户名，必填
+	Password string `json:"password" binding:"required"` // 密码（MD5加密），必填
 }
 
 // TokenResponse 令牌响应数据
@@ -93,6 +96,7 @@ func (s *UserService) Register(input *RegisterInput) (*models.User, error) {
 
 	userData := &models.User{
 		Username: input.Username,
+		Password: input.Password,
 		Email:    input.Email,
 		Nickname: nickname,
 		Status:   models.UserStatusActive,
@@ -109,6 +113,7 @@ func (s *UserService) Register(input *RegisterInput) (*models.User, error) {
 // Login 用户登录
 // 参数:
 //   - username: 用户名
+//   - password: 密码（MD5加密后的32位字符串）
 //   - ip: 客户端 IP 地址
 //
 // 返回:
@@ -118,13 +123,18 @@ func (s *UserService) Register(input *RegisterInput) (*models.User, error) {
 //
 // 业务逻辑:
 //  1. 查询用户信息
-//  2. 检查用户状态
-//  3. 更新登录信息
-//  4. 生成访问令牌
-func (s *UserService) Login(username string, ip string) (*models.User, *TokenResponse, error) {
+//  2. 验证密码
+//  3. 检查用户状态
+//  4. 更新登录信息
+//  5. 生成访问令牌
+func (s *UserService) Login(username string, password string, ip string) (*models.User, *TokenResponse, error) {
 	userData, err := s.repo.FindByUsername(username)
 	if err != nil {
 		return nil, nil, ErrUserNotFound
+	}
+
+	if userData.Password != password {
+		return nil, nil, ErrInvalidPassword
 	}
 
 	if userData.Status == models.UserStatusDisabled {
