@@ -37,6 +37,8 @@ func App() Application {
 	app.Database = NewDatabase(app.Env)
 	app.Gin = gin.Default()
 
+	utils.InitJWT(app.Env.Config.Server.Secret)
+
 	app.autoMigrate()
 	routes.SetupRoutes(app.Gin, app.Database.DB)
 

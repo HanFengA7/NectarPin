@@ -1,5 +1,3 @@
-// Package user 提供用户控制器层实现
-// 处理 HTTP 请求，调用服务层，返回响应
 package user
 
 import (
@@ -199,6 +197,18 @@ func (c *UserController) Login(ctx *gin.Context) {
 				Role:     userData.Role,
 			},
 			Token: token,
+		},
+	})
+}
+
+func (c *UserController) GetProfile(ctx *gin.Context) {
+	userID, _ := ctx.Get("user_id")
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "获取成功",
+		"data": gin.H{
+			"user_id": userID,
 		},
 	})
 }

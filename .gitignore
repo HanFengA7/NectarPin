@@ -45,3 +45,7 @@ ehthumbs.db
 config.local.yaml
 config.production.yaml
 config.yaml
+
+#AI
+.trae
+skills-lock.json

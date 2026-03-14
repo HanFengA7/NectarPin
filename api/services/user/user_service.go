@@ -3,13 +3,12 @@
 package user
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"errors"
 	"time"
 
-	userrepo "nectarpin/api/repositories/user"
 	"nectarpin/api/models"
+	userrepo "nectarpin/api/repositories/user"
+	"nectarpin/internal/utils"
 )
 
 // UserService 用户服务
@@ -31,18 +30,18 @@ func NewUserService(repo *userrepo.UserRepository) *UserService {
 // 业务错误定义
 var (
 	ErrUsernameExists = errors.New("用户名已存在") // 用户名重复错误
-	ErrEmailExists    = errors.New("邮箱已存在")    // 邮箱重复错误
-	ErrUserNotFound   = errors.New("用户不存在")    // 用户不存在错误
-	ErrUserDisabled   = errors.New("用户已被禁用")   // 用户禁用错误
-	ErrInvalidToken   = errors.New("无效的令牌")    // 令牌无效错误
-	ErrTokenExpired   = errors.New("令牌已过期")    // 令牌过期错误
+	ErrEmailExists    = errors.New("邮箱已存在")  // 邮箱重复错误
+	ErrUserNotFound   = errors.New("用户不存在")  // 用户不存在错误
+	ErrUserDisabled   = errors.New("用户已被禁用") // 用户禁用错误
+	ErrInvalidToken   = errors.New("无效的令牌")  // 令牌无效错误
+	ErrTokenExpired   = errors.New("令牌已过期")  // 令牌过期错误
 )
 
 // RegisterInput 注册请求输入参数
 type RegisterInput struct {
 	Username string `json:"username" binding:"required,min=3,max=50"` // 用户名，必填，3-50字符
-	Email    string `json:"email" binding:"required,email"`          // 邮箱，必填，邮箱格式
-	Nickname string `json:"nickname" binding:"omitempty,max=100"`    // 昵称，可选，最大100字符
+	Email    string `json:"email" binding:"required,email"`           // 邮箱，必填，邮箱格式
+	Nickname string `json:"nickname" binding:"omitempty,max=100"`     // 昵称，可选，最大100字符
 }
 
 // LoginInput 登录请求输入参数
@@ -154,19 +153,15 @@ func (s *UserService) Login(username string, ip string) (*models.User, *TokenRes
 //
 // 生成访问令牌和刷新令牌，有效期分别为 24 小时和 7 天
 func (s *UserService) generateTokens(userID uint64) (*TokenResponse, error) {
-	accessToken, err := generateToken(32)
+	accessToken, accessExpiresAt, err := utils.GenerateAccessToken(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := generateToken(32)
+	refreshToken, refreshExpiresAt, err := utils.GenerateRefreshToken(userID)
 	if err != nil {
 		return nil, err
 	}
-
-	now := time.Now()
-	accessExpiresAt := now.Add(24 * time.Hour)
-	refreshExpiresAt := now.Add(7 * 24 * time.Hour)
 
 	accessTokenRecord := &models.UserToken{
 		UserID:    userID,
@@ -211,6 +206,14 @@ func (s *UserService) generateTokens(userID uint64) (*TokenResponse, error) {
 //  2. 撤销原刷新令牌
 //  3. 生成新的访问令牌和刷新令牌
 func (s *UserService) RefreshToken(refreshToken string) (*TokenResponse, error) {
+	claims, err := utils.ParseToken(refreshToken)
+	if err != nil {
+		if err == utils.ErrExpiredToken {
+			return nil, ErrTokenExpired
+		}
+		return nil, ErrInvalidToken
+	}
+
 	token, err := s.repo.FindTokenByToken(refreshToken)
 	if err != nil {
 		return nil, ErrInvalidToken
@@ -220,40 +223,13 @@ func (s *UserService) RefreshToken(refreshToken string) (*TokenResponse, error) 
 		return nil, ErrInvalidToken
 	}
 
-	if time.Now().After(token.ExpiresAt) {
-		return nil, ErrTokenExpired
-	}
-
 	if err := s.repo.RevokeToken(refreshToken); err != nil {
 		return nil, err
 	}
 
-	return s.generateTokens(token.UserID)
+	return s.generateTokens(claims.UserID)
 }
 
-// Logout 用户登出
-// 参数:
-//   - accessToken: 访问令牌
-//
-// 返回:
-//   - error: 登出过程中的错误信息
-//
-// 撤销用户的访问令牌
 func (s *UserService) Logout(accessToken string) error {
 	return s.repo.RevokeToken(accessToken)
-}
-
-// generateToken 生成随机令牌字符串
-// 参数:
-//   - length: 字节长度
-//
-// 返回:
-//   - string: 十六进制编码的随机字符串
-//   - error: 生成过程中的错误信息
-func generateToken(length int) (string, error) {
-	bytes := make([]byte, length)
-	if _, err := rand.Read(bytes); err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(bytes), nil
 }
