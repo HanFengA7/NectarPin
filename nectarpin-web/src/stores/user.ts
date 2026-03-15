@@ -24,6 +24,8 @@ export const useUserStore = defineStore('user', () => {
   // 设置用户信息
   function setUser(userData: UserInfo) {
     user.value = userData
+    // 保存到本地存储
+    saveToStorage()
   }
 
   // 设置访问令牌和刷新令牌
@@ -35,12 +37,30 @@ export const useUserStore = defineStore('user', () => {
   // 从本地存储加载用户信息和令牌
   function loadFromStorage() {
     const storedToken = localStorage.getItem('token') || sessionStorage.getItem('token')
-    const storedRefresh =
-      localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token')
-
+    const storedRefresh = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token')
+    const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user')
+    
     if (storedToken) {
       token.value = storedToken
       refreshToken.value = storedRefresh
+      // 尝试从本地存储加载用户信息
+      if (storedUser) {
+        try {
+          user.value = JSON.parse(storedUser)
+        } catch (e) {
+          console.error('解析用户信息失败:', e)
+        }
+      }
+    }
+    
+    return !!storedToken
+  }
+  
+  // 保存用户信息到本地存储
+  function saveToStorage() {
+    const storage = localStorage.getItem('token') ? localStorage : sessionStorage
+    if (user.value) {
+      storage.setItem('user', JSON.stringify(user.value))
     }
   }
 
@@ -51,6 +71,8 @@ export const useUserStore = defineStore('user', () => {
       // response 已经是 ApiResponse<UserInfo> 格式，需要提取 data 字段
       const userData = response.data as UserInfo
       user.value = userData
+      // 保存到本地存储
+      saveToStorage()
       return userData
     } catch (error) {
       console.error('加载用户资料失败:', error)
@@ -65,8 +87,10 @@ export const useUserStore = defineStore('user', () => {
     refreshToken.value = null
     localStorage.removeItem('token')
     localStorage.removeItem('refresh_token')
+    localStorage.removeItem('user')
     sessionStorage.removeItem('token')
     sessionStorage.removeItem('refresh_token')
+    sessionStorage.removeItem('user')
   }
 
   // 调用服务端退出登录接口，并清除本地数据

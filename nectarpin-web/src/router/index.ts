@@ -23,11 +23,26 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const userStore = useUserStore()
-  userStore.loadFromStorage()
+  const hasToken = userStore.loadFromStorage()
 
   const isAuthenticated = !!userStore.token
+
+  // 如果有 token 但没有用户信息，尝试从服务端加载
+  if (hasToken && !userStore.user && to.meta.requiresAuth !== false) {
+    try {
+      await userStore.loadUserProfile()
+    } catch (error) {
+      console.error('加载用户信息失败:', error)
+      // Token 可能已过期，清除本地数据
+      userStore.clearAuth()
+      if (to.meta.requiresAuth !== false) {
+        next({ name: 'admin-login', query: { redirect: to.fullPath } })
+        return
+      }
+    }
+  }
 
   if (to.meta.requiresAuth && !isAuthenticated) {
     next({ name: 'admin-login', query: { redirect: to.fullPath } })
