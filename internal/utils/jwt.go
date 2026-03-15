@@ -29,7 +29,7 @@ var JWTConfigInstance *JWTConfig
 func InitJWT(secret string) {
 	JWTConfigInstance = &JWTConfig{
 		SecretKey:     secret,
-		AccessExpiry:  24 * time.Hour,
+		AccessExpiry:  time.Hour,
 		RefreshExpiry: 7 * 24 * time.Hour,
 	}
 }

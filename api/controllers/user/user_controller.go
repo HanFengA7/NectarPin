@@ -2,6 +2,7 @@ package user
 
 import (
 	"net/http"
+	"strings"
 
 	userservice "nectarpin/api/services/user"
 	"nectarpin/internal/utils"
@@ -25,7 +26,7 @@ type RegisterRequest struct {
 }
 
 type LoginRequest struct {
-	Username string `json:"username" binding:"required"`
+	Account  string `json:"account" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
@@ -75,6 +76,11 @@ func (c *UserController) Register(ctx *gin.Context) {
 				"code":    409,
 				"message": "邮箱已存在",
 			})
+		case userservice.ErrPasswordFormat:
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"code":    400,
+				"message": "密码格式错误",
+			})
 		default:
 			utils.Logger.Errorf("用户", "注册失败: %v", err)
 			ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -102,6 +108,10 @@ func (c *UserController) Register(ctx *gin.Context) {
 	})
 }
 
+func isEmail(account string) bool {
+	return strings.Contains(account, "@")
+}
+
 func (c *UserController) Login(ctx *gin.Context) {
 	var req LoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -114,27 +124,46 @@ func (c *UserController) Login(ctx *gin.Context) {
 	}
 
 	ip := ctx.ClientIP()
+	account := strings.TrimSpace(req.Account)
 
-	userData, token, err := c.service.Login(req.Username, req.Password, ip)
+	var loginType string
+	if isEmail(account) {
+		loginType = "邮箱"
+	} else {
+		loginType = "用户名"
+	}
+
+	utils.Logger.Infof("用户", "登录尝试: %s=%s, IP: %s", loginType, account, ip)
+
+	userData, token, err := c.service.LoginByAccount(account, req.Password, ip)
 	if err != nil {
 		switch err {
 		case userservice.ErrUserNotFound:
+			utils.Logger.Infof("用户", "登录失败: 用户不存在 (%s=%s, IP: %s)", loginType, account, ip)
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"code":    401,
-				"message": "用户不存在",
+				"message": "用户不存在或密码错误",
 			})
 		case userservice.ErrInvalidPassword:
+			utils.Logger.Infof("用户", "登录失败: 密码错误 (%s=%s, IP: %s)", loginType, account, ip)
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"code":    401,
-				"message": "密码错误",
+				"message": "用户不存在或密码错误",
+			})
+		case userservice.ErrPasswordFormat:
+			utils.Logger.Infof("用户", "登录失败: 密码格式错误 (%s=%s, IP: %s)", loginType, account, ip)
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"code":    400,
+				"message": "密码格式错误",
 			})
 		case userservice.ErrUserDisabled:
+			utils.Logger.Infof("用户", "登录失败: 用户已禁用 (%s=%s, IP: %s)", loginType, account, ip)
 			ctx.JSON(http.StatusForbidden, gin.H{
 				"code":    403,
 				"message": "用户已被禁用",
 			})
 		default:
-			utils.Logger.Errorf("用户", "登录失败: %v", err)
+			utils.Logger.Errorf("用户", "登录失败: %v (%s=%s, IP: %s)", err, loginType, account, ip)
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"code":    500,
 				"message": "登录失败",
@@ -143,7 +172,7 @@ func (c *UserController) Login(ctx *gin.Context) {
 		return
 	}
 
-	utils.Logger.Infof("用户", "用户登录成功: %s (IP: %s)", userData.Username, ip)
+	utils.Logger.Infof("用户", "用户登录成功: %s (通过%s, IP: %s)", userData.Username, loginType, ip)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"code":    200,

@@ -1,20 +1,86 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { login, type LoginResult } from '@/api/user'
 import { encryptPassword } from '@/utils'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
+const userStore = useUserStore()
 
-const username = ref('')
+const account = ref('')
 const password = ref('')
 const rememberMe = ref(false)
 const loading = ref(false)
 const errorMessage = ref('')
+const inputError = ref('')
+
+const isEmail = computed(() => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(account.value.trim())
+})
+
+const inputType = computed(() => {
+  if (!account.value.trim()) return ''
+  return isEmail.value ? 'email' : 'username'
+})
+
+const inputPlaceholder = computed(() => {
+  return '请输入邮箱或用户名'
+})
+
+const inputHint = computed(() => {
+  if (!account.value.trim()) {
+    return '支持邮箱格式（如 admin@example.com）或用户名格式'
+  }
+  if (isEmail.value) {
+    return '检测到邮箱格式登录'
+  }
+  return '检测到用户名格式登录'
+})
+
+const validateInput = (): boolean => {
+  const trimmedAccount = account.value.trim()
+  
+  if (!trimmedAccount) {
+    inputError.value = '请输入邮箱或用户名'
+    return false
+  }
+  
+  if (isEmail.value) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(trimmedAccount)) {
+      inputError.value = '邮箱格式不正确'
+      return false
+    }
+  } else {
+    if (trimmedAccount.length < 3) {
+      inputError.value = '用户名至少需要 3 个字符'
+      return false
+    }
+    if (trimmedAccount.length > 50) {
+      inputError.value = '用户名不能超过 50 个字符'
+      return false
+    }
+    const usernameRegex = /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/
+    if (!usernameRegex.test(trimmedAccount)) {
+      inputError.value = '用户名只能包含字母、数字、下划线或中文'
+      return false
+    }
+  }
+  
+  inputError.value = ''
+  return true
+}
+
+watch(account, () => {
+  if (inputError.value) {
+    validateInput()
+  }
+})
 
 const handleLogin = async () => {
-  if (!username.value.trim()) {
-    errorMessage.value = '请输入用户名'
+  if (!validateInput()) {
     return
   }
 
@@ -29,7 +95,7 @@ const handleLogin = async () => {
   try {
     const encryptedPassword = encryptPassword(password.value)
     const res = await login({
-      username: username.value,
+      account: account.value.trim(),
       password: encryptedPassword,
     })
     const data = res.data as LoginResult
@@ -37,7 +103,9 @@ const handleLogin = async () => {
     const storage = rememberMe.value ? localStorage : sessionStorage
     storage.setItem('token', data.token.access_token)
     storage.setItem('refresh_token', data.token.refresh_token)
-    storage.setItem('user', JSON.stringify(data.user))
+
+    userStore.setTokens(data.token.access_token, data.token.refresh_token)
+    userStore.setUser(data.user)
 
     router.push('/admin')
   } catch (error: unknown) {
@@ -94,14 +162,24 @@ const handleLogin = async () => {
 
         <form @submit.prevent="handleLogin" class="login-form">
           <div class="form-group">
-            <label class="form-label">邮箱地址</label>
+            <div class="label-row">
+              <label class="form-label">邮箱 / 用户名</label>
+              <span class="input-type-badge" v-if="inputType">
+                {{ inputType === 'email' ? '邮箱登录' : '用户名登录' }}
+              </span>
+            </div>
             <input
-              v-model="username"
+              v-model="account"
               type="text"
               class="form-input"
-              placeholder="请输入邮箱地址"
+              :class="{ 'input-error': inputError }"
+              :placeholder="inputPlaceholder"
               :disabled="loading"
+              @blur="validateInput"
             />
+            <div class="input-hint" :class="{ error: inputError }">
+              {{ inputError || inputHint }}
+            </div>
           </div>
 
           <div class="form-group">
@@ -374,6 +452,16 @@ const handleLogin = async () => {
   letter-spacing: 0.4px;
 }
 
+.input-type-badge {
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #1d4ed8;
+  background-color: #dde9ff;
+  border-radius: 999px;
+  letter-spacing: 0.3px;
+}
+
 .forgot-link {
   font-size: 13px;
   font-weight: 600;
@@ -412,6 +500,22 @@ const handleLogin = async () => {
 .form-input:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.form-input.input-error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.input-hint {
+  font-size: 12px;
+  color: #58708f;
+  min-height: 18px;
+  transition: color 0.2s;
+}
+
+.input-hint.error {
+  color: #ef4444;
 }
 
 .error-message {

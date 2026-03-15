@@ -43,9 +43,12 @@ request.interceptors.request.use(
   },
 )
 
+/** 公开接口列表，这些接口的 401 错误不触发跳转登录页 */
+const publicEndpoints = ['/public/user/v1/login', '/public/user/v1/register']
+
 /**
  * 响应拦截器
- * @description 统一处理响应数据，401 状态自动跳转登录页
+ * @description 统一处理响应数据，401 状态自动跳转登录页（公开接口除外）
  */
 request.interceptors.response.use(
   (response: AxiosResponse) => {
@@ -53,10 +56,17 @@ request.interceptors.response.use(
   },
   (error) => {
     if (error.response) {
-      const { status } = error.response
-      /** 401 未授权，清除 token 并跳转登录页 */
-      if (status === 401) {
+      const { status, config } = error.response
+      const isPublicEndpoint = publicEndpoints.some((endpoint) => config?.url?.includes(endpoint))
+
+      /** 401 未授权，清除 token 并跳转登录页（公开接口除外） */
+      if (status === 401 && !isPublicEndpoint) {
         localStorage.removeItem('token')
+        localStorage.removeItem('refresh_token')
+        localStorage.removeItem('user')
+        sessionStorage.removeItem('token')
+        sessionStorage.removeItem('refresh_token')
+        sessionStorage.removeItem('user')
         window.location.href = '/admin/login'
       }
     }

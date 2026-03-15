@@ -1,0 +1,84 @@
+:root {
+  --color-bg: #F4F8FF;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #EEF4FF;
+  --color-primary: #2F6BFF;
+  --color-primary-soft: #DDE9FF;
+  --color-primary-strong: #1D4ED8;
+  --color-text: #10233F;
+  --color-text-muted: #58708F;
+  --color-border: #D7E4FF;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-heading: 'Manrope', sans-serif;
+
+  --radius-card: 20px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 2px 16px rgba(26, 63, 112, 0.0625);
+  --shadow-elevated: 0 8px 32px rgba(26, 63, 112, 0.094);
+
+  --space-gap: 16px;
+  --space-page: 32px;
+  --space-section: 24px;
+
+  --sidebar-width: 260px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #EDF1F8;
+    --color-surface: #FFFFFF;
+    --color-surface-alt: #F3F7FF;
+    --color-primary: #2F6BFF;
+    --color-primary-soft: #DDEAFF;
+    --color-primary-strong: #1A4FCC;
+    --color-text: #0D1F3C;
+    --color-text-muted: #5A6E8A;
+    --color-border: #C8D6EF;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  height: 100%;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input, textarea, select {
+  font-family: inherit;
+}

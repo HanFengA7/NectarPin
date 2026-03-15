@@ -63,7 +63,9 @@ func connectToDatabase(config DatabaseConfig) (*gorm.DB, error) {
 		config.Port,
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		PrepareStmt: true,
+	})
 	if err != nil {
 		return nil, utils.WrapError("打开数据库连接失败", err)
 	}
@@ -101,10 +103,10 @@ func connectToDatabase(config DatabaseConfig) (*gorm.DB, error) {
 		return nil, fmt.Errorf("schema '%s' 不存在，请先在数据库中创建", schema)
 	}
 
-	sqlDB.SetMaxOpenConns(100)
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetConnMaxLifetime(time.Hour)
-	sqlDB.SetConnMaxIdleTime(time.Minute * 30)
+	sqlDB.SetMaxOpenConns(50)
+	sqlDB.SetMaxIdleConns(25)
+	sqlDB.SetConnMaxLifetime(time.Hour * 2)
+	sqlDB.SetConnMaxIdleTime(time.Minute * 10)
 
 	err = sqlDB.Ping()
 	if err != nil {

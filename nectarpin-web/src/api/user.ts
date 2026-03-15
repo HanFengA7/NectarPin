@@ -9,8 +9,8 @@ import { post, get } from '@/utils/request'
  * 登录请求参数
  */
 export interface LoginParams {
-  /** 用户名 */
-  username: string
+  /** 账号（邮箱或用户名） */
+  account: string
   /** 密码（MD5加密后的32位字符串） */
   password: string
 }
@@ -76,7 +76,7 @@ export interface RegisterParams {
 /**
  * 用户登录
  * @description POST /api/public/user/v1/login
- * @param params - 登录参数
+ * @param params - 登录参数（account: 邮箱或用户名, password: MD5加密密码）
  * @returns 登录结果，包含用户信息和令牌
  */
 export function login(params: LoginParams) {
