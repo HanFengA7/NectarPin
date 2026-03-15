@@ -40,7 +40,7 @@ request.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error)
-  }
+  },
 )
 
 /**
@@ -61,7 +61,7 @@ request.interceptors.response.use(
       }
     }
     return Promise.reject(error)
-  }
+  },
 )
 
 /**
@@ -96,7 +96,11 @@ export function get<T>(url: string, config?: AxiosRequestConfig): Promise<ApiRes
  * @param config - 请求配置
  * @returns Promise<ApiResponse<T>>
  */
-export function post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+export function post<T>(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig,
+): Promise<ApiResponse<T>> {
   return request.post(url, data, config)
 }
 
@@ -108,7 +112,11 @@ export function post<T>(url: string, data?: unknown, config?: AxiosRequestConfig
  * @param config - 请求配置
  * @returns Promise<ApiResponse<T>>
  */
-export function put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+export function put<T>(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig,
+): Promise<ApiResponse<T>> {
   return request.put(url, data, config)
 }
 
