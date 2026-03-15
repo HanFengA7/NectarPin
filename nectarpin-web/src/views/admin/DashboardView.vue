@@ -212,7 +212,7 @@ const handleCreateArticle = () => {
 
 .btn-primary {
   background-color: var(--color-primary);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .btn-primary:hover {

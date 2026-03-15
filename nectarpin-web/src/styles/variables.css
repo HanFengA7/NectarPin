@@ -1,16 +1,16 @@
 :root {
-  --color-bg: #F4F8FF;
-  --color-surface: #FFFFFF;
-  --color-surface-alt: #EEF4FF;
-  --color-primary: #2F6BFF;
-  --color-primary-soft: #DDE9FF;
-  --color-primary-strong: #1D4ED8;
-  --color-text: #10233F;
-  --color-text-muted: #58708F;
-  --color-border: #D7E4FF;
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
-  --color-danger: #EF4444;
+  --color-bg: #f4f8ff;
+  --color-surface: #ffffff;
+  --color-surface-alt: #eef4ff;
+  --color-primary: #2f6bff;
+  --color-primary-soft: #dde9ff;
+  --color-primary-strong: #1d4ed8;
+  --color-text: #10233f;
+  --color-text-muted: #58708f;
+  --color-border: #d7e4ff;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
 
   --font-body: 'IBM Plex Sans', sans-serif;
   --font-heading: 'Manrope', sans-serif;
@@ -30,15 +30,15 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-bg: #EDF1F8;
-    --color-surface: #FFFFFF;
-    --color-surface-alt: #F3F7FF;
-    --color-primary: #2F6BFF;
-    --color-primary-soft: #DDEAFF;
-    --color-primary-strong: #1A4FCC;
-    --color-text: #0D1F3C;
-    --color-text-muted: #5A6E8A;
-    --color-border: #C8D6EF;
+    --color-bg: #edf1f8;
+    --color-surface: #ffffff;
+    --color-surface-alt: #f3f7ff;
+    --color-primary: #2f6bff;
+    --color-primary-soft: #ddeaff;
+    --color-primary-strong: #1a4fcc;
+    --color-text: #0d1f3c;
+    --color-text-muted: #5a6e8a;
+    --color-border: #c8d6ef;
   }
 }
 
@@ -48,7 +48,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
@@ -79,6 +80,8 @@ button {
   cursor: pointer;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   font-family: inherit;
 }

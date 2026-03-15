@@ -138,6 +138,15 @@ func (s *UserService) LoginByAccount(account string, md5Password string, ip stri
 	return userData, tokenResponse, nil
 }
 
+// GetProfile 获取用户资料
+func (s *UserService) GetProfile(userID uint64) (*models.User, error) {
+	user, err := s.repo.FindByID(userID)
+	if err != nil {
+		return nil, ErrUserNotFound
+	}
+	return user, nil
+}
+
 func (s *UserService) Login(username string, md5Password string, ip string) (*models.User, *TokenResponse, error) {
 	userData, err := s.repo.FindByUsername(username)
 	if err != nil {
@@ -173,6 +182,11 @@ func (s *UserService) generateTokens(userID uint64, ip string) (*TokenResponse, 
 
 	refreshToken, refreshExpiresAt, err := utils.GenerateRefreshToken(userID)
 	if err != nil {
+		return nil, err
+	}
+
+	// 删除该用户的所有旧 refresh token，确保每个用户只有一个有效的 refresh token
+	if err := s.repo.RevokeAllUserTokens(userID, models.TokenTypeRefresh); err != nil {
 		return nil, err
 	}
 

@@ -13,7 +13,11 @@ defineProps<{
 <template>
   <div class="stat-card">
     <div class="stat-icon" :style="{ backgroundColor: iconBgColor || '#EEF4FF' }">
-      <span class="icon" :style="{ color: iconColor || 'var(--color-primary)' }" v-html="getIcon(iconName)"></span>
+      <span
+        class="icon"
+        :style="{ color: iconColor || 'var(--color-primary)' }"
+        v-html="getIcon(iconName)"
+      ></span>
     </div>
     <span class="stat-title">{{ title }}</span>
     <span class="stat-value">{{ value }}</span>
@@ -55,7 +59,7 @@ export default {
   padding: 20px 24px;
   background-color: var(--color-surface);
   border-radius: var(--radius-card);
-  border: 1px solid #E4EDFF;
+  border: 1px solid #e4edff;
   box-shadow: 0 4px 24px rgba(26, 63, 112, 0.0625);
 }
 

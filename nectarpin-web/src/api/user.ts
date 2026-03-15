@@ -99,5 +99,15 @@ export function register(params: RegisterParams) {
  * @returns 用户资料
  */
 export function getProfile() {
-  return get<{ user_id: number }>('/protected/user/v1/profile')
+  return get<UserInfo>('/protected/user/v1/profile')
+}
+
+/**
+ * 更新用户资料
+ * @description PUT /api/protected/user/v1/profile
+ * @param data - 更新参数
+ * @returns 更新后的用户信息
+ */
+export function updateProfile(data: Partial<UserInfo>) {
+  return post<UserInfo>('/protected/user/v1/profile', data)
 }

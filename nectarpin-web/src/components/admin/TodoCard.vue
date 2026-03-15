@@ -30,7 +30,7 @@ const defaultItems = [
   padding: 24px;
   background-color: var(--color-surface);
   border-radius: 16px;
-  border: 1px solid #E4EDFF;
+  border: 1px solid #e4edff;
   box-shadow: 0 4px 24px rgba(26, 63, 112, 0.0625);
 }
 

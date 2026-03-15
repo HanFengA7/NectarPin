@@ -29,6 +29,17 @@ func (r *UserRepository) FindByID(id uint64) (*models.User, error) {
 	return &userData, nil
 }
 
+// FindByIDWithFields 根据 ID 查找用户，返回指定字段
+func (r *UserRepository) FindByIDWithFields(id uint64, fields ...string) (*models.User, error) {
+	var userData models.User
+	query := r.db.Select(fields)
+	err := query.First(&userData, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &userData, nil
+}
+
 func (r *UserRepository) FindByUsername(username string) (*models.User, error) {
 	var userData models.User
 	err := r.db.Where("username = ?", username).First(&userData).Error

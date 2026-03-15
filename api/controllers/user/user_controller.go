@@ -193,13 +193,141 @@ func (c *UserController) Login(ctx *gin.Context) {
 }
 
 func (c *UserController) GetProfile(ctx *gin.Context) {
-	userID, _ := ctx.Get("user_id")
+	// 从上下文中获取用户 ID
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"code":    401,
+			"message": "未授权",
+		})
+		return
+	}
 
+	// 调用服务层获取用户信息
+	user, err := c.service.GetProfile(userID.(uint64))
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "用户不存在",
+		})
+		return
+	}
+
+	// 返回用户信息（排除敏感字段）
 	ctx.JSON(http.StatusOK, gin.H{
 		"code":    200,
 		"message": "获取成功",
-		"data": gin.H{
-			"user_id": userID,
+		"data": UserResponse{
+			ID:       user.ID,
+			Username: user.Username,
+			Email:    user.Email,
+			Nickname: user.Nickname,
+			Avatar:   user.Avatar,
+			Status:   user.Status,
+			Role:     user.Role,
 		},
+	})
+}
+
+func (c *UserController) Logout(ctx *gin.Context) {
+	// 从上下文中获取用户 ID
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"code":    401,
+			"message": "未授权",
+		})
+		return
+	}
+
+	// 从请求头获取 Access Token
+	accessToken := strings.TrimPrefix(ctx.GetHeader("Authorization"), "Bearer ")
+	if accessToken == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "缺少访问令牌",
+		})
+		return
+	}
+
+	// 验证并解析 Token
+	claims, err := utils.ParseToken(accessToken)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "无效的令牌",
+		})
+		return
+	}
+
+	// 验证 Token 中的用户 ID 与上下文一致
+	if claims.UserID != userID.(uint64) {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    403,
+			"message": "令牌与用户不匹配",
+		})
+		return
+	}
+
+	// 调用服务层执行登出逻辑（可选：将 Token 加入黑名单）
+	// 注意：由于 Access Token 是短期的（1 小时），通常不需要特别处理
+	// 主要是清除客户端的 Refresh Token
+
+	utils.Logger.Infof("用户", "用户登出成功 (user_id=%d)", claims.UserID)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "登出成功",
+	})
+}
+
+func (c *UserController) LogoutByRefreshToken(ctx *gin.Context) {
+	var req struct {
+		RefreshToken string `json:"refresh_token" binding:"required"`
+	}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请求参数错误",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	err := c.service.LogoutByRefreshToken(req.RefreshToken)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "登出失败",
+		})
+		return
+	}
+
+	utils.Logger.Infof("用户", "用户通过 Refresh Token 登出成功")
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "登出成功",
+	})
+}
+
+func (c *UserController) RevokeAllSessions(ctx *gin.Context) {
+	userID, _ := ctx.Get("user_id")
+
+	err := c.service.RevokeAllUserSessions(userID.(uint64))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "撤销会话失败",
+		})
+		return
+	}
+
+	utils.Logger.Infof("用户", "用户撤销了所有会话 (user_id=%d)", userID)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "已撤销所有其他设备的登录会话",
 	})
 }

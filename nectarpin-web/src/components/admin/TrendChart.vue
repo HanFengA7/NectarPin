@@ -45,7 +45,7 @@ const defaultData = [
   padding: 24px;
   background-color: var(--color-surface);
   border-radius: 16px;
-  border: 1px solid #E4EDFF;
+  border: 1px solid #e4edff;
   box-shadow: 0 4px 24px rgba(26, 63, 112, 0.0625);
 }
 
@@ -95,12 +95,12 @@ const defaultData = [
   flex: 1;
   min-width: 40px;
   border-radius: 10px 10px 4px 4px;
-  background: linear-gradient(180deg, #DDEAFF 0%, #C5D8FF 100%);
+  background: linear-gradient(180deg, #ddeaff 0%, #c5d8ff 100%);
   transition: all 0.3s ease;
 }
 
 .chart-bar.highlight {
-  background: linear-gradient(180deg, #3B7BFF 0%, #1A4FCC 100%);
+  background: linear-gradient(180deg, #3b7bff 0%, #1a4fcc 100%);
 }
 
 .chart-bar:hover {

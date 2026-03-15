@@ -30,7 +30,7 @@ const props = withDefaults(
     locale: 'zh-CN',
     tooltip: true,
     vertical: false,
-  }
+  },
 )
 
 const emit = defineEmits<{
@@ -46,7 +46,20 @@ const SQUARE_BORDER_RADIUS = 2
 const LEFT_PANEL_WIDTH = 40
 const TOP_PANEL_HEIGHT = 20
 
-const MONTH_LABELS = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']
+const MONTH_LABELS = [
+  '一月',
+  '二月',
+  '三月',
+  '四月',
+  '五月',
+  '六月',
+  '七月',
+  '八月',
+  '九月',
+  '十月',
+  '十一月',
+  '十二月',
+]
 const DAY_LABELS = ['周一', '', '周三', '', '周五', '', '周日']
 
 const updateWidth = () => {
@@ -77,12 +90,12 @@ const getDays = () => {
   const end = props.endDate
   const days: Date[] = []
   const current = new Date(start)
-  
+
   while (current <= end) {
     days.push(new Date(current))
     current.setDate(current.getDate() + 1)
   }
-  
+
   return days
 }
 
@@ -149,7 +162,7 @@ const getMonthLabels = computed(() => {
   const days = getDays()
   const labels: { month: number; x: number }[] = []
   let lastMonth = -1
-  
+
   days.forEach((day, index) => {
     const month = day.getMonth()
     if (month !== lastMonth) {
@@ -158,7 +171,7 @@ const getMonthLabels = computed(() => {
       lastMonth = month
     }
   })
-  
+
   return labels
 })
 
@@ -180,7 +193,9 @@ const generateRandomData = (): HeatmapValue[] => {
   return data
 }
 
-const internalValues = ref<HeatmapValue[]>(props.values.length > 0 ? props.values : generateRandomData())
+const internalValues = ref<HeatmapValue[]>(
+  props.values.length > 0 ? props.values : generateRandomData(),
+)
 
 watch(
   () => props.values,
@@ -188,7 +203,7 @@ watch(
     if (newValues.length > 0) {
       internalValues.value = newValues
     }
-  }
+  },
 )
 
 const getCountFromDate = (date: Date): number => {
@@ -244,7 +259,7 @@ const handleMouseLeave = () => {
               {{ MONTH_LABELS[label.month] }}
             </text>
           </g>
-          
+
           <g class="day-labels">
             <text
               v-for="(label, index) in DAY_LABELS"
@@ -256,7 +271,7 @@ const handleMouseLeave = () => {
               {{ label }}
             </text>
           </g>
-          
+
           <g class="heatmap-cells">
             <rect
               v-for="(day, index) in getDays()"
@@ -276,7 +291,7 @@ const handleMouseLeave = () => {
           </g>
         </svg>
       </div>
-      
+
       <div class="heatmap-legend">
         <span class="legend-text">少</span>
         <div class="legend-scale">
@@ -284,13 +299,17 @@ const handleMouseLeave = () => {
             v-for="(color, index) in rangeColor"
             :key="index"
             class="legend-cell"
-            :style="{ backgroundColor: color, width: `${getCellSize}px`, height: `${getCellSize}px` }"
+            :style="{
+              backgroundColor: color,
+              width: `${getCellSize}px`,
+              height: `${getCellSize}px`,
+            }"
           ></span>
         </div>
         <span class="legend-text">多</span>
       </div>
     </div>
-    
+
     <div
       v-if="showTooltip && tooltip"
       class="heatmap-tooltip"
@@ -372,13 +391,15 @@ const handleMouseLeave = () => {
 .month-label {
   font-size: 12px;
   fill: var(--color-text-muted);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
 }
 
 .day-label {
   font-size: 12px;
   fill: var(--color-text-muted);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
 }
 
 .heatmap-cell {

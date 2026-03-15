@@ -41,12 +41,12 @@ const inputHint = computed(() => {
 
 const validateInput = (): boolean => {
   const trimmedAccount = account.value.trim()
-  
+
   if (!trimmedAccount) {
     inputError.value = '请输入邮箱或用户名'
     return false
   }
-  
+
   if (isEmail.value) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(trimmedAccount)) {
@@ -68,7 +68,7 @@ const validateInput = (): boolean => {
       return false
     }
   }
-  
+
   inputError.value = ''
   return true
 }
