@@ -1,7 +1,18 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { logout as logoutApi, logoutByRefreshToken, revokeAllSessions } from '@/api/auth'
-import { getProfile } from '@/api/user'
+import { getProfile, type UserInfo as ApiUserInfo } from '@/api/user'
+
+// 缓存配置
+const CACHE_CONFIG = {
+  USER_INFO_TTL: 60 * 60 * 1000, // 用户信息缓存有效期：1 小时
+  SAVE_DEBOUNCE_DELAY: 300, // 保存防抖延迟：300ms
+}
+
+// 带缓存时间的用户信息类型
+interface UserInfoWithCache extends ApiUserInfo {
+  _cachedAt?: number
+}
 
 export interface UserInfo {
   id: number
@@ -17,6 +28,9 @@ export const useUserStore = defineStore('user', () => {
   const user = ref<UserInfo | null>(null)
   const token = ref<string | null>(null)
   const refreshToken = ref<string | null>(null)
+  
+  // 防抖定时器
+  let saveDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() => user.value?.role === 1)
@@ -46,7 +60,16 @@ export const useUserStore = defineStore('user', () => {
       // 尝试从本地存储加载用户信息
       if (storedUser) {
         try {
-          user.value = JSON.parse(storedUser)
+          const userData = JSON.parse(storedUser) as UserInfoWithCache
+          // 检查缓存是否过期
+          if (!isCacheExpired(userData)) {
+            user.value = userData
+          } else {
+            // 缓存过期，清除本地用户信息
+            console.log('用户信息缓存已过期，将重新加载')
+            const storage = localStorage.getItem('token') ? localStorage : sessionStorage
+            storage.removeItem('user')
+          }
         } catch (e) {
           console.error('解析用户信息失败:', e)
         }
@@ -56,11 +79,75 @@ export const useUserStore = defineStore('user', () => {
     return !!storedToken
   }
   
-  // 保存用户信息到本地存储
+  // 检查缓存是否过期
+  function isCacheExpired(userData: UserInfoWithCache): boolean {
+    if (!userData._cachedAt) return true // 没有时间戳，视为过期
+    
+    const now = Date.now()
+    const cachedAt = userData._cachedAt
+    const ttl = CACHE_CONFIG.USER_INFO_TTL
+    
+    return now - cachedAt > ttl
+  }
+  
+  // 清除过期缓存
+  function clearExpiredCache() {
+    const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user')
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser) as UserInfoWithCache
+        if (isCacheExpired(userData)) {
+          const storage = localStorage.getItem('token') ? localStorage : sessionStorage
+          storage.removeItem('user')
+          console.log('已清除过期用户缓存')
+        }
+      } catch (e) {
+        console.error('解析用户信息失败:', e)
+      }
+    }
+  }
+  
+  // 手动清除用户缓存
+  function clearUserCache() {
+    localStorage.removeItem('user')
+    sessionStorage.removeItem('user')
+  }
+  
+  // 保存用户信息到本地存储（防抖优化）
   function saveToStorage() {
+    // 清除之前的定时器
+    if (saveDebounceTimer) {
+      clearTimeout(saveDebounceTimer)
+    }
+    
+    // 设置新的防抖定时器
+    saveDebounceTimer = setTimeout(() => {
+      const storage = localStorage.getItem('token') ? localStorage : sessionStorage
+      if (user.value) {
+        // 添加缓存时间戳
+        const userDataWithCache: UserInfoWithCache = {
+          ...user.value,
+          _cachedAt: Date.now(),
+        }
+        storage.setItem('user', JSON.stringify(userDataWithCache))
+      }
+    }, CACHE_CONFIG.SAVE_DEBOUNCE_DELAY)
+  }
+  
+  // 立即保存（不防抖）
+  function saveToStorageImmediate() {
+    if (saveDebounceTimer) {
+      clearTimeout(saveDebounceTimer)
+      saveDebounceTimer = null
+    }
+    
     const storage = localStorage.getItem('token') ? localStorage : sessionStorage
     if (user.value) {
-      storage.setItem('user', JSON.stringify(user.value))
+      const userDataWithCache: UserInfoWithCache = {
+        ...user.value,
+        _cachedAt: Date.now(),
+      }
+      storage.setItem('user', JSON.stringify(userDataWithCache))
     }
   }
 
@@ -82,6 +169,12 @@ export const useUserStore = defineStore('user', () => {
 
   // 本地清除令牌和用户信息
   function clearAuth() {
+    // 清除防抖定时器
+    if (saveDebounceTimer) {
+      clearTimeout(saveDebounceTimer)
+      saveDebounceTimer = null
+    }
+    
     user.value = null
     token.value = null
     refreshToken.value = null
@@ -156,6 +249,9 @@ export const useUserStore = defineStore('user', () => {
     setTokens,
     loadFromStorage,
     loadUserProfile,
+    clearExpiredCache,
+    clearUserCache,
+    saveToStorageImmediate,
     logout,
     logoutWithRefreshToken,
     logoutAllOtherSessions,
