@@ -123,11 +123,10 @@ const handleCreateArticle = () => {
 
       <section class="dashboard-overview">
         <div class="overview-main">
-          <TrendChart
-            title="内容流量趋势"
-            subtitle="过去 6 周文章访问量与互动变化。"
-            badge="实时同步"
-            :data="trendData"
+          <HeatmapChart
+            title="社区活跃热力图"
+            subtitle="按月份查看评论、收藏和互动行为分布。"
+            badge="最近 12 个月"
           />
         </div>
         <div class="overview-side">
@@ -135,11 +134,12 @@ const handleCreateArticle = () => {
         </div>
       </section>
 
-      <section class="dashboard-heatmap">
-        <HeatmapChart
-          title="社区活跃热力图"
-          subtitle="按月份查看评论、收藏和互动行为分布。"
-          badge="最近 12 个月"
+      <section class="dashboard-trend">
+        <TrendChart
+          title="内容流量趋势"
+          subtitle="过去 6 周文章访问量与互动变化。"
+          badge="实时同步"
+          :data="trendData"
         />
       </section>
     </main>
@@ -149,8 +149,9 @@ const handleCreateArticle = () => {
 <style scoped>
 .dashboard-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   background-color: var(--color-bg);
+  overflow: hidden;
 }
 
 .dashboard-main {
@@ -159,7 +160,7 @@ const handleCreateArticle = () => {
   flex-direction: column;
   gap: 28px;
   padding: 32px;
-  min-height: 100vh;
+  min-width: 0;
   overflow-y: auto;
 }
 
@@ -235,21 +236,21 @@ const handleCreateArticle = () => {
 }
 
 .dashboard-overview {
-  display: flex;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
 }
 
 .overview-main {
-  flex: 1;
+  grid-column: span 2;
   min-width: 0;
 }
 
 .overview-side {
-  width: 340px;
-  flex-shrink: 0;
+  width: 100%;
 }
 
-.dashboard-heatmap {
+.dashboard-trend {
   flex: 1;
 }
 
@@ -258,8 +259,12 @@ const handleCreateArticle = () => {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .overview-side {
-    width: 300px;
+  .dashboard-overview {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .overview-main {
+    grid-column: span 1;
   }
 }
 
@@ -277,11 +282,11 @@ const handleCreateArticle = () => {
   }
 
   .dashboard-overview {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 
-  .overview-side {
-    width: 100%;
+  .overview-main {
+    grid-column: span 1;
   }
 }
 

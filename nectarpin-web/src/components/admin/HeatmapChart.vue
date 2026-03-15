@@ -1,32 +1,217 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 
-const props = defineProps<{
-  title?: string
-  subtitle?: string
-  badge?: string
+interface HeatmapValue {
+  date: string
+  count: number
+}
+
+const props = withDefaults(
+  defineProps<{
+    title?: string
+    subtitle?: string
+    badge?: string
+    values?: HeatmapValue[]
+    endDate?: Date
+    rangeColor?: string[]
+    max?: number
+    locale?: string
+    tooltip?: boolean
+    vertical?: boolean
+  }>(),
+  {
+    title: '社区活跃热力图',
+    subtitle: '按月份查看评论、收藏和互动行为分布。',
+    badge: '',
+    values: () => [],
+    endDate: () => new Date(),
+    rangeColor: () => ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'],
+    max: 0,
+    locale: 'zh-CN',
+    tooltip: true,
+    vertical: false,
+  }
+)
+
+const emit = defineEmits<{
+  (e: 'day-click', value: HeatmapValue): void
 }>()
 
-const generateHeatmapData = () => {
-  const data: { level: number }[][] = []
-  for (let week = 0; week < 53; week++) {
-    const weekData: { level: number }[] = []
-    for (let day = 0; day < 7; day++) {
-      weekData.push({ level: Math.floor(Math.random() * 5) })
-    }
-    data.push(weekData)
+const containerRef = ref<HTMLElement | null>(null)
+const containerWidth = ref(800)
+
+const SQUARE_SIZE = 12
+const SQUARE_GAP = 4
+const SQUARE_BORDER_RADIUS = 2
+const LEFT_PANEL_WIDTH = 40
+const TOP_PANEL_HEIGHT = 20
+
+const MONTH_LABELS = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']
+const DAY_LABELS = ['周一', '', '周三', '', '周五', '', '周日']
+
+const updateWidth = () => {
+  if (containerRef.value) {
+    containerWidth.value = containerRef.value.offsetWidth
   }
+}
+
+onMounted(() => {
+  updateWidth()
+  window.addEventListener('resize', updateWidth)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateWidth)
+})
+
+const getStartDate = () => {
+  const end = props.endDate
+  const start = new Date(end)
+  start.setFullYear(start.getFullYear() - 1)
+  start.setDate(start.getDate() - start.getDay() + 1)
+  return start
+}
+
+const getDays = () => {
+  const start = getStartDate()
+  const end = props.endDate
+  const days: Date[] = []
+  const current = new Date(start)
+  
+  while (current <= end) {
+    days.push(new Date(current))
+    current.setDate(current.getDate() + 1)
+  }
+  
+  return days
+}
+
+const getWeekCount = computed(() => {
+  const days = getDays()
+  return Math.ceil(days.length / 7)
+})
+
+const getCellSize = computed(() => {
+  const availableWidth = containerWidth.value - LEFT_PANEL_WIDTH - 20
+  const weeks = getWeekCount.value
+  const cellWidth = (availableWidth - (weeks + 1) * SQUARE_GAP) / weeks
+  return Math.max(SQUARE_SIZE, Math.min(20, cellWidth))
+})
+
+const svgWidth = computed(() => {
+  return LEFT_PANEL_WIDTH + getWeekCount.value * (getCellSize.value + SQUARE_GAP) + SQUARE_GAP
+})
+
+const svgHeight = computed(() => {
+  return TOP_PANEL_HEIGHT + 7 * (getCellSize.value + SQUARE_GAP) + SQUARE_GAP
+})
+
+const formatDate = (date: Date): string => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const getCount = (date: Date): number => {
+  const dateStr = formatDate(date)
+  const value = props.values.find((v) => v.date === dateStr)
+  return value?.count ?? 0
+}
+
+const getMaxCount = computed(() => {
+  if (props.max > 0) return props.max
+  const counts = props.values.map((v) => v.count)
+  return Math.max(...counts, 1)
+})
+
+const getColorIndex = (count: number): number => {
+  if (count === 0) return 0
+  const ratio = count / getMaxCount.value
+  return Math.min(4, Math.ceil(ratio * 4))
+}
+
+const getColor = (count: number): string => {
+  const index = getColorIndex(count)
+  return props.rangeColor[index] ?? props.rangeColor[0]!
+}
+
+const getCoordinates = (dayIndex: number) => {
+  const week = Math.floor(dayIndex / 7)
+  const dayOfWeek = dayIndex % 7
+  return {
+    x: LEFT_PANEL_WIDTH + week * (getCellSize.value + SQUARE_GAP),
+    y: TOP_PANEL_HEIGHT + dayOfWeek * (getCellSize.value + SQUARE_GAP),
+  }
+}
+
+const getMonthLabels = computed(() => {
+  const days = getDays()
+  const labels: { month: number; x: number }[] = []
+  let lastMonth = -1
+  
+  days.forEach((day, index) => {
+    const month = day.getMonth()
+    if (month !== lastMonth) {
+      const coords = getCoordinates(index)
+      labels.push({ month, x: coords.x })
+      lastMonth = month
+    }
+  })
+  
+  return labels
+})
+
+const handleDayClick = (date: Date) => {
+  const dateStr = formatDate(date)
+  const value = props.values.find((v) => v.date === dateStr) || { date: dateStr, count: 0 }
+  emit('day-click', value)
+}
+
+const generateRandomData = (): HeatmapValue[] => {
+  const data: HeatmapValue[] = []
+  const days = getDays()
+  days.forEach((day) => {
+    data.push({
+      date: formatDate(day),
+      count: Math.floor(Math.random() * 50),
+    })
+  })
   return data
 }
 
-const heatmapData = ref(generateHeatmapData())
+const internalValues = ref<HeatmapValue[]>(props.values.length > 0 ? props.values : generateRandomData())
 
-const months = ['Mar', 'May', 'Jul', 'Sep', 'Nov', 'Jan', 'Mar']
-const dayLabels = ['Mon', 'Wed', 'Fri']
+watch(
+  () => props.values,
+  (newValues) => {
+    if (newValues.length > 0) {
+      internalValues.value = newValues
+    }
+  }
+)
 
-const getLevelColor = (level: number): string => {
-  const colors: string[] = ['#EEF4FF', '#C5D8FF', '#8BB8FF', '#4F8FFF', '#2F6BFF']
-  return colors[level] ?? colors[0]!
+const getCountFromDate = (date: Date): number => {
+  const dateStr = formatDate(date)
+  const value = internalValues.value.find((v) => v.date === dateStr)
+  return value?.count ?? 0
+}
+
+const tooltipContent = ref<string>('')
+const tooltipPosition = ref({ x: 0, y: 0 })
+const showTooltip = ref(false)
+
+const handleMouseEnter = (event: MouseEvent, date: Date) => {
+  if (!props.tooltip) return
+  const count = getCountFromDate(date)
+  const dateStr = formatDate(date)
+  tooltipContent.value = `${dateStr}: ${count} 次活动`
+  tooltipPosition.value = { x: event.clientX, y: event.clientY }
+  showTooltip.value = true
+}
+
+const handleMouseLeave = () => {
+  showTooltip.value = false
 }
 </script>
 
@@ -34,40 +219,84 @@ const getLevelColor = (level: number): string => {
   <div class="heatmap-card">
     <div class="heatmap-header">
       <div class="heatmap-text">
-        <h3 class="heatmap-title">{{ title || '社区活跃热力图' }}</h3>
-        <p class="heatmap-subtitle">{{ subtitle || '按月份查看评论、收藏和互动行为分布。' }}</p>
+        <h3 class="heatmap-title">{{ title }}</h3>
+        <p class="heatmap-subtitle">{{ subtitle }}</p>
       </div>
       <span class="heatmap-badge" v-if="badge">{{ badge }}</span>
     </div>
     <div class="heatmap-body">
-      <div class="day-labels">
-        <span class="day-label" v-for="day in dayLabels" :key="day">{{ day }}</span>
-      </div>
-      <div class="heatmap-content">
-        <div class="month-labels">
-          <span class="month-label" v-for="month in months" :key="month">{{ month }}</span>
-        </div>
-        <div class="heatmap-grid">
-          <div class="heatmap-week" v-for="(week, weekIndex) in heatmapData" :key="weekIndex">
-            <div
+      <div class="heatmap-scroll" ref="containerRef">
+        <svg
+          class="heatmap-svg"
+          :width="svgWidth"
+          :height="svgHeight"
+          :viewBox="`0 0 ${svgWidth} ${svgHeight}`"
+          preserveAspectRatio="xMinYMid meet"
+        >
+          <g class="month-labels">
+            <text
+              v-for="(label, index) in getMonthLabels"
+              :key="index"
+              :x="label.x"
+              :y="12"
+              class="month-label"
+            >
+              {{ MONTH_LABELS[label.month] }}
+            </text>
+          </g>
+          
+          <g class="day-labels">
+            <text
+              v-for="(label, index) in DAY_LABELS"
+              :key="index"
+              :x="0"
+              :y="TOP_PANEL_HEIGHT + index * (getCellSize + SQUARE_GAP) + getCellSize - 2"
+              class="day-label"
+            >
+              {{ label }}
+            </text>
+          </g>
+          
+          <g class="heatmap-cells">
+            <rect
+              v-for="(day, index) in getDays()"
+              :key="index"
+              :x="getCoordinates(index).x"
+              :y="getCoordinates(index).y"
+              :width="getCellSize"
+              :height="getCellSize"
+              :rx="SQUARE_BORDER_RADIUS"
+              :ry="SQUARE_BORDER_RADIUS"
+              :fill="getColor(getCountFromDate(day))"
               class="heatmap-cell"
-              v-for="(day, dayIndex) in week"
-              :key="dayIndex"
-              :style="{ backgroundColor: getLevelColor(day.level) }"
-            ></div>
-          </div>
-        </div>
-        <div class="heatmap-legend">
-          <span class="legend-text">基于评论、收藏与互动行为统计</span>
-          <div class="legend-scale">
-            <span class="legend-label">Less</span>
-            <div class="legend-cells">
-              <span class="legend-cell" v-for="i in 5" :key="i" :style="{ backgroundColor: getLevelColor(i - 1) }"></span>
-            </div>
-            <span class="legend-label">More</span>
-          </div>
-        </div>
+              @click="handleDayClick(day)"
+              @mouseenter="handleMouseEnter($event, day)"
+              @mouseleave="handleMouseLeave"
+            />
+          </g>
+        </svg>
       </div>
+      
+      <div class="heatmap-legend">
+        <span class="legend-text">少</span>
+        <div class="legend-scale">
+          <span
+            v-for="(color, index) in rangeColor"
+            :key="index"
+            class="legend-cell"
+            :style="{ backgroundColor: color, width: `${getCellSize}px`, height: `${getCellSize}px` }"
+          ></span>
+        </div>
+        <span class="legend-text">多</span>
+      </div>
+    </div>
+    
+    <div
+      v-if="showTooltip && tooltip"
+      class="heatmap-tooltip"
+      :style="{ left: `${tooltipPosition.x + 10}px`, top: `${tooltipPosition.y - 30}px` }"
+    >
+      {{ tooltipContent }}
     </div>
   </div>
 </template>
@@ -77,11 +306,14 @@ const getLevelColor = (level: number): string => {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  padding: 24px;
+  padding: 20px 24px;
   background-color: var(--color-surface);
-  border-radius: 16px;
-  border: 1px solid #E4EDFF;
+  border-radius: var(--radius-card);
+  border: 1px solid #e4edff;
   box-shadow: 0 4px 24px rgba(26, 63, 112, 0.0625);
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
 }
 
 .heatmap-header {
@@ -120,64 +352,52 @@ const getLevelColor = (level: number): string => {
 
 .heatmap-body {
   display: flex;
-  gap: 14px;
-}
-
-.day-labels {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  padding-top: 26px;
-}
-
-.day-label {
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
-.heatmap-content {
-  display: flex;
   flex-direction: column;
   gap: 12px;
-  flex: 1;
 }
 
-.month-labels {
-  display: flex;
-  justify-content: space-between;
+.heatmap-scroll {
+  overflow-x: auto;
+  padding-bottom: 8px;
+  width: 100%;
+}
+
+.heatmap-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 600px;
 }
 
 .month-label {
   font-size: 12px;
-  color: var(--color-text-muted);
+  fill: var(--color-text-muted);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
 }
 
-.heatmap-grid {
-  display: flex;
-  gap: 4px;
-}
-
-.heatmap-week {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.day-label {
+  font-size: 12px;
+  fill: var(--color-text-muted);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
 }
 
 .heatmap-cell {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
-  transition: all 0.2s ease;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
 }
 
 .heatmap-cell:hover {
-  transform: scale(1.2);
+  opacity: 0.8;
+  stroke: #1b1f23;
+  stroke-width: 1px;
 }
 
 .heatmap-legend {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
+  gap: 6px;
+  padding-left: 40px;
 }
 
 .legend-text {
@@ -187,36 +407,23 @@ const getLevelColor = (level: number): string => {
 
 .legend-scale {
   display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.legend-label {
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
-.legend-cells {
-  display: flex;
   gap: 3px;
 }
 
 .legend-cell {
-  width: 12px;
-  height: 12px;
   border-radius: 2px;
 }
 
-@media (max-width: 1024px) {
-  .heatmap-grid {
-    overflow-x: auto;
-    padding-bottom: 8px;
-  }
-
-  .heatmap-cell {
-    width: 10px;
-    height: 10px;
-  }
+.heatmap-tooltip {
+  position: fixed;
+  padding: 6px 10px;
+  background-color: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  font-size: 12px;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 1000;
+  white-space: nowrap;
 }
 
 @media (max-width: 768px) {
@@ -224,22 +431,7 @@ const getLevelColor = (level: number): string => {
     padding: 20px;
   }
 
-  .heatmap-body {
-    flex-direction: column;
-  }
-
-  .day-labels {
-    flex-direction: row;
-    padding-top: 0;
-    gap: 24px;
-  }
-
-  .heatmap-cell {
-    width: 8px;
-    height: 8px;
-  }
-
-  .legend-text {
+  .legend-text:first-child {
     display: none;
   }
 }

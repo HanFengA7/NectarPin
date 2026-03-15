@@ -125,6 +125,9 @@ export default {
 
 <style scoped>
 .sidebar {
+  position: sticky;
+  top: 0;
+  left: 0;
   display: flex;
   flex-direction: column;
   width: var(--sidebar-width);
@@ -134,6 +137,7 @@ export default {
   border-right: 1px solid #E4EDFF;
   padding: 28px 20px;
   gap: 20px;
+  flex-shrink: 0;
 }
 
 .sidebar-brand {
