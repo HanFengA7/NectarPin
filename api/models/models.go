@@ -3,6 +3,7 @@
 package models
 
 import (
+	"nectarpin/api/models/article"
 	"nectarpin/api/models/user"
 )
 
@@ -13,6 +14,9 @@ type User = user.User
 // UserToken 用户令牌模型类型别名
 // 导出 user.UserToken 类型供外部使用
 type UserToken = user.UserToken
+
+// Article 文章模型类型别名
+type Article = article.Article
 
 // 用户状态常量导出
 const (
@@ -32,4 +36,11 @@ const (
 	TokenTypeAccess  = user.TokenTypeAccess  // 访问令牌
 	TokenTypeRefresh = user.TokenTypeRefresh // 刷新令牌
 	TokenTypeAPI     = user.TokenTypeAPI     // API 令牌
+)
+
+// 文章状态常量导出
+const (
+	ArticleStatusDraft     = article.ArticleStatusDraft     // 草稿
+	ArticleStatusPublished = article.ArticleStatusPublished // 已发布
+	ArticleStatusArchived  = article.ArticleStatusArchived  // 已归档
 )

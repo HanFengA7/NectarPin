@@ -3,6 +3,7 @@
 package routes
 
 import (
+	"nectarpin/api/routes/article"
 	"nectarpin/api/routes/user"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +16,9 @@ import (
 //   - db: 数据库连接实例
 //
 // 该函数统一注册所有模块的路由:
-//   - 用户模块路由 (/api/public/user/v1)
+//   - 用户模块路由 (/api/public/user/v1, /api/protected/user/v1)
+//   - 文章模块路由 (/api/public/article/v1, /api/protected/article/v1)
 func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 	user.SetupRoutes(router, db)
+	article.SetupRoutes(router, db)
 }
