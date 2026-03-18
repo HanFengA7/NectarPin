@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
-	articleservice "nectarpin/api/services/article"
 	articlerepo "nectarpin/api/repositories/article"
+	articleservice "nectarpin/api/services/article"
 	"nectarpin/internal/utils"
 
 	"github.com/gin-gonic/gin"
@@ -142,9 +142,60 @@ func (c *ArticleController) List(ctx *gin.Context) {
 		"code":    200,
 		"message": "获取成功",
 		"data": gin.H{
-			"items": result.Items,
-			"total": result.Total,
-			"page":  f.Page,
+			"items":     result.Items,
+			"total":     result.Total,
+			"page":      f.Page,
+			"page_size": f.PageSize,
+		},
+	})
+}
+
+// ListForAdmin 后台管理文章列表（需认证，仅返回当前用户的文章）
+func (c *ArticleController) ListForAdmin(ctx *gin.Context) {
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"code":    401,
+			"message": "未授权",
+		})
+		return
+	}
+
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("page_size", "20"))
+	if pageSize > 100 {
+		pageSize = 100
+	}
+	var status *int16
+	if st := ctx.Query("status"); st != "" {
+		if s, err := strconv.ParseInt(st, 10, 16); err == nil && s >= 0 && s <= 2 {
+			s16 := int16(s)
+			status = &s16
+		}
+	}
+
+	f := articlerepo.ListFilter{
+		Page:     page,
+		PageSize: pageSize,
+		AuthorID: func() *uint64 { id := userID.(uint64); return &id }(),
+		Status:   status,
+	}
+	result, err := c.service.List(f)
+	if err != nil {
+		utils.Logger.Errorf("文章", "后台列表查询失败: %v", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "查询失败",
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "获取成功",
+		"data": gin.H{
+			"items":     result.Items,
+			"total":     result.Total,
+			"page":      f.Page,
 			"page_size": f.PageSize,
 		},
 	})
@@ -162,6 +213,49 @@ func (c *ArticleController) GetByID(ctx *gin.Context) {
 		return
 	}
 	a, err := c.service.GetByID(id, true)
+	if err != nil {
+		if err == articleservice.ErrArticleNotFound {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"code":    404,
+				"message": "文章不存在",
+			})
+			return
+		}
+		utils.Logger.Errorf("文章", "获取失败: %v", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "查询失败",
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "获取成功",
+		"data":    a,
+	})
+}
+
+// GetByIDForAdmin 按 ID 获取文章详情（后台编辑用，不增加阅读量）
+func (c *ArticleController) GetByIDForAdmin(ctx *gin.Context) {
+	_, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"code":    401,
+			"message": "未授权",
+		})
+		return
+	}
+
+	idStr := ctx.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "无效的文章 ID",
+		})
+		return
+	}
+	a, err := c.service.GetByID(id, false)
 	if err != nil {
 		if err == articleservice.ErrArticleNotFound {
 			ctx.JSON(http.StatusNotFound, gin.H{

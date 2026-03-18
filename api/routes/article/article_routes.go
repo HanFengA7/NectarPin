@@ -31,12 +31,16 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 		}
 	}
 
-	// 需认证：创建、编辑、删除
+	// 需认证：创建、编辑、删除、列表（后台管理）
 	protectedAPI := router.Group("/api/protected")
 	protectedAPI.Use(middlewares.AuthMiddleware())
 	{
 		articleV1 := protectedAPI.Group("/article/v1")
 		{
+			// 列表（后台管理，按作者筛选）
+			articleV1.GET("/list", ctrl.ListForAdmin)
+			// 按 id 获取详情（后台编辑用，不增加阅读量）
+			articleV1.GET("/infoById/:id", ctrl.GetByIDForAdmin)
 			// 创建
 			articleV1.POST("/add", ctrl.Create)
 			// 编辑

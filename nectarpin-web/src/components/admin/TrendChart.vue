@@ -14,6 +14,10 @@ const defaultData = [
   { value: 228, highlight: true },
   { value: 194 },
 ]
+
+const getBarHeight = (value: number, max: number): number => {
+  return Math.max(20, (value / max) * 100)
+}
 </script>
 
 <template>
@@ -23,16 +27,29 @@ const defaultData = [
         <h3 class="trend-title">{{ title || '内容流量趋势' }}</h3>
         <p class="trend-subtitle">{{ subtitle || '过去 6 周文章访问量与互动变化。' }}</p>
       </div>
-      <span class="trend-badge" v-if="badge">{{ badge }}</span>
+      <span class="trend-badge" v-if="badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+          <polyline points="17 6 23 6 23 12"/>
+        </svg>
+        {{ badge }}
+      </span>
     </div>
     <div class="trend-chart">
       <div
-        class="chart-bar"
-        :class="{ highlight: bar.highlight }"
+        class="chart-bar-wrapper"
         v-for="(bar, index) in data || defaultData"
         :key="index"
-        :style="{ height: `${bar.value}px` }"
-      ></div>
+      >
+        <div
+          class="chart-bar"
+          :class="{ highlight: bar.highlight }"
+          :style="{ height: `${getBarHeight(bar.value, Math.max(...(data || defaultData).map(d => d.value)))}%` }"
+        >
+          <span class="bar-tooltip">{{ bar.value }}</span>
+        </div>
+        <span class="bar-label">周{{ index + 1 }}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -41,12 +58,18 @@ const defaultData = [
 .trend-card {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 24px;
-  background-color: var(--color-surface);
-  border-radius: 16px;
-  border: 1px solid #e4edff;
-  box-shadow: 0 4px 24px rgba(26, 63, 112, 0.0625);
+  gap: var(--space-6);
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.trend-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-hover);
 }
 
 .trend-header {
@@ -58,69 +81,116 @@ const defaultData = [
 .trend-text {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-1);
 }
 
 .trend-title {
   font-family: var(--font-heading);
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-text);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
 }
 
 .trend-subtitle {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
 
 .trend-badge {
-  padding: 5px 12px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  color: var(--color-primary-strong);
-  background-color: var(--color-primary-soft);
-  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-full);
+  transition: background var(--transition-fast);
 }
 
 .trend-chart {
   display: flex;
   align-items: flex-end;
-  gap: 12px;
-  height: 260px;
-  padding-top: 16px;
+  justify-content: space-between;
+  gap: var(--space-4);
+  height: 200px;
+  padding-top: var(--space-5);
+}
+
+.chart-bar-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  height: 100%;
 }
 
 .chart-bar {
-  flex: 1;
-  min-width: 40px;
-  border-radius: 10px 10px 4px 4px;
-  background: linear-gradient(180deg, #ddeaff 0%, #c5d8ff 100%);
-  transition: all 0.3s ease;
-}
-
-.chart-bar.highlight {
-  background: linear-gradient(180deg, #3b7bff 0%, #1a4fcc 100%);
+  position: relative;
+  width: 100%;
+  max-width: 60px;
+  border-radius: var(--radius-md) var(--radius-md) var(--radius-xs) var(--radius-xs);
+  background: linear-gradient(180deg, var(--color-surface-alt) 0%, var(--color-border) 100%);
+  transition: all var(--transition-base);
+  cursor: pointer;
 }
 
 .chart-bar:hover {
-  opacity: 0.8;
   transform: scaleY(1.02);
   transform-origin: bottom;
+  box-shadow: var(--shadow-md);
+}
+
+.chart-bar:hover .bar-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-8px);
+}
+
+.chart-bar.highlight {
+  background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-active) 100%);
+}
+
+.chart-bar.highlight:hover {
+  background: linear-gradient(180deg, var(--color-primary-hover) 0%, var(--color-primary) 100%);
+}
+
+.bar-tooltip {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  opacity: 0;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.bar-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
 }
 
 @media (max-width: 768px) {
   .trend-card {
-    padding: 20px;
+    padding: var(--space-5);
   }
 
   .trend-chart {
-    height: 180px;
-    gap: 8px;
+    height: 160px;
+    gap: var(--space-3);
   }
 
   .chart-bar {
-    min-width: 24px;
+    max-width: 40px;
   }
 }
 </style>

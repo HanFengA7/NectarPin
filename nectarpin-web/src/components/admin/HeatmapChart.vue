@@ -46,20 +46,7 @@ const SQUARE_BORDER_RADIUS = 2
 const LEFT_PANEL_WIDTH = 40
 const TOP_PANEL_HEIGHT = 20
 
-const MONTH_LABELS = [
-  '一月',
-  '二月',
-  '三月',
-  '四月',
-  '五月',
-  '六月',
-  '七月',
-  '八月',
-  '九月',
-  '十月',
-  '十一月',
-  '十二月',
-]
+const MONTH_LABELS = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']
 const DAY_LABELS = ['周一', '', '周三', '', '周五', '', '周日']
 
 const updateWidth = () => {
@@ -90,12 +77,10 @@ const getDays = () => {
   const end = props.endDate
   const days: Date[] = []
   const current = new Date(start)
-
   while (current <= end) {
     days.push(new Date(current))
     current.setDate(current.getDate() + 1)
   }
-
   return days
 }
 
@@ -162,7 +147,6 @@ const getMonthLabels = computed(() => {
   const days = getDays()
   const labels: { month: number; x: number }[] = []
   let lastMonth = -1
-
   days.forEach((day, index) => {
     const month = day.getMonth()
     if (month !== lastMonth) {
@@ -171,7 +155,6 @@ const getMonthLabels = computed(() => {
       lastMonth = month
     }
   })
-
   return labels
 })
 
@@ -185,26 +168,18 @@ const generateRandomData = (): HeatmapValue[] => {
   const data: HeatmapValue[] = []
   const days = getDays()
   days.forEach((day) => {
-    data.push({
-      date: formatDate(day),
-      count: Math.floor(Math.random() * 50),
-    })
+    data.push({ date: formatDate(day), count: Math.floor(Math.random() * 50) })
   })
   return data
 }
 
-const internalValues = ref<HeatmapValue[]>(
-  props.values.length > 0 ? props.values : generateRandomData(),
-)
+const internalValues = ref<HeatmapValue[]>(props.values.length > 0 ? props.values : generateRandomData())
 
-watch(
-  () => props.values,
-  (newValues) => {
-    if (newValues.length > 0) {
-      internalValues.value = newValues
-    }
-  },
-)
+watch(() => props.values, (newValues) => {
+  if (newValues.length > 0) {
+    internalValues.value = newValues
+  }
+})
 
 const getCountFromDate = (date: Date): number => {
   const dateStr = formatDate(date)
@@ -249,17 +224,10 @@ const handleMouseLeave = () => {
           preserveAspectRatio="xMinYMid meet"
         >
           <g class="month-labels">
-            <text
-              v-for="(label, index) in getMonthLabels"
-              :key="index"
-              :x="label.x"
-              :y="12"
-              class="month-label"
-            >
+            <text v-for="(label, index) in getMonthLabels" :key="index" :x="label.x" :y="12" class="month-label">
               {{ MONTH_LABELS[label.month] }}
             </text>
           </g>
-
           <g class="day-labels">
             <text
               v-for="(label, index) in DAY_LABELS"
@@ -271,7 +239,6 @@ const handleMouseLeave = () => {
               {{ label }}
             </text>
           </g>
-
           <g class="heatmap-cells">
             <rect
               v-for="(day, index) in getDays()"
@@ -291,7 +258,6 @@ const handleMouseLeave = () => {
           </g>
         </svg>
       </div>
-
       <div class="heatmap-legend">
         <span class="legend-text">少</span>
         <div class="legend-scale">
@@ -299,22 +265,13 @@ const handleMouseLeave = () => {
             v-for="(color, index) in rangeColor"
             :key="index"
             class="legend-cell"
-            :style="{
-              backgroundColor: color,
-              width: `${getCellSize}px`,
-              height: `${getCellSize}px`,
-            }"
+            :style="{ backgroundColor: color, width: `${getCellSize}px`, height: `${getCellSize}px` }"
           ></span>
         </div>
         <span class="legend-text">多</span>
       </div>
     </div>
-
-    <div
-      v-if="showTooltip && tooltip"
-      class="heatmap-tooltip"
-      :style="{ left: `${tooltipPosition.x + 10}px`, top: `${tooltipPosition.y - 30}px` }"
-    >
+    <div v-if="showTooltip && tooltip" class="heatmap-tooltip" :style="{ left: `${tooltipPosition.x + 10}px`, top: `${tooltipPosition.y - 30}px` }">
       {{ tooltipContent }}
     </div>
   </div>
@@ -324,15 +281,21 @@ const handleMouseLeave = () => {
 .heatmap-card {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding: 20px 24px;
-  background-color: var(--color-surface);
-  border-radius: var(--radius-card);
-  border: 1px solid #e4edff;
-  box-shadow: 0 4px 24px rgba(26, 63, 112, 0.0625);
+  gap: var(--space-5);
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
   width: 100%;
   box-sizing: border-box;
   position: relative;
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.heatmap-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-hover);
 }
 
 .heatmap-header {
@@ -344,40 +307,41 @@ const handleMouseLeave = () => {
 .heatmap-text {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-1);
 }
 
 .heatmap-title {
   font-family: var(--font-heading);
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-text);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
 }
 
 .heatmap-subtitle {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
 
 .heatmap-badge {
-  padding: 5px 12px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  color: var(--color-primary-strong);
-  background-color: var(--color-primary-soft);
-  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-full);
 }
 
 .heatmap-body {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-4);
 }
 
 .heatmap-scroll {
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding-bottom: var(--space-2);
   width: 100%;
 }
 
@@ -389,27 +353,25 @@ const handleMouseLeave = () => {
 }
 
 .month-label {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   fill: var(--color-text-muted);
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans);
 }
 
 .day-label {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   fill: var(--color-text-muted);
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans);
 }
 
 .heatmap-cell {
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--transition-fast);
 }
 
 .heatmap-cell:hover {
   opacity: 0.8;
-  stroke: #1b1f23;
+  stroke: var(--color-text-primary);
   stroke-width: 1px;
 }
 
@@ -417,12 +379,12 @@ const handleMouseLeave = () => {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 6px;
-  padding-left: 40px;
+  gap: var(--space-2);
+  padding-left: LEFT_PANEL_WIDTH;
 }
 
 .legend-text {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 
@@ -432,28 +394,19 @@ const handleMouseLeave = () => {
 }
 
 .legend-cell {
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
 }
 
 .heatmap-tooltip {
   position: fixed;
-  padding: 6px 10px;
-  background-color: rgba(0, 0, 0, 0.85);
-  color: #fff;
-  font-size: 12px;
-  border-radius: 4px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-text-primary);
+  color: var(--color-bg);
+  font-size: var(--font-size-xs);
+  border-radius: var(--radius-sm);
   pointer-events: none;
-  z-index: 1000;
+  z-index: var(--z-tooltip);
   white-space: nowrap;
-}
-
-@media (max-width: 768px) {
-  .heatmap-card {
-    padding: 20px;
-  }
-
-  .legend-text:first-child {
-    display: none;
-  }
+  box-shadow: var(--shadow-lg);
 }
 </style>
