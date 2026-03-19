@@ -109,6 +109,7 @@ const visiblePages = computed(() => {
 })
 
 const handleTabClick = async (value: number | undefined) => {
+  if (statusFilter.value === value) return
   statusFilter.value = value
   await nextTick()
   updateIndicator()

@@ -28,8 +28,6 @@ const lastSavedContent = ref('')
 const toastMessage = ref('')
 const toastType = ref<'success' | 'error' | 'info'>('info')
 const showToast = ref(false)
-const editorModeRef = ref<HTMLElement | null>(null)
-const editorIndicatorStyle = ref({ left: '0px', width: '0px' })
 
 const handleUploadImg = async (files: File[]) => {
   const file = files[0]
@@ -62,32 +60,11 @@ watch(content, () => {
   scheduleAutoSave()
 })
 
-watch(isPreview, async () => {
-  await nextTick()
-  updateEditorIndicator()
-})
-
 watch(isLoading, async (loading) => {
   if (!loading) {
     await nextTick()
-    updateEditorIndicator()
   }
 })
-
-const updateEditorIndicator = () => {
-  if (!editorModeRef.value) {
-    setTimeout(updateEditorIndicator, 10)
-    return
-  }
-  const activeBtn = editorModeRef.value.querySelector('.mode-btn.active') as HTMLElement
-  if (!activeBtn) return
-  const containerRect = editorModeRef.value.getBoundingClientRect()
-  const btnRect = activeBtn.getBoundingClientRect()
-  editorIndicatorStyle.value = {
-    left: `${btnRect.left - containerRect.left}px`,
-    width: `${btnRect.width}px`,
-  }
-}
 
 const showToastMessage = (msg: string, type: 'success' | 'error' | 'info' = 'info') => {
   toastMessage.value = msg
@@ -234,9 +211,6 @@ onMounted(() => {
   if (articleId.value) {
     loadArticle(articleId.value)
   }
-  setTimeout(() => {
-    updateEditorIndicator()
-  }, 0)
 })
 
 onUnmounted(() => {
@@ -312,31 +286,6 @@ onUnmounted(() => {
               <span class="char-counter" :class="{ warning: title.length > 180 }">
                 {{ title.length }} / {{ titleMaxLength }}
               </span>
-              <div class="editor-mode-toggle" ref="editorModeRef">
-                <div class="mode-indicator" :style="editorIndicatorStyle"></div>
-                <button
-                  class="mode-btn"
-                  :class="{ active: !isPreview }"
-                  @click="isPreview = false"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
-                  编辑
-                </button>
-                <button
-                  class="mode-btn"
-                  :class="{ active: isPreview }"
-                  @click="isPreview = true"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                    <circle cx="12" cy="12" r="3"/>
-                  </svg>
-                  预览
-                </button>
-              </div>
             </div>
           </div>
 
@@ -347,7 +296,7 @@ onUnmounted(() => {
               :editorId="`article-editor-${articleId || 'new'}`"
               :preview="isPreview"
               language="zh-CN"
-              :style="{ minHeight: '480px' }"
+              :style="{ minHeight: '600px' }"
               placeholder="开始撰写你的文章内容，支持 Markdown 语法..."
               @upload-img="handleUploadImg"
             />
@@ -721,51 +670,6 @@ onUnmounted(() => {
   color: var(--color-warning);
 }
 
-.editor-mode-toggle {
-  display: flex;
-  gap: 4px;
-  padding: 4px;
-  background: var(--color-surface-alt);
-  border-radius: 10px;
-  position: relative;
-}
-
-.mode-indicator {
-  position: absolute;
-  top: 4px;
-  bottom: 4px;
-  background: var(--color-primary);
-  border-radius: 8px;
-  transition: left var(--transition-base), width var(--transition-base);
-  z-index: 0;
-  pointer-events: none;
-}
-
-.mode-btn {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border: none;
-  background: transparent;
-  color: var(--color-text-muted);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: color var(--transition-fast);
-}
-
-.mode-btn:hover {
-  color: var(--color-text);
-}
-
-.mode-btn.active {
-  color: white;
-}
-
 .editor-container {
   background: var(--color-surface);
   border-radius: var(--radius-lg);
@@ -1102,15 +1006,6 @@ onUnmounted(() => {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
-  }
-
-  .mode-btn {
-    padding: 6px 10px;
-    font-size: 0.75rem;
-  }
-
-  .mode-btn svg {
-    display: none;
   }
 }
 
