@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
-import { markRaw } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
-import { FileText, GalleryVerticalEnd, LayoutDashboard, LogOut, User } from 'lucide-vue-next'
+import { markRaw, ref } from 'vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { ChevronRight, FileText, FolderTree, GalleryVerticalEnd, LayoutDashboard, LogOut, Tags, User } from 'lucide-vue-next'
+import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger } from 'reka-ui'
 import { logoutUser, logoutUserByRefreshToken } from '@/api/user'
 import {
     Sidebar,
@@ -15,12 +16,16 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarMenuSubButton,
+    SidebarMenuSubItem,
     SidebarRail,
     SidebarSeparator,
 } from '@/components/ui/sidebar'
 import { getAdminProfile, getRefreshToken, logoutAdmin } from '@/lib/admin-auth'
 
 const router = useRouter()
+const route = useRoute()
 const profile = getAdminProfile()
 
 async function handleLogout() {
@@ -40,34 +45,73 @@ async function handleLogout() {
     }
 }
 
-interface AdminNavGroup {
-  group: string
-  menuItems: {
+interface NavItem {
+    name: string
+    label: string
+    icon?: Component
+    url: string
+}
+
+interface NavItemWithChildren {
     name: string
     label: string
     icon: Component
-    url: string
-  }[]
+    children: NavItem[]
+}
+
+type NavEntry = NavItem | NavItemWithChildren
+
+function hasChildren(entry: NavEntry): entry is NavItemWithChildren {
+    return 'children' in entry
+}
+
+interface AdminNavGroup {
+    group: string
+    menuItems: NavEntry[]
 }
 
 const sidebarGroups: AdminNavGroup[] = [
-  {
-    group: '常用功能',
-    menuItems: [
-      {
-        name: 'dashboard',
-        label: '概览',
-        icon: markRaw(LayoutDashboard),
-        url: '/admin/dashboard',
-      },
-      {
-        name: 'articles',
-        label: '文章',
-        icon: markRaw(FileText),
-        url: '/admin/articles',
-      },
-    ],
-  },
+    {
+        group: '概览',
+        menuItems: [
+            {
+                name: 'dashboard',
+                label: '仪表盘',
+                icon: markRaw(LayoutDashboard),
+                url: '/admin/dashboard',
+            }
+        ],
+    },
+    {
+        group: '内容',
+        menuItems: [
+            {
+                name: 'article',
+                label: '文章',
+                icon: markRaw(FileText),
+                children: [
+                    {
+                        name: 'articles',
+                        label: '文章列表',
+                        icon: markRaw(FileText),
+                        url: '/admin/articles',
+                    },
+                    {
+                        name: 'articleCategories',
+                        label: '文章分类',
+                        icon: markRaw(FolderTree),
+                        url: '/admin/articleCategories',
+                    },
+                    {
+                        name: 'articleTags',
+                        label: '文章标签',
+                        icon: markRaw(Tags),
+                        url: '/admin/articleTags',
+                    },
+                ],
+            },
+        ],
+    },
 ]
 </script>
 
@@ -83,7 +127,7 @@ const sidebarGroups: AdminNavGroup[] = [
                         </div>
                         <div class="grid flex-1 text-left text-sm leading-tight">
                             <span class="truncate font-semibold">NectarPin</span>
-                            <span class="truncate text-xs text-muted-foreground font-normal">V1.0.0 Alpha</span>
+                            <span class="flex items-center gap-1.5 truncate text-xs text-muted-foreground font-normal">0.0.2 <span class="inline-flex items-center rounded-full border border-transparent bg-primary px-1.5 py-px text-[8px] font-medium leading-none text-primary-foreground">Alpha</span></span>
                         </div>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -91,14 +135,46 @@ const sidebarGroups: AdminNavGroup[] = [
         </SidebarHeader>
         <SidebarContent>
             <SidebarGroup v-for="group in sidebarGroups" :key="group.group">
-                    <SidebarGroupLabel>{{ group.group }}</SidebarGroupLabel>
+                <SidebarGroupLabel>{{ group.group }}</SidebarGroupLabel>
                 <SidebarGroupContent>
-                    <SidebarMenuButton as-child v-for="item in group.menuItems" :key="item.name">
-                        <RouterLink :to="item.url">
-                            <component :is="item.icon" />
-                            <span>{{ item.label }}</span>
-                        </RouterLink>
-                    </SidebarMenuButton>
+                    <SidebarMenu>
+                        <template v-for="item in group.menuItems" :key="item.name">
+                            <SidebarMenuItem v-if="!hasChildren(item)">
+                                <SidebarMenuButton as-child :is-active="route.path === (item as NavItem).url">
+                                    <RouterLink :to="(item as NavItem).url">
+                                        <component :is="item.icon" />
+                                        <span>{{ item.label }}</span>
+                                    </RouterLink>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+
+                            <CollapsibleRoot v-else as-child :default-open="true">
+                                <SidebarMenuItem>
+                                    <CollapsibleTrigger as-child>
+                                        <SidebarMenuButton>
+                                            <component :is="item.icon" />
+                                            <span>{{ item.label }}</span>
+                                            <ChevronRight
+                                                class="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                                        </SidebarMenuButton>
+                                    </CollapsibleTrigger>
+                                    <CollapsibleContent>
+                                        <SidebarMenuSub>
+                                            <SidebarMenuSubItem v-for="child in (item as NavItemWithChildren).children"
+                                                :key="child.name">
+                                                <SidebarMenuSubButton as-child :is-active="route.path === child.url">
+                                                    <RouterLink :to="child.url">
+                                                        <component v-if="child.icon" :is="child.icon" />
+                                                        <span>{{ child.label }}</span>
+                                                    </RouterLink>
+                                                </SidebarMenuSubButton>
+                                            </SidebarMenuSubItem>
+                                        </SidebarMenuSub>
+                                    </CollapsibleContent>
+                                </SidebarMenuItem>
+                            </CollapsibleRoot>
+                        </template>
+                    </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
         </SidebarContent>
@@ -111,7 +187,8 @@ const sidebarGroups: AdminNavGroup[] = [
                             <User class="size-4 text-muted-foreground" />
                         </div>
                         <div class="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                            <span class="truncate font-medium">{{ profile?.nickname || profile?.username || '管理员' }}</span>
+                            <span class="truncate font-medium">{{ profile?.nickname || profile?.username || '管理员'
+                                }}</span>
                             <span class="truncate text-xs font-normal text-muted-foreground">
                                 {{ profile?.email || '账户与偏好' }}
                             </span>
@@ -122,8 +199,7 @@ const sidebarGroups: AdminNavGroup[] = [
             <SidebarSeparator class="mx-2" />
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton
-                        tooltip="退出登录"
+                    <SidebarMenuButton tooltip="退出登录"
                         class="text-muted-foreground hover:bg-sidebar-accent hover:text-destructive"
                         @click="handleLogout">
                         <LogOut class="size-4" />

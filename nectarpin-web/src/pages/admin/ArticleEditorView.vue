@@ -1,16 +1,22 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onMounted, reactive, ref } from 'vue'
+import { computed, defineAsyncComponent, onMounted, reactive, ref, shallowRef } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { ChevronLeft, LoaderCircle, Save } from 'lucide-vue-next'
+import { ChevronLeft, LoaderCircle, Plus, Save, X } from 'lucide-vue-next'
 
 import {
   createArticle,
+  createTag,
   getAdminArticleById,
+  listCategories,
+  listTags,
   updateArticle,
+  type ArticleCategoryItem,
+  type ArticleTagItem,
   type CreateArticlePayload,
   type UpdateArticlePayload,
 } from '@/api/article'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { RequestError } from '@/utils/req'
 
@@ -34,7 +40,14 @@ const form = reactive({
   cover_image: '',
   status: '0' as ArticleStatusValue,
   content: '',
+  category_id: null as number | null,
+  tag_ids: [] as number[],
 })
+
+const allCategories = shallowRef<ArticleCategoryItem[]>([])
+const allTags = shallowRef<ArticleTagItem[]>([])
+const newTagName = ref('')
+const isCreatingTag = ref(false)
 
 const isLoading = ref(false)
 const isSubmitting = ref(false)
@@ -44,17 +57,9 @@ let detailRequestId = 0
 
 const articleId = computed(() => {
   const rawId = route.params.id
-
-  if (typeof rawId !== 'string') {
-    return null
-  }
-
+  if (typeof rawId !== 'string') return null
   const parsed = Number(rawId)
-
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    return null
-  }
-
+  if (!Number.isInteger(parsed) || parsed <= 0) return null
   return parsed
 })
 
@@ -66,24 +71,69 @@ const pageDescription = computed(() =>
     : '创建一篇新文章并保存为草稿或直接发布。',
 )
 const submitLabel = computed(() => {
-  if (isSubmitting.value) {
-    return isEditMode.value ? '保存中...' : '创建中...'
-  }
-
+  if (isSubmitting.value) return isEditMode.value ? '保存中...' : '创建中...'
   return isEditMode.value ? '保存修改' : '创建文章'
 })
 
+const availableTags = computed(() =>
+  allTags.value.filter((t) => !form.tag_ids.includes(t.id)),
+)
+
+const selectedTags = computed(() =>
+  form.tag_ids
+    .map((id) => allTags.value.find((t) => t.id === id))
+    .filter(Boolean) as ArticleTagItem[],
+)
+
+function removeTag(tagId: number) {
+  form.tag_ids = form.tag_ids.filter((id) => id !== tagId)
+}
+
+function addTag(tagId: number) {
+  if (!form.tag_ids.includes(tagId)) {
+    form.tag_ids = [...form.tag_ids, tagId]
+  }
+}
+
+async function handleCreateTag() {
+  const name = newTagName.value.trim()
+  if (!name) return
+
+  isCreatingTag.value = true
+  try {
+    const response = await createTag({ name })
+    const newTag = response.data
+    allTags.value = [...allTags.value, newTag]
+    form.tag_ids = [...form.tag_ids, newTag.id]
+    newTagName.value = ''
+  } catch (error) {
+    errorMessage.value =
+      error instanceof RequestError ? error.message : '创建标签失败。'
+  } finally {
+    isCreatingTag.value = false
+  }
+}
+
 function buildPayload() {
-  const payload = {
+  return {
     title: form.title.trim(),
     content: form.content,
     status: Number(form.status),
+    category_id: form.category_id,
+    tag_ids: form.tag_ids,
     ...(form.slug.trim() ? { slug: form.slug.trim() } : {}),
     ...(form.summary.trim() ? { summary: form.summary.trim() } : {}),
     ...(form.cover_image.trim() ? { cover_image: form.cover_image.trim() } : {}),
   }
+}
 
-  return payload
+async function loadMetadata() {
+  const [catRes, tagRes] = await Promise.all([
+    listCategories().catch(() => null),
+    listTags().catch(() => null),
+  ])
+  if (catRes) allCategories.value = catRes.data.items ?? []
+  if (tagRes) allTags.value = tagRes.data.items ?? []
 }
 
 async function loadArticle() {
@@ -97,31 +147,29 @@ async function loadArticle() {
   loadErrorMessage.value = ''
 
   try {
-    const response = await getAdminArticleById(articleId.value)
+    const [articleRes] = await Promise.all([
+      getAdminArticleById(articleId.value),
+      loadMetadata(),
+    ])
 
-    if (requestId !== detailRequestId) {
-      return
-    }
+    if (requestId !== detailRequestId) return
 
-    const article = response.data
-
+    const article = articleRes.data
     form.title = article.title
     form.slug = article.slug
     form.summary = article.summary
     form.cover_image = article.cover_image
     form.status = String(article.status) as ArticleStatusValue
     form.content = article.content
+    form.category_id = article.category_id
+    // tag_ids will need to be loaded from a separate endpoint if backend supports it
+    // For now, we rely on the article response not having tag_ids
   } catch (error) {
-    if (requestId !== detailRequestId) {
-      return
-    }
-
+    if (requestId !== detailRequestId) return
     loadErrorMessage.value =
       error instanceof RequestError ? error.message : '获取文章详情失败，请稍后重试。'
   } finally {
-    if (requestId === detailRequestId) {
-      isLoading.value = false
-    }
+    if (requestId === detailRequestId) isLoading.value = false
   }
 }
 
@@ -132,7 +180,6 @@ async function handleSubmit() {
     errorMessage.value = '请输入文章标题。'
     return
   }
-
   if (!form.content.trim()) {
     errorMessage.value = '请输入文章内容。'
     return
@@ -142,10 +189,7 @@ async function handleSubmit() {
 
   try {
     if (isEditMode.value) {
-      if (!articleId.value) {
-        throw new Error('无效的文章 ID')
-      }
-
+      if (!articleId.value) throw new Error('无效的文章 ID')
       await updateArticle(articleId.value, buildPayload() as UpdateArticlePayload)
     } else {
       await createArticle(buildPayload() as CreateArticlePayload)
@@ -153,9 +197,7 @@ async function handleSubmit() {
 
     await router.replace({
       name: 'admin-articles',
-      query: {
-        saved: isEditMode.value ? 'updated' : 'created',
-      },
+      query: { saved: isEditMode.value ? 'updated' : 'created' },
     })
   } catch (error) {
     errorMessage.value =
@@ -165,9 +207,11 @@ async function handleSubmit() {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (isEditMode.value) {
-    void loadArticle()
+    await loadArticle()
+  } else {
+    await loadMetadata()
   }
 })
 </script>
@@ -181,7 +225,6 @@ onMounted(() => {
           <h1 class="text-3xl font-semibold tracking-tight">{{ pageTitle }}</h1>
           <p class="text-sm text-muted-foreground">{{ pageDescription }}</p>
         </div>
-
         <Button as-child variant="outline">
           <RouterLink :to="{ name: 'admin-articles' }">
             <ChevronLeft class="size-4" />
@@ -190,17 +233,10 @@ onMounted(() => {
         </Button>
       </header>
 
-      <div
-        v-if="loadErrorMessage"
-        class="rounded-xl border border-destructive/20 bg-destructive/8 px-4 py-3 text-sm text-destructive"
-      >
+      <div v-if="loadErrorMessage" class="rounded-xl border border-destructive/20 bg-destructive/8 px-4 py-3 text-sm text-destructive">
         {{ loadErrorMessage }}
       </div>
-
-      <div
-        v-if="errorMessage"
-        class="rounded-xl border border-destructive/20 bg-destructive/8 px-4 py-3 text-sm text-destructive"
-      >
+      <div v-if="errorMessage" class="rounded-xl border border-destructive/20 bg-destructive/8 px-4 py-3 text-sm text-destructive">
         {{ errorMessage }}
       </div>
 
@@ -209,35 +245,23 @@ onMounted(() => {
         <span>正在加载文章内容...</span>
       </section>
 
-      <section
-        v-else-if="!loadErrorMessage"
-        class="rounded-2xl border bg-background p-6 shadow-sm"
-      >
+      <section v-else-if="!loadErrorMessage" class="rounded-2xl border bg-background p-6 shadow-sm">
         <form class="space-y-6" @submit.prevent="handleSubmit">
           <div class="grid gap-6 lg:grid-cols-2">
+            <!-- 标题 -->
             <div class="space-y-2 lg:col-span-2">
               <label for="title" class="text-sm font-medium">文章标题</label>
-              <Input
-                id="title"
-                v-model="form.title"
-                type="text"
-                placeholder="请输入文章标题"
-              />
+              <Input id="title" v-model="form.title" type="text" placeholder="请输入文章标题" />
             </div>
 
+            <!-- Slug -->
             <div class="space-y-2">
               <label for="slug" class="text-sm font-medium">文章地址</label>
-              <Input
-                id="slug"
-                v-model="form.slug"
-                type="text"
-                placeholder="留空时将根据标题自动生成"
-              />
-              <p class="text-xs text-muted-foreground">
-                建议使用英文、数字与连字符，便于生成稳定的访问链接。
-              </p>
+              <Input id="slug" v-model="form.slug" type="text" placeholder="留空时将根据标题自动生成" />
+              <p class="text-xs text-muted-foreground">建议使用英文、数字与连字符，便于生成稳定的访问链接。</p>
             </div>
 
+            <!-- 状态 -->
             <div class="space-y-2">
               <label for="status" class="text-sm font-medium">发布状态</label>
               <select
@@ -245,26 +269,88 @@ onMounted(() => {
                 v-model="form.status"
                 class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
               >
-                <option
-                  v-for="option in STATUS_OPTIONS"
-                  :key="option.value"
-                  :value="option.value"
-                >
+                <option v-for="option in STATUS_OPTIONS" :key="option.value" :value="option.value">
                   {{ option.label }}
                 </option>
               </select>
             </div>
 
-            <div class="space-y-2 lg:col-span-2">
-              <label for="cover-image" class="text-sm font-medium">封面图片</label>
-              <Input
-                id="cover-image"
-                v-model="form.cover_image"
-                type="url"
-                placeholder="请输入封面图片 URL（可选）"
-              />
+            <!-- 分类 -->
+            <div class="space-y-2">
+              <label for="category" class="text-sm font-medium">文章分类</label>
+              <select
+                id="category"
+                v-model="form.category_id"
+                class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              >
+                <option :value="null">未分类</option>
+                <option v-for="cat in allCategories" :key="cat.id" :value="cat.id">
+                  {{ cat.name }}
+                </option>
+              </select>
             </div>
 
+            <!-- 标签 -->
+            <div class="space-y-2">
+              <label class="text-sm font-medium">文章标签</label>
+              <div class="flex flex-wrap items-center gap-2">
+                <Badge
+                  v-for="tag in selectedTags"
+                  :key="tag.id"
+                  variant="secondary"
+                  class="gap-1 pr-1"
+                >
+                  {{ tag.name }}
+                  <button
+                    type="button"
+                    class="ml-0.5 inline-flex size-4 items-center justify-center rounded-full hover:bg-muted-foreground/20"
+                    @click="removeTag(tag.id)"
+                  >
+                    <X class="size-3" />
+                  </button>
+                </Badge>
+              </div>
+              <div class="flex gap-2">
+                <select
+                  class="h-9 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  @change="(e) => { const v = Number((e.target as HTMLSelectElement).value); if (v) { addTag(v); (e.target as HTMLSelectElement).value = '' } }"
+                >
+                  <option value="">选择已有标签...</option>
+                  <option v-for="tag in availableTags" :key="tag.id" :value="tag.id">
+                    {{ tag.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="flex gap-2">
+                <Input
+                  v-model="newTagName"
+                  type="text"
+                  placeholder="输入新标签名称"
+                  class="min-w-0 flex-1"
+                  @keydown.enter.prevent="handleCreateTag"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  class="h-9 shrink-0"
+                  :disabled="isCreatingTag || !newTagName.trim()"
+                  @click="handleCreateTag"
+                >
+                  <LoaderCircle v-if="isCreatingTag" class="size-4 animate-spin" />
+                  <Plus v-else class="size-4" />
+                  <span>新建</span>
+                </Button>
+              </div>
+            </div>
+
+            <!-- 封面 -->
+            <div class="space-y-2 lg:col-span-2">
+              <label for="cover-image" class="text-sm font-medium">封面图片</label>
+              <Input id="cover-image" v-model="form.cover_image" type="url" placeholder="请输入封面图片 URL（可选）" />
+            </div>
+
+            <!-- 摘要 -->
             <div class="space-y-2 lg:col-span-2">
               <label for="summary" class="text-sm font-medium">文章摘要</label>
               <textarea
@@ -276,6 +362,7 @@ onMounted(() => {
               />
             </div>
 
+            <!-- 正文 -->
             <div class="space-y-2 lg:col-span-2">
               <label for="content" class="text-sm font-medium">正文内容</label>
               <MarkdownEditor
@@ -291,7 +378,6 @@ onMounted(() => {
             <Button as-child variant="outline">
               <RouterLink :to="{ name: 'admin-articles' }">取消</RouterLink>
             </Button>
-
             <Button type="submit" size="lg" :disabled="isSubmitting">
               <LoaderCircle v-if="isSubmitting" class="size-4 animate-spin" />
               <Save v-else class="size-4" />

@@ -48,6 +48,16 @@ const router = createRouter({
           name: 'admin-article-edit',
           component: () => import('@/pages/admin/ArticleEditorView.vue'),
         },
+        {
+          path: 'articleCategories',
+          name: 'admin-article-categories',
+          component: () => import('@/pages/admin/ArticleCategoriesView.vue'),
+        },
+        {
+          path: 'articleTags',
+          name: 'admin-article-tags',
+          component: () => import('@/pages/admin/ArticleTagsView.vue'),
+        },
       ],
     },
   ],
