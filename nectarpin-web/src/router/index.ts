@@ -33,6 +33,21 @@ const router = createRouter({
           name: 'admin-dashboard',
           component: () => import('@/pages/admin/DashboardView.vue'),
         },
+        {
+          path: 'articles',
+          name: 'admin-articles',
+          component: () => import('@/pages/admin/ArticlesView.vue'),
+        },
+        {
+          path: 'articles/new',
+          name: 'admin-article-create',
+          component: () => import('@/pages/admin/ArticleEditorView.vue'),
+        },
+        {
+          path: 'articles/:id/edit',
+          name: 'admin-article-edit',
+          component: () => import('@/pages/admin/ArticleEditorView.vue'),
+        },
       ],
     },
   ],

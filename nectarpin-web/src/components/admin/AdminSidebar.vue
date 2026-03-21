@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
-import { ref } from 'vue'
+import { markRaw } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { FileText, GalleryVerticalEnd, LayoutDashboard, LogOut, User } from 'lucide-vue-next'
 import { logoutUser, logoutUserByRefreshToken } from '@/api/user'
@@ -41,34 +41,34 @@ async function handleLogout() {
 }
 
 interface AdminNavGroup {
-    group: string
-    menuItems: {
-        name: string
-        label: string
-        icon: Component
-        url: string
-    }[]
+  group: string
+  menuItems: {
+    name: string
+    label: string
+    icon: Component
+    url: string
+  }[]
 }
 
-const sidebarGroups = ref<AdminNavGroup[]>([
-    {
-        group: '常用功能',
-        menuItems: [
-            {
-                name: 'dashboard',
-                label: '概览',
-                icon: LayoutDashboard,
-                url: '/admin/dashboard',
-            },
-            {
-                name: 'articles',
-                label: '文章',
-                icon: FileText,
-                url: '/admin/articles',
-            },
-        ]
-    }
-])
+const sidebarGroups: AdminNavGroup[] = [
+  {
+    group: '常用功能',
+    menuItems: [
+      {
+        name: 'dashboard',
+        label: '概览',
+        icon: markRaw(LayoutDashboard),
+        url: '/admin/dashboard',
+      },
+      {
+        name: 'articles',
+        label: '文章',
+        icon: markRaw(FileText),
+        url: '/admin/articles',
+      },
+    ],
+  },
+]
 </script>
 
 <template>

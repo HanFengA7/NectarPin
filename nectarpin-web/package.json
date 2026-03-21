@@ -22,6 +22,7 @@
     "clsx": "^2.1.1",
     "crypto-js": "^4.2.0",
     "lucide-vue-next": "^0.577.0",
+    "md-editor-v3": "^6.4.1",
     "pinia": "^3.0.4",
     "reka-ui": "^2.9.2",
     "tailwind-merge": "^3.5.0",
