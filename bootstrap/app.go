@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"nectarpin/api/middlewares"
 	"nectarpin/api/models"
 	"nectarpin/api/routes"
 	"nectarpin/internal/utils"
@@ -36,6 +37,7 @@ func App() Application {
 	app.Env = NewEnv()
 	app.Database = NewDatabase(app.Env)
 	app.Gin = gin.Default()
+	app.Gin.Use(middlewares.CORSMiddleware())
 
 	utils.InitJWT(app.Env.Config.Server.Secret)
 
