@@ -9,7 +9,7 @@ import (
 )
 
 // ListFields 列表项所需字段（不含 content，减轻传输与内存）
-var ListFields = []string{"id", "author_id", "title", "slug", "summary", "cover_image", "status", "view_count", "published_at", "created_at", "updated_at"}
+var ListFields = []string{"id", "author_id", "category_id", "title", "slug", "summary", "cover_image", "status", "view_count", "published_at", "created_at", "updated_at"}
 
 // ArticleRepository 文章仓储
 type ArticleRepository struct {

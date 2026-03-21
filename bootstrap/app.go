@@ -94,6 +94,9 @@ func (app *Application) autoMigrate() {
 		&models.User{},
 		&models.UserToken{},
 		&models.Article{},
+		&models.ArticleCategory{},
+		&models.ArticleTag{},
+		&models.ArticleTagMapping{},
 	)
 	if err != nil {
 		utils.Logger.Fatalf("数据库", "自动迁移失败: %v", err)

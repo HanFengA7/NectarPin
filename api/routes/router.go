@@ -18,6 +18,7 @@ import (
 // 该函数统一注册所有模块的路由:
 //   - 用户模块路由 (/api/public/user/v1, /api/protected/user/v1)
 //   - 文章模块路由 (/api/public/article/v1, /api/protected/article/v1)
+//     含分类子路由 (/article/v1/category/...) 和标签子路由 (/article/v1/tag/...)
 func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 	user.SetupRoutes(router, db)
 	article.SetupRoutes(router, db)

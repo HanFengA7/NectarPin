@@ -16,12 +16,14 @@ import (
 
 // ArticleService 文章服务
 type ArticleService struct {
-	repo *articlerepo.ArticleRepository
+	repo         *articlerepo.ArticleRepository
+	categoryRepo *articlerepo.ArticleCategoryRepository
+	tagRepo      *articlerepo.ArticleTagRepository
 }
 
 // NewArticleService 创建文章服务
-func NewArticleService(repo *articlerepo.ArticleRepository) *ArticleService {
-	return &ArticleService{repo: repo}
+func NewArticleService(repo *articlerepo.ArticleRepository, cr *articlerepo.ArticleCategoryRepository, tr *articlerepo.ArticleTagRepository) *ArticleService {
+	return &ArticleService{repo: repo, categoryRepo: cr, tagRepo: tr}
 }
 
 var (
@@ -39,6 +41,8 @@ type CreateInput struct {
 	Content    string
 	CoverImage string
 	Status     int16
+	CategoryID *uint64
+	TagIDs     []uint64
 }
 
 // Create 创建文章；若 Slug 为空则用 Title 生成；若冲突则自动追加数字后缀保证唯一
@@ -66,6 +70,7 @@ func (s *ArticleService) Create(input *CreateInput) (*models.Article, error) {
 
 	a := &models.Article{
 		AuthorID:   input.AuthorID,
+		CategoryID: input.CategoryID,
 		Title:      strings.TrimSpace(input.Title),
 		Slug:       slug,
 		Summary:    strings.TrimSpace(input.Summary),
@@ -80,6 +85,19 @@ func (s *ArticleService) Create(input *CreateInput) (*models.Article, error) {
 	if err := s.repo.Create(a); err != nil {
 		return nil, err
 	}
+
+	if a.CategoryID != nil {
+		_ = s.categoryRepo.IncrementArticleCount(*a.CategoryID, 1)
+	}
+
+	if len(input.TagIDs) > 0 {
+		db := s.tagRepo.DB()
+		added, _, _ := s.tagRepo.ReplaceArticleTags(db, a.ID, input.TagIDs)
+		for _, tagID := range added {
+			_ = s.tagRepo.IncrementArticleCount(tagID, 1)
+		}
+	}
+
 	return a, nil
 }
 
@@ -134,6 +152,8 @@ type UpdateInput struct {
 	Content    *string
 	CoverImage *string
 	Status     *int16
+	CategoryID **uint64 // 双指针：nil=不更新, *nil=清除分类, *ptr=设置分类
+	TagIDs     *[]uint64
 }
 
 // Update 更新文章，仅作者可操作；若修改 slug 则校验唯一性
@@ -181,9 +201,39 @@ func (s *ArticleService) Update(articleID, authorID uint64, input *UpdateInput) 
 			}
 		}
 	}
+
+	if input.CategoryID != nil {
+		newCatID := *input.CategoryID
+		oldCatID := a.CategoryID
+		updates["category_id"] = newCatID
+
+		if oldCatID != nil {
+			if newCatID == nil || *newCatID != *oldCatID {
+				_ = s.categoryRepo.IncrementArticleCount(*oldCatID, -1)
+			}
+		}
+		if newCatID != nil {
+			if oldCatID == nil || *newCatID != *oldCatID {
+				_ = s.categoryRepo.IncrementArticleCount(*newCatID, 1)
+			}
+		}
+	}
+
 	if err := s.repo.Update(articleID, updates); err != nil {
 		return nil, err
 	}
+
+	if input.TagIDs != nil {
+		db := s.tagRepo.DB()
+		added, removed, _ := s.tagRepo.ReplaceArticleTags(db, articleID, *input.TagIDs)
+		for _, tagID := range added {
+			_ = s.tagRepo.IncrementArticleCount(tagID, 1)
+		}
+		for _, tagID := range removed {
+			_ = s.tagRepo.IncrementArticleCount(tagID, -1)
+		}
+	}
+
 	return s.repo.FindByID(articleID)
 }
 
@@ -199,7 +249,23 @@ func (s *ArticleService) Delete(articleID, authorID uint64) error {
 	if a.AuthorID != authorID {
 		return ErrForbidden
 	}
+
+	if a.CategoryID != nil {
+		_ = s.categoryRepo.IncrementArticleCount(*a.CategoryID, -1)
+	}
+
+	tagIDs, _ := s.tagRepo.GetTagIDsByArticleID(articleID)
+	for _, tagID := range tagIDs {
+		_ = s.tagRepo.IncrementArticleCount(tagID, -1)
+	}
+	_ = s.tagRepo.DeleteArticleTagMappings(articleID)
+
 	return s.repo.Delete(articleID)
+}
+
+// GetTagIDsByArticleID 获取文章关联的标签 ID 列表（供 controller 使用）
+func (s *ArticleService) GetTagIDsByArticleID(articleID uint64) ([]uint64, error) {
+	return s.tagRepo.GetTagIDsByArticleID(articleID)
 }
 
 func nowTime() time.Time { return time.Now() }

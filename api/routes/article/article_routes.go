@@ -1,4 +1,4 @@
-// Package article 注册文章模块 GET/POST 路由
+// Package article 注册文章模块路由（含分类、标签子路由）
 package article
 
 import (
@@ -14,39 +14,52 @@ import (
 // SetupRoutes 注册文章相关路由
 func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 	repo := articlerepo.NewArticleRepository(db)
-	service := articleservice.NewArticleService(repo)
-	ctrl := articlecontroller.NewArticleController(service)
+	categoryRepo := articlerepo.NewArticleCategoryRepository(db)
+	tagRepo := articlerepo.NewArticleTagRepository(db)
 
-	// 公开：列表、按 slug 获取详情、按 id 获取详情
+	svc := articleservice.NewArticleService(repo, categoryRepo, tagRepo)
+	categorySvc := articleservice.NewArticleCategoryService(categoryRepo)
+	tagSvc := articleservice.NewArticleTagService(tagRepo)
+
+	ctrl := articlecontroller.NewArticleController(svc)
+	categoryCtrl := articlecontroller.NewArticleCategoryController(categorySvc)
+	tagCtrl := articlecontroller.NewArticleTagController(tagSvc)
+
+	// ── 公开接口 ──
 	publicAPI := router.Group("/api/public")
 	{
 		articleV1 := publicAPI.Group("/article/v1")
 		{
-			// 列表
 			articleV1.GET("/list", ctrl.List)
-			// 按 slug 获取详情
 			articleV1.GET("/infoBySlug/:slug", ctrl.GetBySlug)
-			// 按 id 获取详情
 			articleV1.GET("/infoById/:id", ctrl.GetByID)
+
+			articleV1.GET("/category/list", categoryCtrl.List)
+			articleV1.GET("/tag/list", tagCtrl.List)
 		}
 	}
 
-	// 需认证：创建、编辑、删除、列表（后台管理）
+	// ── 需认证接口 ──
 	protectedAPI := router.Group("/api/protected")
 	protectedAPI.Use(middlewares.AuthMiddleware())
 	{
 		articleV1 := protectedAPI.Group("/article/v1")
 		{
-			// 列表（后台管理，按作者筛选）
 			articleV1.GET("/list", ctrl.ListForAdmin)
-			// 按 id 获取详情（后台编辑用，不增加阅读量）
 			articleV1.GET("/infoById/:id", ctrl.GetByIDForAdmin)
-			// 创建
 			articleV1.POST("/add", ctrl.Create)
-			// 编辑
 			articleV1.POST("/update/:id", ctrl.Update)
-			// 删除
 			articleV1.POST("/delete/:id", ctrl.Delete)
+
+			articleV1.GET("/category/list", categoryCtrl.List)
+			articleV1.POST("/category/add", categoryCtrl.Create)
+			articleV1.POST("/category/update/:id", categoryCtrl.Update)
+			articleV1.POST("/category/delete/:id", categoryCtrl.Delete)
+
+			articleV1.GET("/tag/list", tagCtrl.List)
+			articleV1.POST("/tag/add", tagCtrl.Create)
+			articleV1.POST("/tag/update/:id", tagCtrl.Update)
+			articleV1.POST("/tag/delete/:id", tagCtrl.Delete)
 		}
 	}
 }

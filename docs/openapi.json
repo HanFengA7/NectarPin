@@ -31,6 +31,26 @@
       "name": "文章模块/私有接口/v1",
       "description": "需要认证",
       "x-apifox-folder": "文章模块/私有接口/v1"
+    },
+    {
+      "name": "文章模块/文章分类/公共接口/v1",
+      "description": "无需认证",
+      "x-apifox-folder": "文章模块/文章分类/公共接口/v1"
+    },
+    {
+      "name": "文章模块/文章分类/私有接口/v1",
+      "description": "需要认证",
+      "x-apifox-folder": "文章模块/文章分类/私有接口/v1"
+    },
+    {
+      "name": "文章模块/文章标签/公共接口/v1",
+      "description": "无需认证",
+      "x-apifox-folder": "文章模块/文章标签/公共接口/v1"
+    },
+    {
+      "name": "文章模块/文章标签/私有接口/v1",
+      "description": "需要认证",
+      "x-apifox-folder": "文章模块/文章标签/私有接口/v1"
     }
   ],
   "components": {
@@ -116,6 +136,17 @@
             "format": "int64",
             "description": "文章ID"
           },
+          "author_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "作者ID"
+          },
+          "category_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "分类ID（可为空，表示未分类）"
+          },
           "title": {
             "type": "string",
             "description": "文章标题"
@@ -138,16 +169,17 @@
           },
           "status": {
             "type": "integer",
-            "description": "文章状态 (0: 草稿, 1: 已发布, 2: 已下架)"
-          },
-          "author_id": {
-            "type": "integer",
-            "format": "int64",
-            "description": "作者ID"
+            "description": "文章状态 (0: 草稿, 1: 已发布, 2: 已归档)"
           },
           "view_count": {
             "type": "integer",
             "description": "阅读量"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "发布时间"
           },
           "created_at": {
             "type": "string",
@@ -181,6 +213,108 @@
           "page_size": {
             "type": "integer",
             "description": "每页数量"
+          }
+        }
+      },
+      "ArticleCategoryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "分类ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "分类名称"
+          },
+          "slug": {
+            "type": "string",
+            "description": "分类URL别名"
+          },
+          "description": {
+            "type": "string",
+            "description": "分类描述"
+          },
+          "sort_order": {
+            "type": "integer",
+            "description": "排序权重（越小越靠前）"
+          },
+          "article_count": {
+            "type": "integer",
+            "description": "文章数量"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          }
+        }
+      },
+      "ArticleCategoryListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArticleCategoryResponse"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "总数"
+          }
+        }
+      },
+      "ArticleTagResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "标签ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "标签名称"
+          },
+          "slug": {
+            "type": "string",
+            "description": "标签URL别名"
+          },
+          "article_count": {
+            "type": "integer",
+            "description": "文章数量"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          }
+        }
+      },
+      "ArticleTagListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArticleTagResponse"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "总数"
           }
         }
       },
@@ -274,17 +408,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "integer",
-                      "example": 201
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "注册成功"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/UserResponse"
-                    }
+                    "code": { "type": "integer", "example": 201 },
+                    "message": { "type": "string", "example": "注册成功" },
+                    "data": { "$ref": "#/components/schemas/UserResponse" }
                   }
                 }
               }
@@ -294,13 +420,8 @@
             "description": "请求参数错误",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": 400,
-                  "message": "请求参数错误"
-                }
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                "example": { "code": 400, "message": "请求参数错误" }
               }
             }
           },
@@ -308,22 +429,10 @@
             "description": "用户名或邮箱已存在",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
                 "examples": {
-                  "username_exists": {
-                    "value": {
-                      "code": 409,
-                      "message": "用户名已存在"
-                    }
-                  },
-                  "email_exists": {
-                    "value": {
-                      "code": 409,
-                      "message": "邮箱已存在"
-                    }
-                  }
+                  "username_exists": { "value": { "code": 409, "message": "用户名已存在" } },
+                  "email_exists": { "value": { "code": 409, "message": "邮箱已存在" } }
                 }
               }
             }
@@ -345,16 +454,8 @@
                 "type": "object",
                 "required": ["account", "password"],
                 "properties": {
-                  "account": {
-                    "type": "string",
-                    "description": "用户名或邮箱",
-                    "example": "testuser"
-                  },
-                  "password": {
-                    "type": "string",
-                    "description": "密码(MD5加密后)",
-                    "example": "e10adc3949ba59abbe56e057f20f883e"
-                  }
+                  "account": { "type": "string", "description": "用户名或邮箱", "example": "testuser" },
+                  "password": { "type": "string", "description": "密码(MD5加密后)", "example": "e10adc3949ba59abbe56e057f20f883e" }
                 }
               }
             }
@@ -368,17 +469,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "登录成功"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/LoginResponse"
-                    }
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "登录成功" },
+                    "data": { "$ref": "#/components/schemas/LoginResponse" }
                   }
                 }
               }
@@ -386,41 +479,15 @@
           },
           "400": {
             "description": "请求参数错误",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
           },
           "401": {
             "description": "用户不存在或密码错误",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": 401,
-                  "message": "用户不存在或密码错误"
-                }
-              }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "code": 401, "message": "用户不存在或密码错误" } } }
           },
           "403": {
             "description": "用户已被禁用",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": 403,
-                  "message": "用户已被禁用"
-                }
-              }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "code": 403, "message": "用户已被禁用" } } }
           }
         }
       }
@@ -431,11 +498,7 @@
         "summary": "获取当前用户资料",
         "description": "获取当前登录用户的详细资料信息",
         "operationId": "getProfile",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{ "BearerAuth": [] }],
         "responses": {
           "200": {
             "description": "获取成功",
@@ -444,17 +507,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "获取成功"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/UserResponse"
-                    }
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "获取成功" },
+                    "data": { "$ref": "#/components/schemas/UserResponse" }
                   }
                 }
               }
@@ -462,27 +517,11 @@
           },
           "401": {
             "description": "未授权",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": 401,
-                  "message": "未授权"
-                }
-              }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "code": 401, "message": "未授权" } } }
           },
           "404": {
             "description": "用户不存在",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
           }
         }
       }
@@ -493,45 +532,19 @@
         "summary": "退出登录",
         "description": "退出当前登录状态",
         "operationId": "logout",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{ "BearerAuth": [] }],
         "responses": {
           "200": {
             "description": "登出成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse"
-                },
-                "example": {
-                  "code": 200,
-                  "message": "登出成功"
-                }
-              }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" }, "example": { "code": 200, "message": "登出成功" } } }
           },
           "400": {
             "description": "缺少访问令牌",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
           },
           "401": {
             "description": "未授权",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
           }
         }
       }
@@ -542,11 +555,7 @@
         "summary": "通过 Refresh Token 退出登录",
         "description": "使用 Refresh Token 退出登录",
         "operationId": "logoutByRefreshToken",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{ "BearerAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
@@ -555,10 +564,7 @@
                 "type": "object",
                 "required": ["refresh_token"],
                 "properties": {
-                  "refresh_token": {
-                    "type": "string",
-                    "description": "刷新令牌"
-                  }
+                  "refresh_token": { "type": "string", "description": "刷新令牌" }
                 }
               }
             }
@@ -567,27 +573,11 @@
         "responses": {
           "200": {
             "description": "登出成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse"
-                },
-                "example": {
-                  "code": 200,
-                  "message": "登出成功"
-                }
-              }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" }, "example": { "code": 200, "message": "登出成功" } } }
           },
           "400": {
             "description": "请求参数错误",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
           }
         }
       }
@@ -598,39 +588,20 @@
         "summary": "撤销所有其他设备的会话",
         "description": "撤销当前用户在所有其他设备上的登录会话",
         "operationId": "revokeAllSessions",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{ "BearerAuth": [] }],
         "responses": {
           "200": {
             "description": "撤销成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse"
-                },
-                "example": {
-                  "code": 200,
-                  "message": "已撤销所有其他设备的登录会话"
-                }
-              }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" }, "example": { "code": 200, "message": "已撤销所有其他设备的登录会话" } } }
           },
           "401": {
             "description": "未授权",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
           }
         }
       }
     },
+
     "/api/public/article/v1/list": {
       "get": {
         "tags": ["文章模块/公共接口/v1"],
@@ -638,42 +609,10 @@
         "description": "分页获取文章列表",
         "operationId": "listArticles",
         "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "description": "页码",
-            "schema": {
-              "type": "integer",
-              "default": 1
-            }
-          },
-          {
-            "name": "page_size",
-            "in": "query",
-            "description": "每页数量(最大100)",
-            "schema": {
-              "type": "integer",
-              "default": 20,
-              "maximum": 100
-            }
-          },
-          {
-            "name": "author_id",
-            "in": "query",
-            "description": "作者ID筛选",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "description": "文章状态筛选 (0: 草稿, 1: 已发布, 2: 已下架)",
-            "schema": {
-              "type": "integer",
-              "enum": [0, 1, 2]
-            }
-          }
+          { "name": "page", "in": "query", "description": "页码", "schema": { "type": "integer", "default": 1 } },
+          { "name": "page_size", "in": "query", "description": "每页数量(最大100)", "schema": { "type": "integer", "default": 20, "maximum": 100 } },
+          { "name": "author_id", "in": "query", "description": "作者ID筛选", "schema": { "type": "integer" } },
+          { "name": "status", "in": "query", "description": "文章状态筛选 (0: 草稿, 1: 已发布, 2: 已归档)", "schema": { "type": "integer", "enum": [0, 1, 2] } }
         ],
         "responses": {
           "200": {
@@ -683,17 +622,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "获取成功"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/ArticleListResponse"
-                    }
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "获取成功" },
+                    "data": { "$ref": "#/components/schemas/ArticleListResponse" }
                   }
                 }
               }
@@ -701,13 +632,7 @@
           },
           "500": {
             "description": "查询失败",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
           }
         }
       }
@@ -719,15 +644,7 @@
         "description": "通过文章URL别名获取文章详情(公开访问，会增加阅读量)",
         "operationId": "getArticleBySlug",
         "parameters": [
-          {
-            "name": "slug",
-            "in": "path",
-            "required": true,
-            "description": "文章URL别名",
-            "schema": {
-              "type": "string"
-            }
-          }
+          { "name": "slug", "in": "path", "required": true, "description": "文章URL别名", "schema": { "type": "string" } }
         ],
         "responses": {
           "200": {
@@ -737,42 +654,16 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "获取成功"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/ArticleResponse"
-                    }
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "获取成功" },
+                    "data": { "$ref": "#/components/schemas/ArticleResponse" }
                   }
                 }
               }
             }
           },
-          "400": {
-            "description": "缺少slug参数",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "文章不存在",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
+          "400": { "description": "缺少slug参数", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "文章不存在", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
         }
       }
     },
@@ -783,15 +674,7 @@
         "description": "通过文章ID获取文章详情(公开访问，会增加阅读量)",
         "operationId": "getArticleById",
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "文章ID",
-            "schema": {
-              "type": "integer"
-            }
-          }
+          { "name": "id", "in": "path", "required": true, "description": "文章ID", "schema": { "type": "integer" } }
         ],
         "responses": {
           "200": {
@@ -801,42 +684,81 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "获取成功"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/ArticleResponse"
-                    }
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "获取成功" },
+                    "data": { "$ref": "#/components/schemas/ArticleResponse" }
                   }
                 }
               }
             }
           },
-          "400": {
-            "description": "无效的文章ID",
+          "400": { "description": "无效的文章ID", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "文章不存在", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/api/protected/article/v1/list": {
+      "get": {
+        "tags": ["文章模块/私有接口/v1"],
+        "summary": "后台文章列表",
+        "description": "后台管理文章列表（需认证，仅返回当前用户的文章）",
+        "operationId": "listAdminArticles",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "page", "in": "query", "description": "页码", "schema": { "type": "integer", "default": 1 } },
+          { "name": "page_size", "in": "query", "description": "每页数量(最大100)", "schema": { "type": "integer", "default": 20, "maximum": 100 } },
+          { "name": "status", "in": "query", "description": "文章状态筛选 (0: 草稿, 1: 已发布, 2: 已归档)", "schema": { "type": "integer", "enum": [0, 1, 2] } }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取成功",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "获取成功" },
+                    "data": { "$ref": "#/components/schemas/ArticleListResponse" }
+                  }
                 }
               }
             }
           },
-          "404": {
-            "description": "文章不存在",
+          "401": { "description": "未授权", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "500": { "description": "查询失败", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/api/protected/article/v1/infoById/{id}": {
+      "get": {
+        "tags": ["文章模块/私有接口/v1"],
+        "summary": "后台按ID获取文章详情",
+        "description": "后台编辑用，不增加阅读量",
+        "operationId": "getAdminArticleById",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "description": "文章ID", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取成功",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "获取成功" },
+                    "data": { "$ref": "#/components/schemas/ArticleResponse" }
+                  }
                 }
               }
             }
-          }
+          },
+          "400": { "description": "无效的文章ID", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "401": { "description": "未授权", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "文章不存在", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
         }
       }
     },
@@ -846,11 +768,7 @@
         "summary": "创建文章",
         "description": "创建新文章(需要认证)",
         "operationId": "createArticle",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{ "BearerAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
@@ -859,40 +777,14 @@
                 "type": "object",
                 "required": ["title", "content"],
                 "properties": {
-                  "title": {
-                    "type": "string",
-                    "maxLength": 200,
-                    "description": "文章标题",
-                    "example": "我的第一篇文章"
-                  },
-                  "slug": {
-                    "type": "string",
-                    "maxLength": 220,
-                    "description": "文章URL别名(可选，不填则自动生成)",
-                    "example": "my-first-article"
-                  },
-                  "summary": {
-                    "type": "string",
-                    "description": "文章摘要",
-                    "example": "这是文章的摘要内容"
-                  },
-                  "content": {
-                    "type": "string",
-                    "description": "文章内容(Markdown格式)",
-                    "example": "# 标题\n\n这是文章正文内容..."
-                  },
-                  "cover_image": {
-                    "type": "string",
-                    "maxLength": 500,
-                    "description": "封面图片URL",
-                    "example": "https://example.com/cover.jpg"
-                  },
-                  "status": {
-                    "type": "integer",
-                    "enum": [0, 1, 2],
-                    "default": 0,
-                    "description": "文章状态 (0: 草稿, 1: 已发布, 2: 已下架)"
-                  }
+                  "title": { "type": "string", "maxLength": 200, "description": "文章标题", "example": "我的第一篇文章" },
+                  "slug": { "type": "string", "maxLength": 220, "description": "文章URL别名(可选，不填则自动生成)", "example": "my-first-article" },
+                  "summary": { "type": "string", "description": "文章摘要", "example": "这是文章的摘要内容" },
+                  "content": { "type": "string", "description": "文章内容(Markdown格式)", "example": "# 标题\n\n这是文章正文内容..." },
+                  "cover_image": { "type": "string", "maxLength": 500, "description": "封面图片URL", "example": "https://example.com/cover.jpg" },
+                  "status": { "type": "integer", "enum": [0, 1, 2], "default": 0, "description": "文章状态 (0: 草稿, 1: 已发布, 2: 已归档)" },
+                  "category_id": { "type": "integer", "format": "int64", "nullable": true, "description": "分类ID（可选）" },
+                  "tag_ids": { "type": "array", "items": { "type": "integer", "format": "int64" }, "description": "标签ID列表（可选）", "example": [1, 2, 3] }
                 }
               }
             }
@@ -906,56 +798,17 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "integer",
-                      "example": 201
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "创建成功"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/ArticleResponse"
-                    }
+                    "code": { "type": "integer", "example": 201 },
+                    "message": { "type": "string", "example": "创建成功" },
+                    "data": { "$ref": "#/components/schemas/ArticleResponse" }
                   }
                 }
               }
             }
           },
-          "400": {
-            "description": "请求参数错误",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "未授权",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "文章地址已被使用",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": 409,
-                  "message": "该文章地址已被使用"
-                }
-              }
-            }
-          }
+          "400": { "description": "请求参数错误", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "401": { "description": "未授权", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "409": { "description": "文章地址已被使用", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "code": 409, "message": "该文章地址已被使用" } } } }
         }
       }
     },
@@ -965,21 +818,9 @@
         "summary": "更新文章",
         "description": "更新文章内容(需要认证，仅作者可编辑)",
         "operationId": "updateArticle",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{ "BearerAuth": [] }],
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "文章ID",
-            "schema": {
-              "type": "integer"
-            }
-          }
+          { "name": "id", "in": "path", "required": true, "description": "文章ID", "schema": { "type": "integer" } }
         ],
         "requestBody": {
           "required": true,
@@ -989,34 +830,14 @@
                 "type": "object",
                 "description": "所有字段均为可选，只更新传入的字段",
                 "properties": {
-                  "title": {
-                    "type": "string",
-                    "maxLength": 200,
-                    "description": "文章标题"
-                  },
-                  "slug": {
-                    "type": "string",
-                    "maxLength": 220,
-                    "description": "文章URL别名"
-                  },
-                  "summary": {
-                    "type": "string",
-                    "description": "文章摘要"
-                  },
-                  "content": {
-                    "type": "string",
-                    "description": "文章内容"
-                  },
-                  "cover_image": {
-                    "type": "string",
-                    "maxLength": 500,
-                    "description": "封面图片URL"
-                  },
-                  "status": {
-                    "type": "integer",
-                    "enum": [0, 1, 2],
-                    "description": "文章状态 (0: 草稿, 1: 已发布, 2: 已下架)"
-                  }
+                  "title": { "type": "string", "maxLength": 200, "description": "文章标题" },
+                  "slug": { "type": "string", "maxLength": 220, "description": "文章URL别名" },
+                  "summary": { "type": "string", "description": "文章摘要" },
+                  "content": { "type": "string", "description": "文章内容" },
+                  "cover_image": { "type": "string", "maxLength": 500, "description": "封面图片URL" },
+                  "status": { "type": "integer", "enum": [0, 1, 2], "description": "文章状态 (0: 草稿, 1: 已发布, 2: 已归档)" },
+                  "category_id": { "type": "integer", "format": "int64", "nullable": true, "description": "分类ID（传 null 清除分类）" },
+                  "tag_ids": { "type": "array", "items": { "type": "integer", "format": "int64" }, "description": "标签ID列表（传入时完整替换）" }
                 }
               }
             }
@@ -1030,76 +851,19 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "code": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "更新成功"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/ArticleResponse"
-                    }
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "更新成功" },
+                    "data": { "$ref": "#/components/schemas/ArticleResponse" }
                   }
                 }
               }
             }
           },
-          "400": {
-            "description": "请求参数错误或无效的文章ID",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "未授权",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "无权限操作该文章",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": 403,
-                  "message": "无权限操作该文章"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "文章不存在",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "文章地址已被使用",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
+          "400": { "description": "请求参数错误或无效的文章ID", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "401": { "description": "未授权", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "403": { "description": "无权限操作该文章", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "code": 403, "message": "无权限操作该文章" } } } },
+          "404": { "description": "文章不存在", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "409": { "description": "文章地址已被使用", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
         }
       }
     },
@@ -1107,79 +871,372 @@
       "post": {
         "tags": ["文章模块/私有接口/v1"],
         "summary": "删除文章",
-        "description": "删除文章(需要认证，仅作者可删除，软删除)",
+        "description": "删除文章(需要认证，仅作者可删除，软删除)。同时更新分类和标签的文章计数器",
         "operationId": "deleteArticle",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{ "BearerAuth": [] }],
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "文章ID",
-            "schema": {
-              "type": "integer"
-            }
-          }
+          { "name": "id", "in": "path", "required": true, "description": "文章ID", "schema": { "type": "integer" } }
         ],
         "responses": {
+          "200": { "description": "删除成功", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" }, "example": { "code": 200, "message": "删除成功" } } } },
+          "400": { "description": "无效的文章ID", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "401": { "description": "未授权", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "403": { "description": "无权限操作该文章", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "文章不存在", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+
+    "/api/public/article/v1/category/list": {
+      "get": {
+        "tags": ["文章模块/文章分类/公共接口/v1"],
+        "summary": "分类列表",
+        "description": "获取所有文章分类（全量返回，按 sort_order 升序）",
+        "operationId": "listPublicCategories",
+        "responses": {
           "200": {
-            "description": "删除成功",
+            "description": "获取成功",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponse"
-                },
-                "example": {
-                  "code": 200,
-                  "message": "删除成功"
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "获取成功" },
+                    "data": { "$ref": "#/components/schemas/ArticleCategoryListResponse" }
+                  }
                 }
               }
             }
           },
-          "400": {
-            "description": "无效的文章ID",
+          "500": { "description": "查询失败", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/api/protected/article/v1/category/list": {
+      "get": {
+        "tags": ["文章模块/文章分类/私有接口/v1"],
+        "summary": "后台分类列表",
+        "description": "获取所有文章分类（全量返回，按 sort_order 升序）",
+        "operationId": "listAdminCategories",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "获取成功",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "获取成功" },
+                    "data": { "$ref": "#/components/schemas/ArticleCategoryListResponse" }
+                  }
                 }
               }
             }
           },
-          "401": {
-            "description": "未授权",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "无权限操作该文章",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "文章不存在",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+          "401": { "description": "未授权", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "500": { "description": "查询失败", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/api/protected/article/v1/category/add": {
+      "post": {
+        "tags": ["文章模块/文章分类/私有接口/v1"],
+        "summary": "创建分类",
+        "description": "创建新的文章分类(需要认证)",
+        "operationId": "createCategory",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string", "maxLength": 100, "description": "分类名称", "example": "技术" },
+                  "slug": { "type": "string", "maxLength": 120, "description": "分类URL别名(可选，不填则自动生成)", "example": "tech" },
+                  "description": { "type": "string", "description": "分类描述", "example": "技术相关文章" },
+                  "sort_order": { "type": "integer", "default": 0, "description": "排序权重（越小越靠前）", "example": 0 }
                 }
               }
             }
           }
+        },
+        "responses": {
+          "201": {
+            "description": "创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 201 },
+                    "message": { "type": "string", "example": "创建成功" },
+                    "data": { "$ref": "#/components/schemas/ArticleCategoryResponse" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "请求参数错误", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "401": { "description": "未授权", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "409": { "description": "分类名称已存在", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "code": 409, "message": "分类名称已存在" } } } }
+        }
+      }
+    },
+    "/api/protected/article/v1/category/update/{id}": {
+      "post": {
+        "tags": ["文章模块/文章分类/私有接口/v1"],
+        "summary": "更新分类",
+        "description": "更新文章分类(需要认证)，所有字段均为可选",
+        "operationId": "updateCategory",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "description": "分类ID", "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "maxLength": 100, "description": "分类名称" },
+                  "slug": { "type": "string", "maxLength": 120, "description": "分类URL别名" },
+                  "description": { "type": "string", "description": "分类描述" },
+                  "sort_order": { "type": "integer", "description": "排序权重" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "更新成功" },
+                    "data": { "$ref": "#/components/schemas/ArticleCategoryResponse" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "请求参数错误", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "401": { "description": "未授权", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "分类不存在", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "409": {
+            "description": "名称或slug已存在",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                "examples": {
+                  "name_exists": { "value": { "code": 409, "message": "分类名称已存在" } },
+                  "slug_exists": { "value": { "code": 409, "message": "分类 slug 已存在" } }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/protected/article/v1/category/delete/{id}": {
+      "post": {
+        "tags": ["文章模块/文章分类/私有接口/v1"],
+        "summary": "删除分类",
+        "description": "删除文章分类(需要认证)。物理删除，该分类下的文章 category_id 会被置为 null",
+        "operationId": "deleteCategory",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "description": "分类ID", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "删除成功", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" }, "example": { "code": 200, "message": "删除成功" } } } },
+          "400": { "description": "无效的分类ID", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "401": { "description": "未授权", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "分类不存在", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+
+    "/api/public/article/v1/tag/list": {
+      "get": {
+        "tags": ["文章模块/文章标签/公共接口/v1"],
+        "summary": "标签列表",
+        "description": "获取所有文章标签（全量返回，按 name 升序）",
+        "operationId": "listPublicTags",
+        "responses": {
+          "200": {
+            "description": "获取成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "获取成功" },
+                    "data": { "$ref": "#/components/schemas/ArticleTagListResponse" }
+                  }
+                }
+              }
+            }
+          },
+          "500": { "description": "查询失败", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/api/protected/article/v1/tag/list": {
+      "get": {
+        "tags": ["文章模块/文章标签/私有接口/v1"],
+        "summary": "后台标签列表",
+        "description": "获取所有文章标签（全量返回，按 name 升序）",
+        "operationId": "listAdminTags",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "获取成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "获取成功" },
+                    "data": { "$ref": "#/components/schemas/ArticleTagListResponse" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "未授权", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "500": { "description": "查询失败", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/api/protected/article/v1/tag/add": {
+      "post": {
+        "tags": ["文章模块/文章标签/私有接口/v1"],
+        "summary": "创建标签",
+        "description": "创建新的文章标签(需要认证)",
+        "operationId": "createTag",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string", "maxLength": 100, "description": "标签名称", "example": "Go" },
+                  "slug": { "type": "string", "maxLength": 120, "description": "标签URL别名(可选，不填则自动生成)", "example": "go" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 201 },
+                    "message": { "type": "string", "example": "创建成功" },
+                    "data": { "$ref": "#/components/schemas/ArticleTagResponse" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "请求参数错误", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "401": { "description": "未授权", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "409": { "description": "标签名称已存在", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "code": 409, "message": "标签名称已存在" } } } }
+        }
+      }
+    },
+    "/api/protected/article/v1/tag/update/{id}": {
+      "post": {
+        "tags": ["文章模块/文章标签/私有接口/v1"],
+        "summary": "更新标签",
+        "description": "更新文章标签(需要认证)，所有字段均为可选",
+        "operationId": "updateTag",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "description": "标签ID", "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "maxLength": 100, "description": "标签名称" },
+                  "slug": { "type": "string", "maxLength": 120, "description": "标签URL别名" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "更新成功" },
+                    "data": { "$ref": "#/components/schemas/ArticleTagResponse" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "请求参数错误", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "401": { "description": "未授权", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "标签不存在", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "409": {
+            "description": "名称或slug已存在",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                "examples": {
+                  "name_exists": { "value": { "code": 409, "message": "标签名称已存在" } },
+                  "slug_exists": { "value": { "code": 409, "message": "标签 slug 已存在" } }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/protected/article/v1/tag/delete/{id}": {
+      "post": {
+        "tags": ["文章模块/文章标签/私有接口/v1"],
+        "summary": "删除标签",
+        "description": "删除文章标签(需要认证)。物理删除，同时删除文章与该标签的关联记录",
+        "operationId": "deleteTag",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "description": "标签ID", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "删除成功", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" }, "example": { "code": 200, "message": "删除成功" } } } },
+          "400": { "description": "无效的标签ID", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "401": { "description": "未授权", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "标签不存在", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
         }
       }
     }

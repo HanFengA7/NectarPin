@@ -12,6 +12,7 @@ import (
 type Article struct {
 	ID          uint64         `gorm:"primaryKey" json:"id"`
 	AuthorID    uint64         `gorm:"not null;index:idx_articles_author_id" json:"author_id"`
+	CategoryID  *uint64        `gorm:"index:idx_articles_category_id" json:"category_id"`
 	Title       string         `gorm:"size:200;not null" json:"title"`
 	Slug        string         `gorm:"size:220;not null;uniqueIndex:idx_articles_slug" json:"slug"`
 	Summary     string         `gorm:"type:text" json:"summary"`

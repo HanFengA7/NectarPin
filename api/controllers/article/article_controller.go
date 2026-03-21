@@ -24,22 +24,26 @@ func NewArticleController(service *articleservice.ArticleService) *ArticleContro
 
 // CreateRequest 创建文章请求体
 type CreateRequest struct {
-	Title      string `json:"title" binding:"required,max=200"`
-	Slug       string `json:"slug" binding:"omitempty,max=220"`
-	Summary    string `json:"summary" binding:"omitempty"`
-	Content    string `json:"content" binding:"required"`
-	CoverImage string `json:"cover_image" binding:"omitempty,max=500"`
-	Status     int16  `json:"status" binding:"omitempty,oneof=0 1 2"`
+	Title      string   `json:"title" binding:"required,max=200"`
+	Slug       string   `json:"slug" binding:"omitempty,max=220"`
+	Summary    string   `json:"summary" binding:"omitempty"`
+	Content    string   `json:"content" binding:"required"`
+	CoverImage string   `json:"cover_image" binding:"omitempty,max=500"`
+	Status     int16    `json:"status" binding:"omitempty,oneof=0 1 2"`
+	CategoryID *uint64  `json:"category_id"`
+	TagIDs     []uint64 `json:"tag_ids"`
 }
 
 // UpdateRequest 编辑文章请求体（均为可选，只更新传入的字段）
 type UpdateRequest struct {
-	Title      *string `json:"title" binding:"omitempty,max=200"`
-	Slug       *string `json:"slug" binding:"omitempty,max=220"`
-	Summary    *string `json:"summary"`
-	Content    *string `json:"content"`
-	CoverImage *string `json:"cover_image" binding:"omitempty,max=500"`
-	Status     *int16  `json:"status" binding:"omitempty,oneof=0 1 2"`
+	Title      *string   `json:"title" binding:"omitempty,max=200"`
+	Slug       *string   `json:"slug" binding:"omitempty,max=220"`
+	Summary    *string   `json:"summary"`
+	Content    *string   `json:"content"`
+	CoverImage *string   `json:"cover_image" binding:"omitempty,max=500"`
+	Status     *int16    `json:"status" binding:"omitempty,oneof=0 1 2"`
+	CategoryID **uint64  `json:"category_id"`
+	TagIDs     *[]uint64 `json:"tag_ids"`
 }
 
 // Create 创建文章（需认证）
@@ -76,6 +80,8 @@ func (c *ArticleController) Create(ctx *gin.Context) {
 		Content:    req.Content,
 		CoverImage: req.CoverImage,
 		Status:     status,
+		CategoryID: req.CategoryID,
+		TagIDs:     req.TagIDs,
 	}
 	article, err := c.service.Create(input)
 	if err != nil {
@@ -345,6 +351,8 @@ func (c *ArticleController) Update(ctx *gin.Context) {
 		Content:    req.Content,
 		CoverImage: req.CoverImage,
 		Status:     req.Status,
+		CategoryID: req.CategoryID,
+		TagIDs:     req.TagIDs,
 	}
 	article, err := c.service.Update(articleID, userID.(uint64), input)
 	if err != nil {

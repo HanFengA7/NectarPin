@@ -18,6 +18,15 @@ type UserToken = user.UserToken
 // Article 文章模型类型别名
 type Article = article.Article
 
+// ArticleCategory 文章分类模型类型别名
+type ArticleCategory = article.ArticleCategory
+
+// ArticleTag 文章标签模型类型别名
+type ArticleTag = article.ArticleTag
+
+// ArticleTagMapping 文章-标签关联模型类型别名
+type ArticleTagMapping = article.ArticleTagMapping
+
 // 用户状态常量导出
 const (
 	UserStatusDisabled = user.UserStatusDisabled // 已禁用
