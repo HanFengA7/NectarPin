@@ -147,3 +147,27 @@ func (c *ArticleTagController) List(ctx *gin.Context) {
 		},
 	})
 }
+
+func (c *ArticleTagController) GetArticleTags(ctx *gin.Context) {
+	articleIDStr := ctx.Param("articleId")
+	articleID, err := strconv.ParseUint(articleIDStr, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的文章 ID"})
+		return
+	}
+
+	tagIDs, err := c.service.GetTagIDsByArticleID(articleID)
+	if err != nil {
+		utils.Logger.Errorf("文章标签", "获取文章标签失败: %v", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "查询失败"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "获取成功",
+		"data": gin.H{
+			"tag_ids": tagIDs,
+		},
+	})
+}

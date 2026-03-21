@@ -318,6 +318,20 @@
           }
         }
       },
+      "ArticleTagIdsResponse": {
+        "type": "object",
+        "properties": {
+          "tag_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64",
+              "description": "标签ID"
+            },
+            "description": "文章关联的标签ID列表"
+          }
+        }
+      },
       "ApiResponse": {
         "type": "object",
         "properties": {
@@ -1237,6 +1251,38 @@
           "400": { "description": "无效的标签ID", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
           "401": { "description": "未授权", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
           "404": { "description": "标签不存在", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/api/protected/article/v1/tag/listByArticle/{articleId}": {
+      "get": {
+        "tags": ["文章模块/文章标签/私有接口/v1"],
+        "summary": "获取文章的标签列表",
+        "description": "获取指定文章关联的所有标签ID列表(需要认证)",
+        "operationId": "getArticleTagIds",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "articleId", "in": "path", "required": true, "description": "文章ID", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "获取成功" },
+                    "data": { "$ref": "#/components/schemas/ArticleTagIdsResponse" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "无效的文章ID", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "401": { "description": "未授权", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "500": { "description": "查询失败", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
         }
       }
     }

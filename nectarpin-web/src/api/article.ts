@@ -184,3 +184,13 @@ export function updateTag(id: number, payload: UpdateTagPayload) {
 export function deleteTag(id: number) {
   return post<null>(`/api/protected/article/v1/tag/delete/${id}`)
 }
+
+export interface ArticleTagIdsData {
+  tag_ids: number[]
+}
+
+export function getArticleTagIds(articleId: number) {
+  return get<ArticleTagIdsData>(
+    `/api/protected/article/v1/tag/listByArticle/${articleId}`,
+  )
+}

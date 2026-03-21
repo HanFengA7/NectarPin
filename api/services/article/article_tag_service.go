@@ -124,3 +124,7 @@ func (s *ArticleTagService) Delete(id uint64) error {
 func (s *ArticleTagService) List() ([]models.ArticleTag, error) {
 	return s.repo.ListAll()
 }
+
+func (s *ArticleTagService) GetTagIDsByArticleID(articleID uint64) ([]uint64, error) {
+	return s.repo.GetTagIDsByArticleID(articleID)
+}

@@ -7,6 +7,7 @@ import {
   createArticle,
   createTag,
   getAdminArticleById,
+  getArticleTagIds,
   listCategories,
   listTags,
   updateArticle,
@@ -147,8 +148,9 @@ async function loadArticle() {
   loadErrorMessage.value = ''
 
   try {
-    const [articleRes] = await Promise.all([
+    const [articleRes, tagIdsRes] = await Promise.all([
       getAdminArticleById(articleId.value),
+      getArticleTagIds(articleId.value),
       loadMetadata(),
     ])
 
@@ -162,8 +164,7 @@ async function loadArticle() {
     form.status = String(article.status) as ArticleStatusValue
     form.content = article.content
     form.category_id = article.category_id
-    // tag_ids will need to be loaded from a separate endpoint if backend supports it
-    // For now, we rely on the article response not having tag_ids
+    form.tag_ids = tagIdsRes.data.tag_ids ?? []
   } catch (error) {
     if (requestId !== detailRequestId) return
     loadErrorMessage.value =

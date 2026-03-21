@@ -57,6 +57,7 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 			articleV1.POST("/category/delete/:id", categoryCtrl.Delete)
 
 			articleV1.GET("/tag/list", tagCtrl.List)
+			articleV1.GET("/tag/listByArticle/:articleId", tagCtrl.GetArticleTags)
 			articleV1.POST("/tag/add", tagCtrl.Create)
 			articleV1.POST("/tag/update/:id", tagCtrl.Update)
 			articleV1.POST("/tag/delete/:id", tagCtrl.Delete)
