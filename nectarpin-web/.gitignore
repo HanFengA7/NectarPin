@@ -37,3 +37,6 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+# 本地后端地址等（勿提交）
+src/config/app.config.local.ts

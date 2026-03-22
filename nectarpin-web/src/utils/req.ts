@@ -1,5 +1,6 @@
 import axios, { AxiosError, type AxiosRequestConfig } from 'axios'
 
+import { apiBaseUrl, requestTimeoutMs } from '@/config'
 import {
   clearAdminSession,
   getAccessToken,
@@ -9,8 +10,8 @@ import {
 } from '@/lib/admin-auth'
 
 export const REQUEST_CONFIG = {
-  baseURL: 'http://localhost:3001',
-  timeout: 10000,
+  baseURL: apiBaseUrl,
+  timeout: requestTimeoutMs,
 } as const
 
 export interface ApiResponse<T> {
