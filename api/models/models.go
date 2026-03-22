@@ -4,6 +4,7 @@ package models
 
 import (
 	"nectarpin/api/models/article"
+	linkmodel "nectarpin/api/models/link"
 	sitemodel "nectarpin/api/models/site"
 	"nectarpin/api/models/user"
 )
@@ -33,6 +34,15 @@ type ArticleViewStat = article.ArticleViewStat
 
 // SiteHomeConfig 首页站点配置模型类型别名
 type SiteHomeConfig = sitemodel.SiteHomeConfig
+
+// FriendLinkCategory 友链分组
+type FriendLinkCategory = linkmodel.FriendLinkCategory
+
+// FriendLink 友链条目
+type FriendLink = linkmodel.FriendLink
+
+// FriendLinkPage 友链页单页配置
+type FriendLinkPage = linkmodel.FriendLinkPage
 
 // 用户状态常量导出
 const (

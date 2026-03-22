@@ -99,6 +99,9 @@ func (app *Application) autoMigrate() {
 		&models.ArticleTag{},
 		&models.ArticleTagMapping{},
 		&models.SiteHomeConfig{},
+		&models.FriendLinkCategory{},
+		&models.FriendLink{},
+		&models.FriendLinkPage{},
 	)
 	if err != nil {
 		utils.Logger.Fatalf("数据库", "自动迁移失败: %v", err)

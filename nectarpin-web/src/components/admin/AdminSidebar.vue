@@ -12,6 +12,9 @@ import {
   LogOut,
   Tags,
   User,
+  Link,
+  Settings,
+  List,
 } from 'lucide-vue-next'
 import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger } from 'reka-ui'
 import { logoutUser, logoutUserByRefreshToken } from '@/api/user'
@@ -123,6 +126,25 @@ const sidebarGroups: AdminNavGroup[] = [
           },
         ],
       },
+      {
+        name: 'links',
+        label: '友链管理',
+        icon: markRaw(Link),
+        children: [
+          {
+            name: 'links',
+            label: '友链列表',
+            icon: markRaw(List),
+            url: '/admin/links',
+          },
+          {
+            name: 'linkCategories',
+            label: '页面设置',
+            icon: markRaw(Settings),
+            url: '/admin/linkCategories',
+          },
+        ],
+      },
     ],
   },
   {
@@ -165,7 +187,7 @@ const sidebarGroups: AdminNavGroup[] = [
               <span class="truncate font-semibold">{{ siteName }}</span>
               <span
                 class="flex items-center gap-1.5 truncate text-xs text-muted-foreground font-normal"
-                >0.0.2
+                >0.0.3
                 <span
                   class="inline-flex items-center rounded-full border border-transparent bg-primary px-1.5 py-px text-[8px] font-medium leading-none text-primary-foreground"
                   >Alpha</span

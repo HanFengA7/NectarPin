@@ -44,7 +44,6 @@ const pageTitle = computed(() => {
   const map: Record<string, string> = {
     'index-articles': '文章',
     'index-projects': '项目',
-    'index-friends': '朋友',
     'index-about': '关于',
   }
   return map[route.name as string] ?? '页面'

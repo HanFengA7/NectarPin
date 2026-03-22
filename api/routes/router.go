@@ -4,6 +4,7 @@ package routes
 
 import (
 	"nectarpin/api/routes/article"
+	"nectarpin/api/routes/link"
 	"nectarpin/api/routes/site"
 	"nectarpin/api/routes/user"
 
@@ -20,8 +21,10 @@ import (
 //   - 用户模块路由 (/api/public/user/v1, /api/protected/user/v1)
 //   - 文章模块路由 (/api/public/article/v1, /api/protected/article/v1)
 //     含分类子路由 (/article/v1/category/...) 和标签子路由 (/article/v1/tag/...)
+//   - 友链模块路由 (/api/public/link/v1, /api/protected/link/v1)，仅 GET / POST
 func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 	user.SetupRoutes(router, db)
 	article.SetupRoutes(router, db)
 	site.SetupRoutes(router, db)
+	link.SetupRoutes(router, db)
 }

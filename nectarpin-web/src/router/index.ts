@@ -38,7 +38,7 @@ const router = createRouter({
           path: 'friends',
           name: 'index-friends',
           meta: { title: '友链' },
-          component: () => import('@/pages/index/IndexView.vue'),
+          component: () => import('@/pages/index/IndexFriendsView.vue'),
         },
         {
           path: 'about',
@@ -109,6 +109,18 @@ const router = createRouter({
           name: 'admin-article-tags',
           meta: { title: '标签' },
           component: () => import('@/pages/admin/ArticleTagsView.vue'),
+        },
+        {
+          path: 'links',
+          name: 'admin-friend-links',
+          meta: { title: '友链列表' },
+          component: () => import('@/pages/admin/FriendLinksAdminView.vue'),
+        },
+        {
+          path: 'linkCategories',
+          name: 'admin-link-page-settings',
+          meta: { title: '页面设置' },
+          component: () => import('@/pages/admin/LinkPageSettingsView.vue'),
         },
         {
           path: 'global/siteSettings/index',
