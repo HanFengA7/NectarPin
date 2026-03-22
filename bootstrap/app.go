@@ -94,6 +94,7 @@ func (app *Application) autoMigrate() {
 		&models.User{},
 		&models.UserToken{},
 		&models.Article{},
+		&models.ArticleViewStat{},
 		&models.ArticleCategory{},
 		&models.ArticleTag{},
 		&models.ArticleTagMapping{},

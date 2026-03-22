@@ -7,6 +7,9 @@ const DEFAULT_SITE = 'NectarPin'
 
 export const useSiteStore = defineStore('site', () => {
   const siteName = ref(DEFAULT_SITE)
+  const avatarUrl = ref('')
+  const avatarInitials = ref('')
+  const heroName = ref(DEFAULT_SITE)
   const footerIcpText = ref('')
   const footerIcpHref = ref('')
   const footerSince = ref('')
@@ -17,6 +20,9 @@ export const useSiteStore = defineStore('site', () => {
   function applyFromHomePayload(data: SiteHomePayload) {
     const n = data.site_name?.trim()
     siteName.value = n || DEFAULT_SITE
+    avatarUrl.value = (data.avatar_url ?? '').trim()
+    avatarInitials.value = (data.avatar_initials ?? '').trim()
+    heroName.value = (data.hero_name ?? '').trim() || siteName.value
     footerIcpText.value = (data.footer_icp_text ?? '').trim()
     footerIcpHref.value = (data.footer_icp_href ?? '').trim()
     footerSince.value = (data.footer_since ?? '').trim()
@@ -39,6 +45,9 @@ export const useSiteStore = defineStore('site', () => {
 
   return {
     siteName,
+    avatarUrl,
+    avatarInitials,
+    heroName,
     footerIcpText,
     footerIcpHref,
     footerSince,

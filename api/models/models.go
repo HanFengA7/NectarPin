@@ -28,6 +28,9 @@ type ArticleTag = article.ArticleTag
 // ArticleTagMapping 文章-标签关联模型类型别名
 type ArticleTagMapping = article.ArticleTagMapping
 
+// ArticleViewStat 文章阅读量窄表模型类型别名
+type ArticleViewStat = article.ArticleViewStat
+
 // SiteHomeConfig 首页站点配置模型类型别名
 type SiteHomeConfig = sitemodel.SiteHomeConfig
 

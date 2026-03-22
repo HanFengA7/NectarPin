@@ -3,6 +3,9 @@
 package article
 
 import (
+	"database/sql"
+	"strings"
+
 	"nectarpin/api/models"
 
 	"gorm.io/gorm"
@@ -10,6 +13,18 @@ import (
 
 // ListFields 列表项所需字段（不含 content，减轻传输与内存）
 var ListFields = []string{"id", "author_id", "category_id", "title", "slug", "summary", "cover_image", "status", "view_count", "published_at", "created_at", "updated_at"}
+
+func listSelectWithEffectiveViewCount() string {
+	parts := make([]string, 0, len(ListFields))
+	for _, f := range ListFields {
+		if f == "view_count" {
+			parts = append(parts, "COALESCE(article_view_stats.view_count, articles.view_count) AS view_count")
+		} else {
+			parts = append(parts, "articles."+f)
+		}
+	}
+	return strings.Join(parts, ", ")
+}
 
 // ArticleRepository 文章仓储
 type ArticleRepository struct {
@@ -33,6 +48,9 @@ func (r *ArticleRepository) FindByID(id uint64) (*models.Article, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := r.hydrateEffectiveViewCount(&a); err != nil {
+		return nil, err
+	}
 	return &a, nil
 }
 
@@ -41,6 +59,9 @@ func (r *ArticleRepository) FindBySlug(slug string) (*models.Article, error) {
 	var a models.Article
 	err := r.db.Where("slug = ?", slug).First(&a).Error
 	if err != nil {
+		return nil, err
+	}
+	if err := r.hydrateEffectiveViewCount(&a); err != nil {
 		return nil, err
 	}
 	return &a, nil
@@ -72,7 +93,9 @@ func (r *ArticleRepository) List(f ListFilter) (ListResult, error) {
 		f.PageSize = 100
 	}
 
-	query := r.db.Model(&models.Article{}).Select(ListFields)
+	query := r.db.Model(&models.Article{}).
+		Select(listSelectWithEffectiveViewCount()).
+		Joins("LEFT JOIN article_view_stats ON article_view_stats.article_id = articles.id")
 	if f.AuthorID != nil {
 		query = query.Where("author_id = ?", *f.AuthorID)
 	}
@@ -94,9 +117,31 @@ func (r *ArticleRepository) List(f ListFilter) (ListResult, error) {
 	return ListResult{Items: items, Total: total}, nil
 }
 
-// IncrementViewCount 阅读量 +1（原子自增，避免并发竞态）
+// IncrementViewCount 阅读量 +1：写入窄表 article_view_stats，避免 UPDATE articles 触发行重写（含大 content 时易 SLOW SQL）
 func (r *ArticleRepository) IncrementViewCount(id uint64) error {
-	return r.db.Model(&models.Article{}).Where("id = ?", id).UpdateColumn("view_count", gorm.Expr("view_count + 1")).Error
+	return r.db.Exec(`
+INSERT INTO article_view_stats (article_id, view_count)
+SELECT a.id, a.view_count + 1
+FROM articles a
+WHERE a.id = ? AND a.deleted_at IS NULL
+ON CONFLICT (article_id) DO UPDATE
+SET view_count = article_view_stats.view_count + 1
+`, id).Error
+}
+
+func (r *ArticleRepository) hydrateEffectiveViewCount(a *models.Article) error {
+	var count sql.NullInt64
+	err := r.db.Raw(
+		`SELECT view_count FROM article_view_stats WHERE article_id = ? LIMIT 1`,
+		a.ID,
+	).Scan(&count).Error
+	if err != nil {
+		return err
+	}
+	if count.Valid {
+		a.ViewCount = int(count.Int64)
+	}
+	return nil
 }
 
 // Update 按 ID 更新文章（只更新非零值字段）
