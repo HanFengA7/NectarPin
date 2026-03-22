@@ -7,17 +7,11 @@ import { useSiteStore } from '@/stores/site'
 /** 开源仓库（页脚 Powered by 固定指向此处） */
 const NECTARPIN_REPO_URL = 'https://github.com/HanFengA7/NectarPin'
 
-const {
-  siteName,
-  footerIcpText,
-  footerIcpHref,
-  footerSince,
-  footerPsbText,
-  footerPsbHref,
-} = storeToRefs(useSiteStore())
+const { siteName, footerIcpText, footerIcpHref, footerSince, footerPsbText, footerPsbHref } =
+  storeToRefs(useSiteStore())
 
-const showFilingColumn = computed(
-  () => Boolean(footerIcpText.value.trim() || footerPsbText.value.trim()),
+const showFilingColumn = computed(() =>
+  Boolean(footerIcpText.value.trim() || footerPsbText.value.trim()),
 )
 
 const year = computed(() => new Date().getFullYear())
@@ -39,9 +33,7 @@ const runningDays = computed(() => {
     role="contentinfo"
   >
     <div class="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-      <div
-        class="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between sm:gap-12"
-      >
+      <div class="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between sm:gap-12">
         <!-- 左侧：版权 / Powered by / 运行天数 -->
         <div class="min-w-0 flex-1 space-y-1 text-sm leading-relaxed text-muted-foreground">
           <p>

@@ -39,8 +39,7 @@ async function loadPage() {
   } catch (e) {
     introHtml.value = ''
     sections.value = []
-    pageError.value =
-      e instanceof RequestError ? e.message : '暂时无法加载友链，请稍后重试。'
+    pageError.value = e instanceof RequestError ? e.message : '暂时无法加载友链，请稍后重试。'
   } finally {
     pageLoading.value = false
   }
@@ -52,9 +51,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
-    class="friends-page w-full px-4 pb-24 pt-12 sm:px-6 sm:pt-14 lg:px-10 lg:pt-16"
-  >
+  <div class="friends-page w-full px-4 pb-24 pt-12 sm:px-6 sm:pt-14 lg:px-10 lg:pt-16">
     <div class="mx-auto max-w-5xl xl:max-w-6xl">
       <header class="border-b border-border/80 pb-8 dark:border-border/50">
         <h1 class="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
@@ -108,10 +105,7 @@ onMounted(() => {
                   {{ sec.category_description }}
                 </p>
               </div>
-              <ul
-                class="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3"
-                role="list"
-              >
+              <ul class="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3" role="list">
                 <li v-for="(fl, fi) in sec.links" :key="`${si}-${fi}-${fl.url}`">
                   <a
                     :href="fl.url"

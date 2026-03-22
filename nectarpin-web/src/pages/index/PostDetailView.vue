@@ -125,7 +125,10 @@ watch(
         </div>
       </header>
 
-      <figure v-if="coverSrc" class="mt-2 overflow-hidden rounded-2xl border border-border/50 bg-muted/20 shadow-sm">
+      <figure
+        v-if="coverSrc"
+        class="mt-2 overflow-hidden rounded-2xl border border-border/50 bg-muted/20 shadow-sm"
+      >
         <img
           :src="coverSrc"
           :alt="article.title"

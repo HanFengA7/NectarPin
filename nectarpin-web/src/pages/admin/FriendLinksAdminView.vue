@@ -107,8 +107,7 @@ async function loadAll() {
     links.value = linkRes.data.items ?? []
     categories.value = catRes.data.items ?? []
   } catch (error) {
-    errorMessage.value =
-      error instanceof RequestError ? error.message : '加载失败，请稍后重试。'
+    errorMessage.value = error instanceof RequestError ? error.message : '加载失败，请稍后重试。'
   } finally {
     isLoading.value = false
   }
@@ -203,7 +202,9 @@ void loadAll()
         <div class="space-y-1">
           <p class="text-sm font-medium text-muted-foreground">友链管理</p>
           <h1 class="text-3xl font-semibold tracking-tight">友链列表</h1>
-          <p class="text-sm text-muted-foreground">维护前台「朋友」页面展示的链接，支持分组与启用状态。</p>
+          <p class="text-sm text-muted-foreground">
+            维护前台「朋友」页面展示的链接，支持分组与启用状态。
+          </p>
         </div>
         <Button size="lg" @click="openCreateDialog">
           <Plus class="size-4" />

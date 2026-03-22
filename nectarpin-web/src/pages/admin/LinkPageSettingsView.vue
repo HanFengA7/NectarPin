@@ -156,9 +156,7 @@ async function handleDialogSubmit() {
 }
 
 async function handleDelete(item: FriendLinkCategoryItem) {
-  const confirmed = window.confirm(
-    `确定删除分组「${item.name}」吗？该分组下的友链将变为未分组。`,
-  )
+  const confirmed = window.confirm(`确定删除分组「${item.name}」吗？该分组下的友链将变为未分组。`)
   if (!confirmed) return
 
   deletingId.value = item.id
@@ -214,10 +212,7 @@ void loadCategories()
         <p class="mt-1 text-sm text-muted-foreground">
           显示在「朋友」页面标题下方；可留空。仅管理员可编辑，请自行确保 HTML 安全。
         </p>
-        <div
-          v-if="pageLoading"
-          class="mt-4 flex items-center gap-2 text-sm text-muted-foreground"
-        >
+        <div v-if="pageLoading" class="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
           <LoaderCircle class="size-4 animate-spin" />
           加载中…
         </div>
@@ -266,7 +261,9 @@ void loadCategories()
           >
             <div class="space-y-1">
               <h3 class="text-base font-medium">还没有分组</h3>
-              <p class="text-sm text-muted-foreground">创建分组以便在前台归类友链；也可仅用未分组。</p>
+              <p class="text-sm text-muted-foreground">
+                创建分组以便在前台归类友链；也可仅用未分组。
+              </p>
             </div>
             <Button @click="openCreateDialog">新增分组</Button>
           </div>
