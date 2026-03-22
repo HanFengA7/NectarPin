@@ -6,17 +6,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var allowedOrigins = map[string]struct{}{
-	"http://localhost:5173": {},
-	"http://127.0.0.1:5173": {},
-	"http://localhost:4173": {},
-	"http://127.0.0.1:4173": {},
-}
+// CORSMiddleware 按允许的 Origin 白名单设置 CORS 响应头；列表在应用启动时固定。
+func CORSMiddleware(allowedOrigins []string) gin.HandlerFunc {
+	allowed := make(map[string]struct{}, len(allowedOrigins))
+	for _, o := range allowedOrigins {
+		allowed[o] = struct{}{}
+	}
 
-func CORSMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		origin := ctx.GetHeader("Origin")
-		if _, allowed := allowedOrigins[origin]; allowed {
+		if _, ok := allowed[origin]; ok {
 			ctx.Header("Access-Control-Allow-Origin", origin)
 			ctx.Header("Vary", "Origin")
 			ctx.Header("Access-Control-Allow-Credentials", "true")

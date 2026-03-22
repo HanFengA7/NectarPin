@@ -19,9 +19,10 @@ type Config struct {
 
 // ServerConfig 服务器配置
 type ServerConfig struct {
-	Port   int    `yaml:"port"`   // 服务监听端口
-	Env    string `yaml:"env"`    // 运行环境 (development/production)
-	Secret string `yaml:"secret"` // 应用密钥
+	Port               int      `yaml:"port"`                 // 服务监听端口
+	Env                string   `yaml:"env"`                  // 运行环境 (development/production)
+	Secret             string   `yaml:"secret"`               // 应用密钥
+	CorsAllowedOrigins []string `yaml:"cors_allowed_origins,omitempty"` // 允许跨域的浏览器 Origin；留空则使用本地开发默认列表
 }
 
 // DatabaseConfig 数据库配置

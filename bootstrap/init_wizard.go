@@ -18,7 +18,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// RunInitWizard 以交互方式收集管理员账号、数据库与服务配置，写入 config.yaml，
+// RunInitWizard 以交互方式收集管理员账号、数据库、HTTP 与 CORS 等配置，写入 config.yaml，
 // 连接数据库执行迁移并创建首位管理员（密码为终端输入的明文，内部按现有登录流程做 MD5 再 bcrypt）。
 func RunInitWizard(configPath string) error {
 	fmt.Println()
@@ -43,11 +43,20 @@ func RunInitWizard(configPath string) error {
 	}
 
 	fmt.Println("— HTTP 服务 —")
+	httpPort := promptInt(r, "HTTP 服务端口", 8080)
+	runEnv := promptString(r, "运行环境 (development / production)", "development")
+	secret := promptSecret(r)
+
+	fmt.Println("— CORS 跨域 —")
+	fmt.Printf("留空则使用内置白名单: %s\n", DefaultCorsOriginsHint())
+	corsOrigins := promptCorsOrigins(r, "允许的前端 Origin（多个用英文逗号分隔）")
+
 	cfg := &Config{
 		Server: ServerConfig{
-			Port:   promptInt(r, "HTTP 服务端口", 8080),
-			Env:    promptString(r, "运行环境 (development / production)", "development"),
-			Secret: promptSecret(r),
+			Port:               httpPort,
+			Env:                runEnv,
+			Secret:             secret,
+			CorsAllowedOrigins: corsOrigins,
 		},
 		Database: dbCfg,
 	}
@@ -211,6 +220,32 @@ func promptInt(r *bufio.Reader, label string, def int) int {
 		}
 		return n
 	}
+}
+
+// promptCorsOrigins 解析逗号分隔的 Origin；仅空白则返回 nil（不写配置项，运行时走内置默认）
+func promptCorsOrigins(r *bufio.Reader, label string) []string {
+	fmt.Printf("%s: ", label)
+	line, err := r.ReadString('\n')
+	if err != nil {
+		return nil
+	}
+	s := strings.TrimSpace(line)
+	if s == "" {
+		return nil
+	}
+	parts := strings.Split(s, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		t := strings.TrimSpace(p)
+		if t == "" {
+			continue
+		}
+		out = append(out, strings.TrimSuffix(t, "/"))
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
 }
 
 func promptSecret(r *bufio.Reader) string {

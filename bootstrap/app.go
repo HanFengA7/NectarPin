@@ -36,7 +36,7 @@ func App() Application {
 	app.Env = NewEnv()
 	app.Database = NewDatabase(app.Env)
 	app.Gin = gin.Default()
-	app.Gin.Use(middlewares.CORSMiddleware())
+	app.Gin.Use(middlewares.CORSMiddleware(EffectiveCorsAllowedOrigins(&app.Env.Config.Server)))
 
 	utils.InitJWT(app.Env.Config.Server.Secret)
 
