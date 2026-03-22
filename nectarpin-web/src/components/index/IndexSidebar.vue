@@ -8,6 +8,20 @@ import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { useSiteStore } from '@/stores/site'
 
+interface IndexNavItem {
+  label: string
+  name: string
+  path: string
+}
+
+const INDEX_NAV_ITEMS: IndexNavItem[] = [
+  { label: '首页', name: 'index', path: '' },
+  { label: '文章', name: 'index-articles', path: 'articles' },
+  { label: '项目', name: 'index-projects', path: 'projects' },
+  { label: '朋友', name: 'index-friends', path: 'friends' },
+  { label: '关于', name: 'index-about', path: 'about' },
+]
+
 const route = useRoute()
 const { siteName } = storeToRefs(useSiteStore())
 const { y: scrollY } = useWindowScroll()
@@ -18,26 +32,11 @@ const toggleDark = useToggle(isDark)
 
 const searchQuery = defineModel<string>('searchQuery', { default: '' })
 
-interface NavItem {
-  label: string
-  name: string
-  /** 相对首页的 path，用于 active 兜底 */
-  path: string
-}
+const navItems = INDEX_NAV_ITEMS
 
-const navItems: NavItem[] = [
-  { label: '首页', name: 'index', path: '' },
-  { label: '文章', name: 'index-articles', path: 'articles' },
-  { label: '项目', name: 'index-projects', path: 'projects' },
-  { label: '朋友', name: 'index-friends', path: 'friends' },
-  { label: '关于', name: 'index-about', path: 'about' },
-]
-
-function linkActive(item: NavItem) {
-  if (route.name === item.name)
-    return true
-  if (item.path && route.path === `/${item.path}`)
-    return true
+function linkActive(item: IndexNavItem) {
+  if (route.name === item.name) return true
+  if (item.path && route.path === `/${item.path}`) return true
   return false
 }
 </script>
@@ -53,9 +52,7 @@ function linkActive(item: NavItem) {
       )
     "
   >
-    <div
-      class="flex h-14 w-full items-center gap-3 px-4 sm:gap-4 sm:px-6 lg:px-8"
-    >
+    <div class="flex h-14 w-full items-center gap-3 px-4 sm:gap-4 sm:px-6 lg:px-8">
       <div class="flex min-w-0 flex-1 justify-start">
         <RouterLink
           :to="{ name: 'index' }"
@@ -74,14 +71,12 @@ function linkActive(item: NavItem) {
               fill="currentColor"
               opacity="0.35"
             />
-            <path
-              d="M7 6h4.2l7.8 12.6V6H25v20h-4.1L13 13.4V26H7V6Z"
-              fill="currentColor"
-            />
+            <path d="M7 6h4.2l7.8 12.6V6H25v20h-4.1L13 13.4V26H7V6Z" fill="currentColor" />
           </svg>
           <span
             class="hidden max-w-[10rem] truncate text-sm font-semibold tracking-tight text-foreground/90 sm:inline"
-          >{{ siteName }}</span>
+            >{{ siteName }}</span
+          >
         </RouterLink>
       </div>
 

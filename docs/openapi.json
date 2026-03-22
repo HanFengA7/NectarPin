@@ -188,6 +188,16 @@
           }
         }
       },
+      "RefreshTokenRequest": {
+        "type": "object",
+        "required": ["refresh_token"],
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "description": "当前设备持有的 refresh_token"
+          }
+        }
+      },
       "TokenResponse": {
         "type": "object",
         "properties": {
@@ -197,14 +207,24 @@
           },
           "refresh_token": {
             "type": "string",
-            "description": "刷新令牌"
+            "description": "刷新令牌（刷新成功后为新令牌，旧令牌作废）"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "access_token 过期时间（UTC）"
+          },
+          "token_type": {
+            "type": "string",
+            "description": "固定为 Bearer",
+            "example": "Bearer"
           },
           "expires_in": {
             "type": "integer",
-            "description": "过期时间(秒)"
+            "description": "过期时间（秒），兼容字段；服务端以 expires_at 为准"
           }
         },
-        "required": ["access_token", "refresh_token", "expires_in"]
+        "required": ["access_token", "refresh_token", "expires_at"]
       },
       "LoginResponse": {
         "type": "object",
@@ -498,6 +518,23 @@
           "github_chart_hex": {
             "type": "string",
             "description": "贡献图主题色：6 位 hex（不含 #），请求 ghchart.rshah.org/<hex>/<username>；可空"
+          },
+          "footer_icp_text": { "type": "string", "description": "备案号展示文案；可空不显示" },
+          "footer_icp_href": {
+            "type": "string",
+            "description": "备案号链接（https://beian.miit.gov.cn/…）；可空则备案文案不可点"
+          },
+          "footer_since": {
+            "type": "string",
+            "description": "站点上线日 YYYY-MM-DD，用于「本站已运行 n 天」；可空不显示"
+          },
+          "footer_psb_text": {
+            "type": "string",
+            "description": "公安（公网）备案号展示文案；可空不显示"
+          },
+          "footer_psb_href": {
+            "type": "string",
+            "description": "公安备案查询链接；可空则文案不可点"
           }
         }
       },
@@ -735,6 +772,56 @@
           "403": {
             "description": "用户已被禁用",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "code": 403, "message": "用户已被禁用" } } }
+          }
+        }
+      }
+    },
+    "/api/public/user/v1/token/refresh": {
+      "post": {
+        "tags": ["用户模块/公共接口/v1"],
+        "summary": "刷新访问令牌",
+        "description": "使用有效的 refresh_token 换取新的 access_token 与 refresh_token（旋转刷新令牌）",
+        "operationId": "refreshToken",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RefreshTokenRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "刷新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "刷新成功" },
+                    "data": { "$ref": "#/components/schemas/TokenResponse" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "401": {
+            "description": "刷新令牌无效或已过期",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                "example": { "code": 401, "message": "刷新令牌无效或已过期" }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器错误",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
           }
         }
       }

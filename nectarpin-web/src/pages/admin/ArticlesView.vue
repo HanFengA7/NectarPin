@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { computed, shallowRef, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { ChevronLeft, ChevronRight, FilePlus2, LoaderCircle, PencilLine, Trash2 } from 'lucide-vue-next'
+import {
+  ChevronLeft,
+  ChevronRight,
+  FilePlus2,
+  LoaderCircle,
+  PencilLine,
+  Trash2,
+} from 'lucide-vue-next'
 
 import { deleteArticle, listAdminArticles, type ArticleItem } from '@/api/article'
 import { Button } from '@/components/ui/button'
@@ -166,9 +173,13 @@ watch(statusFilter, (value, previousValue) => {
   }
 })
 
-watch([statusFilter, currentPage], () => {
-  void loadArticles()
-}, { immediate: true })
+watch(
+  [statusFilter, currentPage],
+  () => {
+    void loadArticles()
+  },
+  { immediate: true },
+)
 
 consumeSavedMessage()
 </script>
@@ -176,13 +187,13 @@ consumeSavedMessage()
 <template>
   <section class="min-h-svh bg-muted/20">
     <div class="flex w-full flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <header class="flex flex-col gap-4 rounded-2xl border bg-background p-6 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+      <header
+        class="flex flex-col gap-4 rounded-2xl border bg-background p-6 shadow-sm lg:flex-row lg:items-center lg:justify-between"
+      >
         <div class="space-y-1">
           <p class="text-sm font-medium text-muted-foreground">内容管理</p>
           <h1 class="text-3xl font-semibold tracking-tight">文章列表</h1>
-          <p class="text-sm text-muted-foreground">
-            管理你的文章草稿、发布内容与归档内容。
-          </p>
+          <p class="text-sm text-muted-foreground">管理你的文章草稿、发布内容与归档内容。</p>
         </div>
 
         <Button as-child size="lg">
@@ -208,7 +219,9 @@ consumeSavedMessage()
       </div>
 
       <section class="rounded-2xl border bg-background shadow-sm">
-        <div class="flex flex-col gap-4 border-b px-6 py-5 lg:flex-row lg:items-center lg:justify-between">
+        <div
+          class="flex flex-col gap-4 border-b px-6 py-5 lg:flex-row lg:items-center lg:justify-between"
+        >
           <div>
             <h2 class="text-lg font-semibold">文章记录</h2>
             <p class="text-sm text-muted-foreground">
@@ -223,24 +236,26 @@ consumeSavedMessage()
               v-model="statusFilter"
               class="h-9 min-w-40 rounded-md border border-input bg-background px-3 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
             >
-              <option
-                v-for="option in STATUS_OPTIONS"
-                :key="option.value"
-                :value="option.value"
-              >
+              <option v-for="option in STATUS_OPTIONS" :key="option.value" :value="option.value">
                 {{ option.label }}
               </option>
             </select>
           </div>
         </div>
 
-        <div v-if="isLoading" class="flex min-h-64 items-center justify-center gap-3 px-6 py-10 text-sm text-muted-foreground">
+        <div
+          v-if="isLoading"
+          class="flex min-h-64 items-center justify-center gap-3 px-6 py-10 text-sm text-muted-foreground"
+        >
           <LoaderCircle class="size-4 animate-spin" />
           <span>正在加载文章列表...</span>
         </div>
 
         <template v-else>
-          <div v-if="articles.length === 0" class="flex min-h-64 flex-col items-center justify-center gap-3 px-6 py-10 text-center">
+          <div
+            v-if="articles.length === 0"
+            class="flex min-h-64 flex-col items-center justify-center gap-3 px-6 py-10 text-center"
+          >
             <div class="rounded-full bg-muted p-3 text-muted-foreground">
               <FilePlus2 class="size-5" />
             </div>
@@ -277,7 +292,10 @@ consumeSavedMessage()
                     <div class="space-y-1">
                       <div class="font-medium text-foreground">{{ article.title }}</div>
                       <div class="text-xs text-muted-foreground">/{{ article.slug }}</div>
-                      <p v-if="article.summary" class="line-clamp-2 max-w-xl text-sm text-muted-foreground">
+                      <p
+                        v-if="article.summary"
+                        class="line-clamp-2 max-w-xl text-sm text-muted-foreground"
+                      >
                         {{ article.summary }}
                       </p>
                     </div>
@@ -302,7 +320,9 @@ consumeSavedMessage()
                   <td class="px-6 py-4">
                     <div class="flex justify-end gap-2">
                       <Button as-child variant="outline" size="sm">
-                        <RouterLink :to="{ name: 'admin-article-edit', params: { id: article.id } }">
+                        <RouterLink
+                          :to="{ name: 'admin-article-edit', params: { id: article.id } }"
+                        >
                           <PencilLine class="size-4" />
                           <span>编辑</span>
                         </RouterLink>
@@ -314,7 +334,10 @@ consumeSavedMessage()
                         :disabled="deletingId === article.id"
                         @click="handleDelete(article)"
                       >
-                        <LoaderCircle v-if="deletingId === article.id" class="size-4 animate-spin" />
+                        <LoaderCircle
+                          v-if="deletingId === article.id"
+                          class="size-4 animate-spin"
+                        />
                         <Trash2 v-else class="size-4" />
                         <span>{{ deletingId === article.id ? '删除中...' : '删除' }}</span>
                       </Button>
@@ -325,7 +348,9 @@ consumeSavedMessage()
             </table>
           </div>
 
-          <footer class="flex flex-col gap-3 border-t px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <footer
+            class="flex flex-col gap-3 border-t px-6 py-4 sm:flex-row sm:items-center sm:justify-between"
+          >
             <p class="text-sm text-muted-foreground">
               每页 {{ PAGE_SIZE }} 条，共 {{ total }} 条记录。
             </p>

@@ -1,6 +1,12 @@
 import axios, { AxiosError, type AxiosRequestConfig } from 'axios'
 
-import { clearAdminSession, getAccessToken } from '@/lib/admin-auth'
+import {
+  clearAdminSession,
+  getAccessToken,
+  getRefreshToken,
+  patchAdminSessionTokens,
+  type TokenBundleFromApi,
+} from '@/lib/admin-auth'
 
 export const REQUEST_CONFIG = {
   baseURL: 'http://localhost:3001',
@@ -38,6 +44,60 @@ const service = axios.create({
   timeout: REQUEST_CONFIG.timeout,
 })
 
+/** 仅用于刷新 token，避免与本实例的 401 拦截器形成递归 */
+const refreshClient = axios.create({
+  baseURL: REQUEST_CONFIG.baseURL,
+  timeout: REQUEST_CONFIG.timeout,
+})
+
+let refreshPromise: Promise<string | null> | null = null
+
+function performTokenRefresh(): Promise<string | null> {
+  const rt = getRefreshToken()
+  if (!rt) {
+    return Promise.resolve(null)
+  }
+
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      try {
+        const res = await refreshClient.post<ApiResponse<TokenBundleFromApi>>(
+          '/api/public/user/v1/token/refresh',
+          { refresh_token: rt },
+        )
+        const body = res.data
+        if (
+          body.code === 200 &&
+          body.data?.access_token &&
+          body.data?.refresh_token &&
+          body.data?.expires_at
+        ) {
+          patchAdminSessionTokens(body.data)
+          return body.data.access_token
+        }
+        return null
+      } catch {
+        return null
+      } finally {
+        refreshPromise = null
+      }
+    })()
+  }
+
+  return refreshPromise
+}
+
+function rejectFromAxiosError(error: AxiosError<ApiErrorPayload>) {
+  const payload = error.response?.data
+  return Promise.reject(
+    new RequestError(payload?.message ?? '请求失败，请稍后重试。', {
+      code: payload?.code,
+      status: error.response?.status,
+      details: payload?.error,
+    }),
+  )
+}
+
 service.interceptors.request.use((config) => {
   const token = getAccessToken()
 
@@ -51,20 +111,39 @@ service.interceptors.request.use((config) => {
 
 service.interceptors.response.use(
   (response) => response.data,
-  (error: AxiosError<ApiErrorPayload>) => {
+  async (error: AxiosError<ApiErrorPayload>) => {
     const payload = error.response?.data
+    const originalRequest = error.config as (AxiosRequestConfig & { _retry?: boolean }) | undefined
 
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+      const url = originalRequest.url ?? ''
+
+      if (
+        url.includes('/api/public/user/v1/login') ||
+        url.includes('/api/public/user/v1/register')
+      ) {
+        return rejectFromAxiosError(error)
+      }
+
+      if (url.includes('/api/public/user/v1/token/refresh')) {
+        clearAdminSession()
+        return rejectFromAxiosError(error)
+      }
+
+      originalRequest._retry = true
+      const newAccess = await performTokenRefresh()
+      if (newAccess) {
+        originalRequest.headers = originalRequest.headers ?? {}
+        originalRequest.headers.Authorization = `Bearer ${newAccess}`
+        return service.request(originalRequest)
+      }
+
+      clearAdminSession()
+    } else if (error.response?.status === 401) {
       clearAdminSession()
     }
 
-    return Promise.reject(
-      new RequestError(payload?.message ?? '请求失败，请稍后重试。', {
-        code: payload?.code,
-        status: error.response?.status,
-        details: payload?.error,
-      }),
-    )
+    return rejectFromAxiosError(error)
   },
 )
 

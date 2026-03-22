@@ -15,7 +15,10 @@ export interface UserProfile {
 export interface UserToken {
   access_token: string
   refresh_token: string
-  expires_in: number
+  /** 后端当前返回 `expires_at`（RFC3339）；`expires_in` 可能由前端推算 */
+  expires_in?: number
+  expires_at?: string
+  token_type?: string
 }
 
 export interface LoginPayload {
@@ -73,7 +76,10 @@ export function logoutUser() {
 }
 
 export function logoutUserByRefreshToken(payload: LogoutByRefreshTokenPayload) {
-  return post<null, LogoutByRefreshTokenPayload>('/api/protected/user/v1/logout/refresh-token', payload)
+  return post<null, LogoutByRefreshTokenPayload>(
+    '/api/protected/user/v1/logout/refresh-token',
+    payload,
+  )
 }
 
 export interface UserSessionItem {

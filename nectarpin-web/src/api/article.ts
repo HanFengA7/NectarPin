@@ -187,10 +187,7 @@ export function listPublicTags() {
 }
 
 export function createTag(payload: CreateTagPayload) {
-  return post<ArticleTagItem, CreateTagPayload>(
-    '/api/protected/article/v1/tag/add',
-    payload,
-  )
+  return post<ArticleTagItem, CreateTagPayload>('/api/protected/article/v1/tag/add', payload)
 }
 
 export function updateTag(id: number, payload: UpdateTagPayload) {
@@ -209,7 +206,5 @@ export interface ArticleTagIdsData {
 }
 
 export function getArticleTagIds(articleId: number) {
-  return get<ArticleTagIdsData>(
-    `/api/protected/article/v1/tag/listByArticle/${articleId}`,
-  )
+  return get<ArticleTagIdsData>(`/api/protected/article/v1/tag/listByArticle/${articleId}`)
 }

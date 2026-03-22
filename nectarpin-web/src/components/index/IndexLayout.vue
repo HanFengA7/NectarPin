@@ -3,6 +3,7 @@ import { onMounted, watch } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
+import IndexFooter from '@/components/index/IndexFooter.vue'
 import IndexSidebar from '@/components/index/IndexSidebar.vue'
 import { useSiteStore } from '@/stores/site'
 
@@ -19,8 +20,7 @@ const INDEX_TITLE_SUFFIX: Record<string, string> = {
 }
 
 function syncPublicDocumentTitle() {
-  if (route.name === 'index-post-detail')
-    return
+  if (route.name === 'index-post-detail') return
   const base = siteName.value
   const suf = INDEX_TITLE_SUFFIX[route.name as string] ?? ''
   document.title = `${base}${suf}`
@@ -45,5 +45,6 @@ watch(
     <main class="flex-1">
       <RouterView />
     </main>
+    <IndexFooter />
   </div>
 </template>

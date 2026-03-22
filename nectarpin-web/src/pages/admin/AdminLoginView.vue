@@ -6,7 +6,11 @@ import { LoaderCircle, LockKeyhole, ShieldCheck, UserRound } from 'lucide-vue-ne
 import { loginUser } from '@/api/user'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { isAdminAuthenticated, saveAdminSession } from '@/lib/admin-auth'
+import {
+  buildAdminSessionFromLogin,
+  isAdminAuthenticated,
+  saveAdminSession,
+} from '@/lib/admin-auth'
 import { useSiteStore } from '@/stores/site'
 import { RequestError } from '@/utils/req'
 
@@ -57,11 +61,10 @@ async function handleSubmit() {
       password: form.password,
     })
 
-    saveAdminSession(response.data)
+    saveAdminSession(buildAdminSessionFromLogin(response.data))
     await router.replace(redirectTarget.value)
   } catch (error) {
-    errorMessage.value =
-      error instanceof RequestError ? error.message : '登录失败，请稍后重试。'
+    errorMessage.value = error instanceof RequestError ? error.message : '登录失败，请稍后重试。'
   } finally {
     isSubmitting.value = false
   }
@@ -82,14 +85,20 @@ async function handleSubmit() {
       "
     />
 
-    <div class="relative grid w-full max-w-5xl overflow-hidden rounded-3xl border bg-background shadow-2xl lg:grid-cols-[1.1fr_0.9fr]">
+    <div
+      class="relative grid w-full max-w-5xl overflow-hidden rounded-3xl border bg-background shadow-2xl lg:grid-cols-[1.1fr_0.9fr]"
+    >
       <div class="hidden bg-primary px-10 py-12 text-primary-foreground lg:flex lg:items-center">
         <div class="space-y-4">
-          <div class="inline-flex size-12 items-center justify-center rounded-2xl bg-primary-foreground/10">
+          <div
+            class="inline-flex size-12 items-center justify-center rounded-2xl bg-primary-foreground/10"
+          >
             <ShieldCheck class="size-6" />
           </div>
           <div class="space-y-2">
-            <p class="text-sm tracking-[0.3em] text-primary-foreground/70 uppercase">Admin Portal</p>
+            <p class="text-sm tracking-[0.3em] text-primary-foreground/70 uppercase">
+              Admin Portal
+            </p>
             <h1 class="text-3xl font-semibold leading-tight">
               {{ adminPortalTitle }}
             </h1>
@@ -114,7 +123,9 @@ async function handleSubmit() {
             <div class="space-y-2">
               <label for="account" class="text-sm font-medium">账号</label>
               <div class="relative">
-                <UserRound class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                <UserRound
+                  class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                />
                 <Input
                   id="account"
                   v-model="form.account"
@@ -129,7 +140,9 @@ async function handleSubmit() {
             <div class="space-y-2">
               <label for="password" class="text-sm font-medium">登录密码</label>
               <div class="relative">
-                <LockKeyhole class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                <LockKeyhole
+                  class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                />
                 <Input
                   id="password"
                   v-model="form.password"
@@ -153,7 +166,6 @@ async function handleSubmit() {
               {{ isSubmitting ? '登录中...' : '登录后台' }}
             </Button>
           </form>
-
         </div>
       </div>
     </div>

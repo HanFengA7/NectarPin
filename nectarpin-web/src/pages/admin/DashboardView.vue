@@ -14,9 +14,7 @@ const { siteName } = storeToRefs(useSiteStore())
     <div class="flex w-full flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       <header class="rounded-2xl border bg-background p-6 shadow-sm">
         <p class="text-sm font-medium text-muted-foreground">后台概览</p>
-        <h1 class="mt-1 text-3xl font-semibold tracking-tight">
-          欢迎进入 {{ siteName }} 管理后台
-        </h1>
+        <h1 class="mt-1 text-3xl font-semibold tracking-tight">欢迎进入 {{ siteName }} 管理后台</h1>
         <p class="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
           当前后台已支持文章列表、新增文章与编辑文章，你可以从这里快速进入内容管理。
         </p>

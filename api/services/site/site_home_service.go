@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	siterepo "nectarpin/api/repositories/site"
@@ -26,7 +28,13 @@ const (
 	maxSiteName          = 80
 	maxGitHubUsernameLen = 39
 	maxPayloadBytes      = 1 << 20 // 1 MiB 上限，防止过大 JSON
+	maxFooterIcpText     = 160
+	maxFooterIcpHref     = 512
+	maxFooterPsbText     = 160
+	maxFooterPsbHref     = 512
 )
+
+var footerSinceDateRe = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
 
 var allowedStatusIcons = map[string]struct{}{
 	"dot":         {},
@@ -93,6 +101,16 @@ type HomePayload struct {
 	GitHubUsername string `json:"github_username"`
 	// GitHubChartHex 贡献图主题色：6 位十六进制、不含 #，对应 https://ghchart.rshah.org/<HEX>/user；可空为默认配色
 	GitHubChartHex string `json:"github_chart_hex"`
+	// FooterIcpText 备案号展示文案，如「浙ICP备xxxxxxxx号」；可空则不显示
+	FooterIcpText string `json:"footer_icp_text"`
+	// FooterIcpHref 备案号链接（通常为 https://beian.miit.gov.cn/…）；可空则文案不可点
+	FooterIcpHref string `json:"footer_icp_href"`
+	// FooterSince 站点上线日期 YYYY-MM-DD，用于「本站已运行 n 天」；可空则不显示该行
+	FooterSince string `json:"footer_since"`
+	// FooterPsbText 公安（公网）备案号展示文案；可空则不显示
+	FooterPsbText string `json:"footer_psb_text"`
+	// FooterPsbHref 公安备案查询链接（通常为 beian.gov.cn）；可空则文案不可点
+	FooterPsbHref string `json:"footer_psb_href"`
 }
 
 // SiteHomeService 首页站点业务
@@ -231,6 +249,11 @@ func normalizePayload(p HomePayload) HomePayload {
 	}
 	p.GitHubUsername = normalizeGitHubUsername(p.GitHubUsername)
 	p.GitHubChartHex = normalizeGitHubChartHex(p.GitHubChartHex)
+	p.FooterIcpText = strings.TrimSpace(p.FooterIcpText)
+	p.FooterIcpHref = strings.TrimSpace(p.FooterIcpHref)
+	p.FooterSince = strings.TrimSpace(p.FooterSince)
+	p.FooterPsbText = strings.TrimSpace(p.FooterPsbText)
+	p.FooterPsbHref = strings.TrimSpace(p.FooterPsbHref)
 	return p
 }
 
@@ -305,6 +328,38 @@ func validateHomePayload(p *HomePayload) error {
 	}
 	if p.GitHubChartHex != "" && !isValidGitHubChartHex(p.GitHubChartHex) {
 		return errors.New("GitHub 贡献图主题色须为 6 位十六进制数字与 a～f，不要 # 前缀（保存时会自动去掉 #）")
+	}
+	if utf8.RuneCountInString(p.FooterIcpText) > maxFooterIcpText {
+		return errors.New("页脚备案号文案过长")
+	}
+	if p.FooterIcpHref != "" {
+		low := strings.ToLower(p.FooterIcpHref)
+		if !strings.HasPrefix(low, "http://") && !strings.HasPrefix(low, "https://") {
+			return errors.New("备案号链接须为 http 或 https")
+		}
+		if utf8.RuneCountInString(p.FooterIcpHref) > maxFooterIcpHref {
+			return errors.New("备案号链接过长")
+		}
+	}
+	if p.FooterSince != "" {
+		if !footerSinceDateRe.MatchString(p.FooterSince) {
+			return errors.New("页脚上线日期须为 YYYY-MM-DD")
+		}
+		if _, err := time.ParseInLocation("2006-01-02", p.FooterSince, time.Local); err != nil {
+			return errors.New("页脚上线日期无效")
+		}
+	}
+	if utf8.RuneCountInString(p.FooterPsbText) > maxFooterPsbText {
+		return errors.New("页脚公安备案文案过长")
+	}
+	if p.FooterPsbHref != "" {
+		low := strings.ToLower(p.FooterPsbHref)
+		if !strings.HasPrefix(low, "http://") && !strings.HasPrefix(low, "https://") {
+			return errors.New("公安备案链接须为 http 或 https")
+		}
+		if utf8.RuneCountInString(p.FooterPsbHref) > maxFooterPsbHref {
+			return errors.New("公安备案链接过长")
+		}
 	}
 	return nil
 }

@@ -14,12 +14,17 @@ export interface SiteTechStackItem {
 export type SiteStatusIcon = 'dot' | 'circle_dot' | 'radio' | 'activity' | 'none'
 
 /** 状态图标主色（Tailwind 语义色） */
-export type SiteStatusIconTone
-  = 'emerald' | 'sky' | 'blue' | 'violet' | 'amber' | 'rose' | 'zinc'
+export type SiteStatusIconTone = 'emerald' | 'sky' | 'blue' | 'violet' | 'amber' | 'rose' | 'zinc'
 
 /** 头像右下角叠放小圆标内的图标（与图中相机角标同一位置） */
-export type SiteAvatarBadgeIcon
-  = 'camera' | 'sparkles' | 'coffee' | 'heart' | 'pen' | 'smile' | 'none'
+export type SiteAvatarBadgeIcon =
+  | 'camera'
+  | 'sparkles'
+  | 'coffee'
+  | 'heart'
+  | 'pen'
+  | 'smile'
+  | 'none'
 
 export interface SiteHomePayload {
   /** 全站名称（浏览器标题、顶栏/后台品牌等） */
@@ -49,6 +54,16 @@ export interface SiteHomePayload {
   github_username: string
   /** 贡献图主题色：6 位 hex，不含 #；非空时请求 …/ghchart.rshah.org/<hex>/<username> */
   github_chart_hex: string
+  /** 备案号展示文案；可空隐藏 */
+  footer_icp_text: string
+  /** 备案号链接（https://beian.miit.gov.cn/…）；可空则不可点 */
+  footer_icp_href: string
+  /** 站点上线日 YYYY-MM-DD，用于「本站已运行 n 天」；可空隐藏 */
+  footer_since: string
+  /** 公安（公网）备案号文案；可空隐藏 */
+  footer_psb_text: string
+  /** 公安备案查询页链接；可空则不可点 */
+  footer_psb_href: string
 }
 
 /** 前台读取首页站点配置（无需登录） */

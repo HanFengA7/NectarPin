@@ -14,12 +14,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <SidebarProvider
-    style="
-      --sidebar-width: 13rem;
-      --sidebar-mobile-width: 13rem;
-    "
-  >
+  <SidebarProvider style="--sidebar-width: 13rem; --sidebar-mobile-width: 13rem">
     <AdminSidebar />
     <SidebarInset class="min-w-0">
       <header class="flex h-14 items-center border-b bg-background px-4 sm:px-6">

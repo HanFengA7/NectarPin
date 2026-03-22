@@ -192,6 +192,47 @@ func (c *UserController) Login(ctx *gin.Context) {
 	})
 }
 
+type refreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
+}
+
+// RefreshToken 使用 refresh_token 换取新的 access_token 与 refresh_token（旋转刷新令牌）。
+func (c *UserController) RefreshToken(ctx *gin.Context) {
+	var req refreshTokenRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请求参数错误",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	token, err := c.service.RefreshToken(strings.TrimSpace(req.RefreshToken))
+	if err != nil {
+		switch err {
+		case userservice.ErrTokenExpired, userservice.ErrInvalidToken:
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"code":    401,
+				"message": "刷新令牌无效或已过期",
+			})
+		default:
+			utils.Logger.Errorf("用户", "刷新令牌失败: %v", err)
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"code":    500,
+				"message": "刷新令牌失败",
+			})
+		}
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "刷新成功",
+		"data":    token,
+	})
+}
+
 type UpdateProfileRequest struct {
 	Nickname string `json:"nickname" binding:"max=100"`
 	Email    string `json:"email" binding:"required,email"`

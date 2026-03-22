@@ -101,17 +101,14 @@ async function handleDialogSubmit() {
     dialogOpen.value = false
     await loadTags()
   } catch (error) {
-    dialogError.value =
-      error instanceof RequestError ? error.message : '操作失败，请稍后重试。'
+    dialogError.value = error instanceof RequestError ? error.message : '操作失败，请稍后重试。'
   } finally {
     dialogSubmitting.value = false
   }
 }
 
 async function handleDelete(item: ArticleTagItem) {
-  const confirmed = window.confirm(
-    `确定删除标签「${item.name}」吗？文章与此标签的关联将被移除。`,
-  )
+  const confirmed = window.confirm(`确定删除标签「${item.name}」吗？文章与此标签的关联将被移除。`)
   if (!confirmed) return
 
   deletingId.value = item.id
@@ -136,7 +133,9 @@ void loadTags()
 <template>
   <section class="min-h-svh bg-muted/20">
     <div class="flex w-full flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <header class="flex flex-col gap-4 rounded-2xl border bg-background p-6 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+      <header
+        class="flex flex-col gap-4 rounded-2xl border bg-background p-6 shadow-sm lg:flex-row lg:items-center lg:justify-between"
+      >
         <div class="space-y-1">
           <p class="text-sm font-medium text-muted-foreground">内容管理</p>
           <h1 class="text-3xl font-semibold tracking-tight">文章标签</h1>
@@ -148,21 +147,33 @@ void loadTags()
         </Button>
       </header>
 
-      <div v-if="successMessage" class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+      <div
+        v-if="successMessage"
+        class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+      >
         {{ successMessage }}
       </div>
-      <div v-if="errorMessage" class="rounded-xl border border-destructive/20 bg-destructive/8 px-4 py-3 text-sm text-destructive">
+      <div
+        v-if="errorMessage"
+        class="rounded-xl border border-destructive/20 bg-destructive/8 px-4 py-3 text-sm text-destructive"
+      >
         {{ errorMessage }}
       </div>
 
       <section class="rounded-2xl border bg-background shadow-sm">
-        <div v-if="isLoading" class="flex min-h-64 items-center justify-center gap-3 px-6 py-10 text-sm text-muted-foreground">
+        <div
+          v-if="isLoading"
+          class="flex min-h-64 items-center justify-center gap-3 px-6 py-10 text-sm text-muted-foreground"
+        >
           <LoaderCircle class="size-4 animate-spin" />
           <span>正在加载标签列表...</span>
         </div>
 
         <template v-else>
-          <div v-if="tags.length === 0" class="flex min-h-64 flex-col items-center justify-center gap-3 px-6 py-10 text-center">
+          <div
+            v-if="tags.length === 0"
+            class="flex min-h-64 flex-col items-center justify-center gap-3 px-6 py-10 text-center"
+          >
             <div class="space-y-1">
               <h3 class="text-base font-medium">还没有标签</h3>
               <p class="text-sm text-muted-foreground">创建第一个标签来标记你的文章。</p>
@@ -234,7 +245,10 @@ void loadTags()
             <Input id="tag-slug" v-model="formSlug" placeholder="留空自动生成" />
           </div>
 
-          <p v-if="dialogError" class="rounded-md border border-destructive/20 bg-destructive/8 px-3 py-2 text-sm text-destructive">
+          <p
+            v-if="dialogError"
+            class="rounded-md border border-destructive/20 bg-destructive/8 px-3 py-2 text-sm text-destructive"
+          >
             {{ dialogError }}
           </p>
 

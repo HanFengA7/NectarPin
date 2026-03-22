@@ -5,9 +5,28 @@ import { RouterLink, useRoute } from 'vue-router'
 import { useDark } from '@vueuse/core'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
-import { Activity, Camera, CircleDot, Coffee, Github, Heart, Mail, PenLine, Radio, Smile, Sparkles } from 'lucide-vue-next'
+import {
+  Activity,
+  Camera,
+  CircleDot,
+  Coffee,
+  ExternalLink,
+  Github,
+  Heart,
+  Mail,
+  PenLine,
+  Radio,
+  Smile,
+  Sparkles,
+} from 'lucide-vue-next'
 import { listPublicArticles, type ArticleItem } from '@/api/article'
-import { getPublicSiteHome, type SiteAvatarBadgeIcon, type SiteStatusIcon, type SiteStatusIconTone } from '@/api/site'
+import {
+  getPublicSiteHome,
+  type SiteAvatarBadgeIcon,
+  type SiteStatusIcon,
+  type SiteStatusIconTone,
+} from '@/api/site'
+import { socialLinkIconKind, type SocialLinkIconKind } from '@/lib/social-link-icon'
 import { cn } from '@/lib/utils'
 import { RequestError } from '@/utils/req'
 
@@ -40,18 +59,35 @@ const avatarBadgeIcon = ref<SiteAvatarBadgeIcon>('camera')
 const avatarBadgeTone = ref<SiteStatusIconTone>('blue')
 const avatarLoadFailed = ref(false)
 
-const VALID_STATUS_TONES: SiteStatusIconTone[] = ['emerald', 'sky', 'blue', 'violet', 'amber', 'rose', 'zinc']
+const VALID_STATUS_TONES: SiteStatusIconTone[] = [
+  'emerald',
+  'sky',
+  'blue',
+  'violet',
+  'amber',
+  'rose',
+  'zinc',
+]
 
-const VALID_AVATAR_BADGE_ICONS: SiteAvatarBadgeIcon[] = ['camera', 'sparkles', 'coffee', 'heart', 'pen', 'smile', 'none']
+const VALID_AVATAR_BADGE_ICONS: SiteAvatarBadgeIcon[] = [
+  'camera',
+  'sparkles',
+  'coffee',
+  'heart',
+  'pen',
+  'smile',
+  'none',
+]
 
 function parseAvatarBadgeIcon(raw: unknown): SiteAvatarBadgeIcon {
   const s = typeof raw === 'string' ? raw.toLowerCase().trim() : ''
-  return VALID_AVATAR_BADGE_ICONS.includes(s as SiteAvatarBadgeIcon) ? (s as SiteAvatarBadgeIcon) : 'camera'
+  return VALID_AVATAR_BADGE_ICONS.includes(s as SiteAvatarBadgeIcon)
+    ? (s as SiteAvatarBadgeIcon)
+    : 'camera'
 }
 
 function parseAvatarBadgeTone(raw: unknown, badge: SiteAvatarBadgeIcon): SiteStatusIconTone {
-  if (badge === 'none')
-    return 'blue'
+  if (badge === 'none') return 'blue'
   const s = typeof raw === 'string' ? raw.toLowerCase().trim() : ''
   return VALID_STATUS_TONES.includes(s as SiteStatusIconTone) ? (s as SiteStatusIconTone) : 'blue'
 }
@@ -93,10 +129,11 @@ function parseStatusIcon(raw: unknown): SiteStatusIcon {
 }
 
 function parseStatusTone(raw: unknown, icon: SiteStatusIcon): SiteStatusIconTone {
-  if (icon === 'none')
-    return 'emerald'
+  if (icon === 'none') return 'emerald'
   const s = typeof raw === 'string' ? raw.toLowerCase().trim() : ''
-  return VALID_STATUS_TONES.includes(s as SiteStatusIconTone) ? (s as SiteStatusIconTone) : 'emerald'
+  return VALID_STATUS_TONES.includes(s as SiteStatusIconTone)
+    ? (s as SiteStatusIconTone)
+    : 'emerald'
 }
 
 const STATUS_DOT_RING: Record<SiteStatusIconTone, string> = {
@@ -138,14 +175,11 @@ watch(avatarUrl, () => {
 
 const avatarFallbackText = computed(() => {
   const cfg = avatarInitialsConfigured.value.trim()
-  if (cfg)
-    return Array.from(cfg).slice(0, 4).join('')
+  if (cfg) return Array.from(cfg).slice(0, 4).join('')
   const n = heroName.value.trim()
   const chars = Array.from(n)
-  if (chars.length >= 2)
-    return chars.slice(0, 2).join('')
-  if (chars.length === 1)
-    return chars[0] ?? ''
+  if (chars.length >= 2) return chars.slice(0, 2).join('')
+  if (chars.length === 1) return chars[0] ?? ''
   return 'NP'
 })
 
@@ -157,19 +191,12 @@ const calloutText = ref(
   '喜欢把想法写成文字：技术笔记、随笔与编程相关的小结；也关注人工智能与效率工具。订阅更新可使用 RSS（即将提供）。',
 )
 
-function socialIconForLabel(label: string): Component | undefined {
-  const l = label.toLowerCase()
-  if (l.includes('github'))
-    return Github
-  if (l.includes('mail') || l.includes('email') || label.includes('邮箱'))
-    return Mail
-  return undefined
-}
-
-const socialLinks = ref<{ label: string; href: string; icon?: Component }[]>([
-  { label: 'GitHub', href: 'https://github.com', icon: Github },
-  { label: 'Email', href: 'mailto:hello@example.com', icon: Mail },
-  { label: 'QQ', href: '#' },
+const socialLinks = ref<
+  { label: string; href: string; icon?: Component; kind: SocialLinkIconKind }[]
+>([
+  { label: 'GitHub', href: 'https://github.com', icon: Github, kind: 'github' },
+  { label: 'Email', href: 'mailto:hello@example.com', icon: Mail, kind: 'mail' },
+  { label: 'QQ', href: '#', kind: 'qq' },
 ])
 
 const techStack = ref<{ name: string; className: string }[]>([
@@ -188,8 +215,7 @@ const githubUsername = ref('')
 const githubChartHex = ref('')
 const ghContributionChartSrc = computed(() => {
   const u = githubUsername.value.trim()
-  if (!u)
-    return ''
+  if (!u) return ''
   const hex = githubChartHex.value.trim().toLowerCase().replace(/^#/, '')
   if (/^[0-9a-f]{6}$/.test(hex))
     return `${GH_CONTRIBUTION_CHART_ORIGIN}/${encodeURIComponent(hex)}/${encodeURIComponent(u)}`
@@ -197,8 +223,7 @@ const ghContributionChartSrc = computed(() => {
 })
 const githubProfileHref = computed(() => {
   const u = githubUsername.value.trim()
-  if (!u)
-    return ''
+  if (!u) return ''
   return `https://github.com/${encodeURIComponent(u)}`
 })
 
@@ -207,8 +232,7 @@ const showHeroBio = computed(() => heroBio.value.trim().length > 0)
 const showCallout = computed(() => calloutText.value.trim().length > 0)
 
 async function loadSiteHomeFromApi() {
-  if (route.name !== 'index')
-    return
+  if (route.name !== 'index') return
   try {
     const { data } = await getPublicSiteHome()
     avatarUrl.value = (data.avatar_url ?? '').trim()
@@ -224,23 +248,25 @@ async function loadSiteHomeFromApi() {
       statusIcon.value = ic
       statusIconTone.value = parseStatusTone(data.status_icon_tone, ic)
     }
-    if (data.hero_name)
-      heroName.value = data.hero_name
+    if (data.hero_name) heroName.value = data.hero_name
     heroBio.value = data.hero_bio ?? ''
     calloutText.value = data.callout_text ?? ''
-    socialLinks.value = (data.social_links ?? []).map(s => ({
-      label: s.label,
-      href: s.href,
-      icon: socialIconForLabel(s.label),
-    }))
-    techStack.value = (data.tech_stack ?? []).map(t => ({
+    socialLinks.value = (data.social_links ?? []).map((s) => {
+      const kind = socialLinkIconKind(s.label, s.href)
+      return {
+        label: s.label,
+        href: s.href,
+        kind,
+        icon: kind === 'github' ? Github : kind === 'mail' ? Mail : undefined,
+      }
+    })
+    techStack.value = (data.tech_stack ?? []).map((t) => ({
       name: t.name,
       className: t.class_name || 'bg-zinc-600',
     }))
     githubUsername.value = (data.github_username ?? '').trim()
     githubChartHex.value = (data.github_chart_hex ?? '').trim().replace(/^#/, '').toLowerCase()
-  }
-  catch {
+  } catch {
     // 接口不可用时保留本地默认文案
   }
 }
@@ -248,8 +274,7 @@ async function loadSiteHomeFromApi() {
 watch(
   () => route.name,
   (name) => {
-    if (name === 'index')
-      void loadSiteHomeFromApi()
+    if (name === 'index') void loadSiteHomeFromApi()
   },
   { immediate: true },
 )
@@ -272,8 +297,7 @@ interface TimelineEntry {
 function formatArticleDate(a: ArticleItem) {
   const raw = a.published_at ?? a.created_at
   const d = new Date(raw)
-  if (Number.isNaN(d.getTime()))
-    return raw
+  if (Number.isNaN(d.getTime())) return raw
   return DATE_FORMATTER.format(d)
 }
 
@@ -290,23 +314,19 @@ onMounted(async () => {
       page_size: TIMELINE_PAGE_SIZE,
       status: 1,
     })
-    timeline.value = res.data.items.map(a => ({
+    timeline.value = res.data.items.map((a) => ({
       id: a.id,
       date: formatArticleDate(a),
       title: a.title,
       slug: a.slug,
     }))
-  }
-  catch (e) {
+  } catch (e) {
     timeline.value = []
-    timelineError.value =
-      e instanceof RequestError ? e.message : '无法加载文章列表'
-  }
-  finally {
+    timelineError.value = e instanceof RequestError ? e.message : '无法加载文章列表'
+  } finally {
     timelineLoading.value = false
   }
 })
-
 </script>
 
 <template>
@@ -315,16 +335,11 @@ onMounted(async () => {
       <h1 class="text-2xl font-semibold tracking-tight">
         {{ pageTitle }}
       </h1>
-      <p class="mt-2 text-muted-foreground">
-        内容建设中
-      </p>
+      <p class="mt-2 text-muted-foreground">内容建设中</p>
     </div>
   </div>
 
-  <div
-    v-else
-    class="w-full px-4 pb-16 pt-8 sm:px-6 sm:pt-10 lg:px-10 lg:pt-12"
-  >
+  <div v-else class="w-full px-4 pb-16 pt-8 sm:px-6 sm:pt-10 lg:px-10 lg:pt-12">
     <div
       class="mx-auto flex w-full max-w-6xl flex-col gap-10 lg:flex-row lg:gap-12 xl:max-w-7xl xl:gap-16"
     >
@@ -343,7 +358,7 @@ onMounted(async () => {
                 :alt="heroName"
                 class="size-full object-cover"
                 @error="avatarLoadFailed = true"
-              >
+              />
               <div
                 v-else
                 class="flex size-full items-center justify-center text-3xl font-bold tracking-tight text-blue-700/80 dark:text-blue-200/90"
@@ -357,11 +372,7 @@ onMounted(async () => {
               :class="AVATAR_BADGE_BG[avatarBadgeTone]"
               aria-hidden="true"
             >
-              <component
-                :is="avatarBadgeGlyph"
-                class="size-4"
-                :stroke-width="2"
-              />
+              <component :is="avatarBadgeGlyph" class="size-4" :stroke-width="2" />
             </div>
           </div>
 
@@ -382,16 +393,16 @@ onMounted(async () => {
               :stroke-width="2"
               aria-hidden="true"
             />
-            <span class="max-w-[min(100%,16rem)] text-center leading-snug lg:max-w-none lg:text-left">
+            <span
+              class="max-w-[min(100%,16rem)] text-center leading-snug lg:max-w-none lg:text-left"
+            >
               {{ statusText }}
             </span>
           </div>
         </div>
 
         <section class="mt-8 w-full max-w-md lg:max-w-none">
-          <h2 class="mb-4 text-base font-semibold tracking-tight">
-            更新日志
-          </h2>
+          <h2 class="mb-4 text-base font-semibold tracking-tight">更新日志</h2>
           <!-- 轴线与圆点共用 left-2 + -translate-x-1/2，保证 1px 竖线穿过空心圆中心 -->
           <div class="relative">
             <div
@@ -399,37 +410,20 @@ onMounted(async () => {
               class="pointer-events-none absolute top-2 bottom-2 left-2 w-px -translate-x-1/2 bg-border"
               aria-hidden="true"
             />
-            <p
-              v-if="timelineLoading"
-              class="pl-1 text-sm text-muted-foreground"
-            >
-              加载中…
-            </p>
-            <p
-              v-else-if="timelineError"
-              class="pl-1 text-sm text-destructive"
-            >
+            <p v-if="timelineLoading" class="pl-1 text-sm text-muted-foreground">加载中…</p>
+            <p v-else-if="timelineError" class="pl-1 text-sm text-destructive">
               {{ timelineError }}
             </p>
-            <p
-              v-else-if="timeline.length === 0"
-              class="pl-1 text-sm text-muted-foreground"
-            >
+            <p v-else-if="timeline.length === 0" class="pl-1 text-sm text-muted-foreground">
               暂无已发布文章
             </p>
             <ul v-else class="space-y-6">
-              <li
-                v-for="item in timeline"
-                :key="item.id"
-                class="relative pl-8"
-              >
+              <li v-for="item in timeline" :key="item.id" class="relative pl-8">
                 <span
                   class="absolute top-1.5 left-2 size-4 -translate-x-1/2 rounded-full border-2 border-blue-500 bg-background ring-2 ring-background dark:bg-background dark:ring-background"
                   aria-hidden="true"
                 />
-                <time
-                  class="block text-sm font-medium text-foreground"
-                >{{ item.date }}</time>
+                <time class="block text-sm font-medium text-foreground">{{ item.date }}</time>
                 <RouterLink
                   :to="{ name: 'index-post-detail', params: { slug: item.slug } }"
                   class="mt-1 block text-sm leading-relaxed text-muted-foreground transition-colors hover:text-blue-600 dark:hover:text-blue-400"
@@ -451,7 +445,8 @@ onMounted(async () => {
             <span class="text-foreground">Hello, I'm </span>
             <span
               class="bg-gradient-to-r from-blue-600 via-violet-600 to-blue-500 bg-clip-text font-bold text-transparent dark:from-blue-400 dark:via-violet-400 dark:to-sky-400"
-            >{{ heroName }}</span>
+              >{{ heroName }}</span
+            >
             <span class="ml-1 inline-block" aria-hidden="true">👋</span>
           </h1>
           <!-- 简介由后台配置为 HTML，仅管理员可写 -->
@@ -469,15 +464,13 @@ onMounted(async () => {
               :target="link.href.startsWith('http') ? '_blank' : undefined"
               :rel="link.href.startsWith('http') ? 'noopener noreferrer' : undefined"
             >
-              <component
-                :is="link.icon"
-                v-if="link.icon"
-                class="size-4 shrink-0 opacity-80"
-              />
+              <component :is="link.icon" v-if="link.icon" class="size-4 shrink-0 opacity-80" />
               <span
-                v-else
+                v-else-if="link.kind === 'qq'"
                 class="flex size-4 shrink-0 items-center justify-center rounded bg-sky-500 text-[10px] font-bold text-white"
-              >Q</span>
+                >Q</span
+              >
+              <ExternalLink v-else class="size-4 shrink-0 opacity-80" aria-hidden="true" />
               {{ link.label }}
             </a>
           </div>
@@ -508,9 +501,7 @@ onMounted(async () => {
 
         <section v-if="githubUsername.trim()" class="space-y-4">
           <div class="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 class="text-lg font-semibold tracking-tight">
-              GitHub 贡献
-            </h2>
+            <h2 class="text-lg font-semibold tracking-tight">GitHub 贡献</h2>
             <a
               :href="githubProfileHref"
               class="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
@@ -520,7 +511,9 @@ onMounted(async () => {
               @{{ githubUsername.trim() }} · GitHub
             </a>
           </div>
-          <div class="overflow-x-auto rounded-xl border border-border/60 bg-card/30 p-4 dark:bg-card/20">
+          <div
+            class="overflow-x-auto rounded-xl border border-border/60 bg-card/30 p-4 dark:bg-card/20"
+          >
             <a
               :href="githubProfileHref"
               class="block w-full min-w-0 rounded-md outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
@@ -533,20 +526,23 @@ onMounted(async () => {
                 class="block h-auto w-full min-w-0 max-w-full rounded-md bg-background"
                 loading="lazy"
                 decoding="async"
-              >
+              />
             </a>
           </div>
         </section>
 
         <section v-if="techStack.length" class="space-y-4">
-          <h2 class="text-lg font-semibold tracking-tight">
-            技术栈
-          </h2>
+          <h2 class="text-lg font-semibold tracking-tight">技术栈</h2>
           <div class="flex flex-wrap gap-2.5">
             <span
               v-for="t in techStack"
               :key="t.name"
-              :class="cn('inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-white shadow-sm', t.className)"
+              :class="
+                cn(
+                  'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-white shadow-sm',
+                  t.className,
+                )
+              "
             >
               {{ t.name }}
             </span>

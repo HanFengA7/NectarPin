@@ -67,23 +67,20 @@ const articleId = computed(() => {
 const isEditMode = computed(() => route.name === 'admin-article-edit')
 const pageTitle = computed(() => (isEditMode.value ? '编辑文章' : '新增文章'))
 const pageDescription = computed(() =>
-  isEditMode.value
-    ? '更新文章内容、状态与文章地址。'
-    : '创建一篇新文章并保存为草稿或直接发布。',
+  isEditMode.value ? '更新文章内容、状态与文章地址。' : '创建一篇新文章并保存为草稿或直接发布。',
 )
 const submitLabel = computed(() => {
   if (isSubmitting.value) return isEditMode.value ? '保存中...' : '创建中...'
   return isEditMode.value ? '保存修改' : '创建文章'
 })
 
-const availableTags = computed(() =>
-  allTags.value.filter((t) => !form.tag_ids.includes(t.id)),
-)
+const availableTags = computed(() => allTags.value.filter((t) => !form.tag_ids.includes(t.id)))
 
-const selectedTags = computed(() =>
-  form.tag_ids
-    .map((id) => allTags.value.find((t) => t.id === id))
-    .filter(Boolean) as ArticleTagItem[],
+const selectedTags = computed(
+  () =>
+    form.tag_ids
+      .map((id) => allTags.value.find((t) => t.id === id))
+      .filter(Boolean) as ArticleTagItem[],
 )
 
 function removeTag(tagId: number) {
@@ -108,8 +105,7 @@ async function handleCreateTag() {
     form.tag_ids = [...form.tag_ids, newTag.id]
     newTagName.value = ''
   } catch (error) {
-    errorMessage.value =
-      error instanceof RequestError ? error.message : '创建标签失败。'
+    errorMessage.value = error instanceof RequestError ? error.message : '创建标签失败。'
   } finally {
     isCreatingTag.value = false
   }
@@ -220,7 +216,9 @@ onMounted(async () => {
 <template>
   <section class="min-h-svh bg-muted/20">
     <div class="flex w-full flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <header class="flex flex-col gap-4 rounded-2xl border bg-background p-6 shadow-sm sm:flex-row sm:items-start sm:justify-between">
+      <header
+        class="flex flex-col gap-4 rounded-2xl border bg-background p-6 shadow-sm sm:flex-row sm:items-start sm:justify-between"
+      >
         <div class="space-y-1">
           <p class="text-sm font-medium text-muted-foreground">内容管理</p>
           <h1 class="text-3xl font-semibold tracking-tight">{{ pageTitle }}</h1>
@@ -234,14 +232,23 @@ onMounted(async () => {
         </Button>
       </header>
 
-      <div v-if="loadErrorMessage" class="rounded-xl border border-destructive/20 bg-destructive/8 px-4 py-3 text-sm text-destructive">
+      <div
+        v-if="loadErrorMessage"
+        class="rounded-xl border border-destructive/20 bg-destructive/8 px-4 py-3 text-sm text-destructive"
+      >
         {{ loadErrorMessage }}
       </div>
-      <div v-if="errorMessage" class="rounded-xl border border-destructive/20 bg-destructive/8 px-4 py-3 text-sm text-destructive">
+      <div
+        v-if="errorMessage"
+        class="rounded-xl border border-destructive/20 bg-destructive/8 px-4 py-3 text-sm text-destructive"
+      >
         {{ errorMessage }}
       </div>
 
-      <section v-if="isLoading" class="flex min-h-96 items-center justify-center gap-3 rounded-2xl border bg-background p-6 text-sm text-muted-foreground shadow-sm">
+      <section
+        v-if="isLoading"
+        class="flex min-h-96 items-center justify-center gap-3 rounded-2xl border bg-background p-6 text-sm text-muted-foreground shadow-sm"
+      >
         <LoaderCircle class="size-4 animate-spin" />
         <span>正在加载文章内容...</span>
       </section>
@@ -258,8 +265,15 @@ onMounted(async () => {
             <!-- Slug -->
             <div class="space-y-2">
               <label for="slug" class="text-sm font-medium">文章地址</label>
-              <Input id="slug" v-model="form.slug" type="text" placeholder="留空时将根据标题自动生成" />
-              <p class="text-xs text-muted-foreground">建议使用英文、数字与连字符，便于生成稳定的访问链接。</p>
+              <Input
+                id="slug"
+                v-model="form.slug"
+                type="text"
+                placeholder="留空时将根据标题自动生成"
+              />
+              <p class="text-xs text-muted-foreground">
+                建议使用英文、数字与连字符，便于生成稳定的访问链接。
+              </p>
             </div>
 
             <!-- 状态 -->
@@ -314,7 +328,15 @@ onMounted(async () => {
               <div class="flex gap-2">
                 <select
                   class="h-9 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                  @change="(e) => { const v = Number((e.target as HTMLSelectElement).value); if (v) { addTag(v); (e.target as HTMLSelectElement).value = '' } }"
+                  @change="
+                    (e) => {
+                      const v = Number((e.target as HTMLSelectElement).value)
+                      if (v) {
+                        addTag(v)
+                        ;(e.target as HTMLSelectElement).value = ''
+                      }
+                    }
+                  "
                 >
                   <option value="">选择已有标签...</option>
                   <option v-for="tag in availableTags" :key="tag.id" :value="tag.id">
@@ -348,7 +370,12 @@ onMounted(async () => {
             <!-- 封面 -->
             <div class="space-y-2 lg:col-span-2">
               <label for="cover-image" class="text-sm font-medium">封面图片</label>
-              <Input id="cover-image" v-model="form.cover_image" type="url" placeholder="请输入封面图片 URL（可选）" />
+              <Input
+                id="cover-image"
+                v-model="form.cover_image"
+                type="url"
+                placeholder="请输入封面图片 URL（可选）"
+              />
             </div>
 
             <!-- 摘要 -->
