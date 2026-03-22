@@ -30,12 +30,12 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 	{
 		articleV1 := publicAPI.Group("/article/v1")
 		{
-			articleV1.GET("/list", ctrl.List)
+			articleV1.GET("/list", middlewares.PublicHotResponseCache(), ctrl.List)
 			articleV1.GET("/infoBySlug/:slug", ctrl.GetBySlug)
 			articleV1.GET("/infoById/:id", ctrl.GetByID)
 
-			articleV1.GET("/category/list", categoryCtrl.List)
-			articleV1.GET("/tag/list", tagCtrl.List)
+			articleV1.GET("/category/list", middlewares.PublicHotResponseCache(), categoryCtrl.List)
+			articleV1.GET("/tag/list", middlewares.PublicHotResponseCache(), tagCtrl.List)
 		}
 	}
 

@@ -21,7 +21,7 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 	{
 		siteV1 := publicAPI.Group("/site/v1")
 		{
-			siteV1.GET("/home", ctrl.GetHome)
+			siteV1.GET("/home", middlewares.PublicHotResponseCache(), ctrl.GetHome)
 		}
 	}
 

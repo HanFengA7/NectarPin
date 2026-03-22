@@ -3,7 +3,6 @@
 package article
 
 import (
-	"database/sql"
 	"strings"
 
 	"nectarpin/api/models"
@@ -26,6 +25,18 @@ func listSelectWithEffectiveViewCount() string {
 	return strings.Join(parts, ", ")
 }
 
+// 详情查询字段（含 content），view_count 取窄表与主表合并值，避免二次查询
+func detailSelectWithEffectiveViewCount() string {
+	fields := []string{
+		"articles.id", "articles.author_id", "articles.category_id",
+		"articles.title", "articles.slug", "articles.summary", "articles.content",
+		"articles.cover_image", "articles.status",
+		"COALESCE(article_view_stats.view_count, articles.view_count) AS view_count",
+		"articles.published_at", "articles.created_at", "articles.updated_at", "articles.deleted_at",
+	}
+	return strings.Join(fields, ", ")
+}
+
 // ArticleRepository 文章仓储
 type ArticleRepository struct {
 	db *gorm.DB
@@ -41,27 +52,29 @@ func (r *ArticleRepository) Create(m *models.Article) error {
 	return r.db.Create(m).Error
 }
 
-// FindByID 按主键查询（完整记录，含 content）
+// FindByID 按主键查询（完整记录，含 content；阅读量一次 JOIN 带出）
 func (r *ArticleRepository) FindByID(id uint64) (*models.Article, error) {
 	var a models.Article
-	err := r.db.First(&a, id).Error
+	err := r.db.Model(&models.Article{}).
+		Select(detailSelectWithEffectiveViewCount()).
+		Joins("LEFT JOIN article_view_stats ON article_view_stats.article_id = articles.id").
+		Where("articles.id = ?", id).
+		First(&a).Error
 	if err != nil {
-		return nil, err
-	}
-	if err := r.hydrateEffectiveViewCount(&a); err != nil {
 		return nil, err
 	}
 	return &a, nil
 }
 
-// FindBySlug 按 slug 查询（完整记录）
+// FindBySlug 按 slug 查询（完整记录；阅读量一次 JOIN 带出）
 func (r *ArticleRepository) FindBySlug(slug string) (*models.Article, error) {
 	var a models.Article
-	err := r.db.Where("slug = ?", slug).First(&a).Error
+	err := r.db.Model(&models.Article{}).
+		Select(detailSelectWithEffectiveViewCount()).
+		Joins("LEFT JOIN article_view_stats ON article_view_stats.article_id = articles.id").
+		Where("articles.slug = ?", slug).
+		First(&a).Error
 	if err != nil {
-		return nil, err
-	}
-	if err := r.hydrateEffectiveViewCount(&a); err != nil {
 		return nil, err
 	}
 	return &a, nil
@@ -127,21 +140,6 @@ WHERE a.id = ? AND a.deleted_at IS NULL
 ON CONFLICT (article_id) DO UPDATE
 SET view_count = article_view_stats.view_count + 1
 `, id).Error
-}
-
-func (r *ArticleRepository) hydrateEffectiveViewCount(a *models.Article) error {
-	var count sql.NullInt64
-	err := r.db.Raw(
-		`SELECT view_count FROM article_view_stats WHERE article_id = ? LIMIT 1`,
-		a.ID,
-	).Scan(&count).Error
-	if err != nil {
-		return err
-	}
-	if count.Valid {
-		a.ViewCount = int(count.Int64)
-	}
-	return nil
 }
 
 // Update 按 ID 更新文章（只更新非零值字段）

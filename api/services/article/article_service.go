@@ -10,6 +10,7 @@ import (
 
 	"nectarpin/api/models"
 	articlerepo "nectarpin/api/repositories/article"
+	"nectarpin/internal/utils"
 
 	"gorm.io/gorm"
 )
@@ -111,7 +112,12 @@ func (s *ArticleService) GetByID(id uint64, incView bool) (*models.Article, erro
 		return nil, err
 	}
 	if incView {
-		_ = s.repo.IncrementViewCount(id)
+		idCopy := id
+		go func() {
+			if err := s.repo.IncrementViewCount(idCopy); err != nil {
+				utils.Logger.Errorf("文章", "异步阅读量自增失败: article_id=%d err=%v", idCopy, err)
+			}
+		}()
 		a.ViewCount++
 	}
 	return a, nil
@@ -127,7 +133,12 @@ func (s *ArticleService) GetBySlug(slug string, incView bool) (*models.Article, 
 		return nil, err
 	}
 	if incView {
-		_ = s.repo.IncrementViewCount(a.ID)
+		idCopy := a.ID
+		go func() {
+			if err := s.repo.IncrementViewCount(idCopy); err != nil {
+				utils.Logger.Errorf("文章", "异步阅读量自增失败: article_id=%d err=%v", idCopy, err)
+			}
+		}()
 		a.ViewCount++
 	}
 	return a, nil
