@@ -4,6 +4,7 @@ package models
 
 import (
 	"nectarpin/api/models/article"
+	sitemodel "nectarpin/api/models/site"
 	"nectarpin/api/models/user"
 )
 
@@ -26,6 +27,9 @@ type ArticleTag = article.ArticleTag
 
 // ArticleTagMapping 文章-标签关联模型类型别名
 type ArticleTagMapping = article.ArticleTagMapping
+
+// SiteHomeConfig 首页站点配置模型类型别名
+type SiteHomeConfig = sitemodel.SiteHomeConfig
 
 // 用户状态常量导出
 const (

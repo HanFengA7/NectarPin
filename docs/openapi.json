@@ -51,6 +51,16 @@
       "name": "文章模块/文章标签/私有接口/v1",
       "description": "需要认证",
       "x-apifox-folder": "文章模块/文章标签/私有接口/v1"
+    },
+    {
+      "name": "站点模块/公共接口/v1",
+      "description": "无需认证",
+      "x-apifox-folder": "站点模块/公共接口/v1"
+    },
+    {
+      "name": "站点模块/私有接口/v1",
+      "description": "需要认证",
+      "x-apifox-folder": "站点模块/私有接口/v1"
     }
   ],
   "components": {
@@ -97,6 +107,86 @@
           }
         },
         "required": ["id", "username", "email", "status", "role"]
+      },
+      "UpdateProfileRequest": {
+        "type": "object",
+        "required": ["email"],
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "description": "昵称",
+            "maxLength": 100
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "邮箱"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "头像 URL",
+            "maxLength": 500
+          }
+        }
+      },
+      "UserSessionItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64", "description": "会话记录 ID" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "is_current": { "type": "boolean", "description": "是否为请求头 X-Refresh-Token 对应的会话" }
+        },
+        "required": ["id", "created_at", "expires_at", "is_current"]
+      },
+      "UserSessionListData": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/UserSessionItem" }
+          }
+        },
+        "required": ["items"]
+      },
+      "RevokeOtherSessionsRequest": {
+        "type": "object",
+        "required": ["refresh_token"],
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "description": "当前设备持有的 refresh_token，用于保留本会话并撤销其余会话"
+          }
+        }
+      },
+      "RevokeSessionRequest": {
+        "type": "object",
+        "required": ["session_id"],
+        "properties": {
+          "session_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "GET /sessions 返回的会话 id"
+          }
+        }
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "required": ["old_password", "new_password"],
+        "properties": {
+          "old_password": {
+            "type": "string",
+            "description": "当前密码（MD5 加密后的 32 位十六进制，与登录一致）",
+            "minLength": 32,
+            "maxLength": 32
+          },
+          "new_password": {
+            "type": "string",
+            "description": "新密码（MD5 加密后的 32 位十六进制）",
+            "minLength": 32,
+            "maxLength": 32
+          }
+        }
       },
       "TokenResponse": {
         "type": "object",
@@ -349,6 +439,68 @@
           }
         }
       },
+      "SiteHomeSocialLink": {
+        "type": "object",
+        "properties": {
+          "label": { "type": "string", "description": "展示名称" },
+          "href": { "type": "string", "description": "链接（http(s)/mailto/# 等）" }
+        }
+      },
+      "SiteHomeTechItem": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "description": "技术名" },
+          "class_name": { "type": "string", "description": "Tailwind 背景色等类名" }
+        }
+      },
+      "SiteHomePayload": {
+        "type": "object",
+        "properties": {
+          "site_name": { "type": "string", "description": "全站名称（页签、后台品牌等），最长 80 字" },
+          "avatar_url": { "type": "string", "description": "头像图片 URL（http/https），可选" },
+          "avatar_initials": { "type": "string", "description": "无图时圆圈内缩写，1～4 字；可空" },
+          "avatar_badge_icon": {
+            "type": "string",
+            "description": "头像右下角叠放小圆标内图标",
+            "enum": ["camera", "sparkles", "coffee", "heart", "pen", "smile", "none"]
+          },
+          "avatar_badge_tone": {
+            "type": "string",
+            "description": "角标底色；icon 为 none 时可为空",
+            "enum": ["", "emerald", "sky", "blue", "violet", "amber", "rose", "zinc"]
+          },
+          "status_text": { "type": "string", "description": "头像下方状态文案，可空" },
+          "status_icon": {
+            "type": "string",
+            "description": "状态旁图标：dot、circle_dot、radio、activity、none",
+            "enum": ["dot", "circle_dot", "radio", "activity", "none"]
+          },
+          "status_icon_tone": {
+            "type": "string",
+            "description": "图标主色；icon 为 none 时可为空。emerald、sky、blue、violet、amber、rose、zinc",
+            "enum": ["", "emerald", "sky", "blue", "violet", "amber", "rose", "zinc"]
+          },
+          "hero_name": { "type": "string", "description": "首页展示名" },
+          "hero_bio": { "type": "string", "description": "首页简介（HTML 片段，前台 v-html）" },
+          "callout_text": { "type": "string", "description": "琥珀提示区文案" },
+          "social_links": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SiteHomeSocialLink" }
+          },
+          "tech_stack": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SiteHomeTechItem" }
+          },
+          "github_username": {
+            "type": "string",
+            "description": "GitHub 登录名（可含大写），用于 https://ghchart.rshah.org/ 嵌入贡献图；可空"
+          },
+          "github_chart_hex": {
+            "type": "string",
+            "description": "贡献图主题色：6 位 hex（不含 #），请求 ghchart.rshah.org/<hex>/<username>；可空"
+          }
+        }
+      },
       "ErrorResponse": {
         "type": "object",
         "properties": {
@@ -369,6 +521,87 @@
     }
   },
   "paths": {
+    "/api/public/site/v1/home": {
+      "get": {
+        "tags": ["站点模块/公共接口/v1"],
+        "summary": "获取首页站点配置",
+        "description": "单行 JSON 存储，按主键读取；适合高并发前台展示",
+        "operationId": "getSiteHomePublic",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "headers": {
+              "Cache-Control": {
+                "description": "短缓存",
+                "schema": { "type": "string", "example": "public, max-age=30" }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string" },
+                    "data": { "$ref": "#/components/schemas/SiteHomePayload" }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "读取失败",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          }
+        }
+      }
+    },
+    "/api/protected/site/v1/home": {
+      "post": {
+        "tags": ["站点模块/私有接口/v1"],
+        "summary": "保存首页站点配置",
+        "description": "POST 全量覆盖首页 JSON；仅 GET/POST 动词",
+        "operationId": "saveSiteHomeProtected",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SiteHomePayload" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "保存成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string" },
+                    "data": { "$ref": "#/components/schemas/SiteHomePayload" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "校验失败",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "401": {
+            "description": "未授权",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "500": {
+            "description": "保存失败",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          }
+        }
+      }
+    },
     "/api/public/user/v1/register": {
       "post": {
         "tags": ["用户模块/公共接口/v1"],
@@ -538,6 +771,103 @@
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
           }
         }
+      },
+      "post": {
+        "tags": ["用户模块/私有接口/v1"],
+        "summary": "更新当前用户资料",
+        "description": "更新当前登录用户的昵称、邮箱与头像地址",
+        "operationId": "updateProfile",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateProfileRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "更新成功" },
+                    "data": { "$ref": "#/components/schemas/UserResponse" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "401": {
+            "description": "未授权",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "404": {
+            "description": "用户不存在",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "409": {
+            "description": "邮箱已被其他用户使用",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "code": 409, "message": "邮箱已被使用" } } }
+          }
+        }
+      }
+    },
+    "/api/protected/user/v1/password": {
+      "post": {
+        "tags": ["用户模块/私有接口/v1"],
+        "summary": "修改登录密码",
+        "description": "校验当前密码后更新为新密码；传输格式与登录相同，为 MD5(明文) 的 32 位 hex",
+        "operationId": "changePassword",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChangePasswordRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "密码已更新",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string", "example": "密码已更新" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误、当前密码错误或与旧密码相同",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "401": {
+            "description": "未授权",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "404": {
+            "description": "用户不存在",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "500": {
+            "description": "服务器错误",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          }
+        }
       }
     },
     "/api/protected/user/v1/logout": {
@@ -596,20 +926,118 @@
         }
       }
     },
+    "/api/protected/user/v1/sessions": {
+      "get": {
+        "tags": ["用户模块/私有接口/v1"],
+        "summary": "列出登录会话",
+        "description": "列出当前用户全部 refresh 会话。可选请求头 X-Refresh-Token 传入当前设备的 refresh 明文，用于标记 is_current",
+        "operationId": "listUserSessions",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "X-Refresh-Token",
+            "in": "header",
+            "required": false,
+            "schema": { "type": "string" },
+            "description": "当前浏览器持有的 refresh_token 明文"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "integer", "example": 200 },
+                    "message": { "type": "string" },
+                    "data": { "$ref": "#/components/schemas/UserSessionListData" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "500": {
+            "description": "查询失败",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          }
+        }
+      }
+    },
+    "/api/protected/user/v1/sessions/revoke": {
+      "post": {
+        "tags": ["用户模块/私有接口/v1"],
+        "summary": "踢下线指定会话",
+        "description": "删除对应 refresh 记录，该客户端无法再刷新令牌",
+        "operationId": "revokeUserSession",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RevokeSessionRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "已踢下线",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" } } }
+          },
+          "400": {
+            "description": "参数错误",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "401": {
+            "description": "未授权",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "404": {
+            "description": "会话不存在",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "500": {
+            "description": "操作失败",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          }
+        }
+      }
+    },
     "/api/protected/user/v1/sessions/all": {
       "post": {
         "tags": ["用户模块/私有接口/v1"],
         "summary": "撤销所有其他设备的会话",
-        "description": "撤销当前用户在所有其他设备上的登录会话",
+        "description": "请求体传入当前设备的 refresh_token；服务端校验后删除该用户其余 refresh 会话，仅保留当前这一条",
         "operationId": "revokeAllSessions",
         "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RevokeOtherSessionsRequest" }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "撤销成功",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" }, "example": { "code": 200, "message": "已撤销所有其他设备的登录会话" } } }
           },
+          "400": {
+            "description": "缺少或无效的 refresh_token",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
           "401": {
             "description": "未授权",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "500": {
+            "description": "撤销失败",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
           }
         }

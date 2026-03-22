@@ -70,6 +70,21 @@ func (r *UserRepository) ExistsByEmail(email string) (bool, error) {
 	return count > 0, err
 }
 
+// ExistsByEmailExceptUser 是否存在其他用户使用该邮箱
+func (r *UserRepository) ExistsByEmailExceptUser(email string, exceptUserID uint64) (bool, error) {
+	var count int64
+	err := r.db.Model(&models.User{}).Where("email = ? AND id <> ?", email, exceptUserID).Count(&count).Error
+	return count > 0, err
+}
+
+// UpdateUserFields 按 map 更新用户字段（零值字段亦会写入）
+func (r *UserRepository) UpdateUserFields(id uint64, updates map[string]interface{}) error {
+	if len(updates) == 0 {
+		return nil
+	}
+	return r.db.Model(&models.User{}).Where("id = ?", id).Updates(updates).Error
+}
+
 func (r *UserRepository) UpdateLoginInfo(id uint64, ip string) error {
 	now := time.Now()
 	return r.db.Model(&models.User{}).Where("id = ?", id).Updates(map[string]interface{}{
@@ -123,4 +138,32 @@ func (r *UserRepository) DeleteTokenByHash(tokenHash string) error {
 
 func (r *UserRepository) RevokeAllUserTokens(userID uint64, tokenType int16) error {
 	return r.db.Where("user_id = ? AND type = ?", userID, tokenType).Delete(&models.UserToken{}).Error
+}
+
+// ListRefreshTokensByUserID 列出用户全部 refresh 会话（按创建时间倒序）
+func (r *UserRepository) ListRefreshTokensByUserID(userID uint64) ([]models.UserToken, error) {
+	var tokens []models.UserToken
+	err := r.db.Where("user_id = ? AND type = ?", userID, models.TokenTypeRefresh).
+		Order("created_at DESC").
+		Find(&tokens).Error
+	return tokens, err
+}
+
+// DeleteRefreshTokenByIDAndUserID 删除指定 refresh 会话（校验归属）
+func (r *UserRepository) DeleteRefreshTokenByIDAndUserID(id, userID uint64) error {
+	res := r.db.Where("id = ? AND user_id = ? AND type = ?", id, userID, models.TokenTypeRefresh).
+		Delete(&models.UserToken{})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
+}
+
+// RevokeRefreshTokensExceptHash 撤销除指定 hash 外的全部 refresh 会话（多端踢下线）
+func (r *UserRepository) RevokeRefreshTokensExceptHash(userID uint64, keepHash string) error {
+	return r.db.Where("user_id = ? AND type = ? AND token <> ?", userID, models.TokenTypeRefresh, keepHash).
+		Delete(&models.UserToken{}).Error
 }

@@ -6,11 +6,15 @@ import { LoaderCircle, LockKeyhole, ShieldCheck, UserRound } from 'lucide-vue-ne
 import { loginUser } from '@/api/user'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ADMIN_LOGIN_CONFIG, isAdminAuthenticated, saveAdminSession } from '@/lib/admin-auth'
+import { isAdminAuthenticated, saveAdminSession } from '@/lib/admin-auth'
+import { useSiteStore } from '@/stores/site'
 import { RequestError } from '@/utils/req'
 
 const router = useRouter()
 const route = useRoute()
+const siteStore = useSiteStore()
+
+const adminPortalTitle = computed(() => `${siteStore.siteName} 管理后台`)
 
 const form = reactive({
   account: '',
@@ -31,6 +35,7 @@ const redirectTarget = computed(() => {
 })
 
 onMounted(() => {
+  void siteStore.hydrateFromApi()
   if (isAdminAuthenticated()) {
     router.replace(redirectTarget.value)
   }
@@ -86,7 +91,7 @@ async function handleSubmit() {
           <div class="space-y-2">
             <p class="text-sm tracking-[0.3em] text-primary-foreground/70 uppercase">Admin Portal</p>
             <h1 class="text-3xl font-semibold leading-tight">
-              {{ ADMIN_LOGIN_CONFIG.title }}
+              {{ adminPortalTitle }}
             </h1>
             <p class="max-w-sm text-sm leading-6 text-primary-foreground/80">
               登录后即可进入后台概览、内容管理与后续扩展的运营功能模块。
@@ -101,7 +106,7 @@ async function handleSubmit() {
             <p class="text-sm font-medium text-muted-foreground">后台登录</p>
             <h2 class="text-3xl font-semibold tracking-tight">欢迎回来</h2>
             <p class="text-sm leading-6 text-muted-foreground">
-              输入用户名或邮箱与密码，进入 NectarPin 管理后台。
+              输入用户名或邮箱与密码，进入 {{ siteStore.siteName }} 管理后台。
             </p>
           </div>
 

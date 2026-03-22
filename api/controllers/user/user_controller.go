@@ -192,6 +192,135 @@ func (c *UserController) Login(ctx *gin.Context) {
 	})
 }
 
+type UpdateProfileRequest struct {
+	Nickname string `json:"nickname" binding:"max=100"`
+	Email    string `json:"email" binding:"required,email"`
+	Avatar   string `json:"avatar" binding:"max=500"`
+}
+
+func (c *UserController) UpdateProfile(ctx *gin.Context) {
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"code":    401,
+			"message": "未授权",
+		})
+		return
+	}
+
+	var req UpdateProfileRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请求参数错误",
+		})
+		return
+	}
+
+	user, err := c.service.UpdateProfile(userID.(uint64), &userservice.UpdateProfileInput{
+		Nickname: req.Nickname,
+		Email:    req.Email,
+		Avatar:   req.Avatar,
+	})
+	if err != nil {
+		if err == userservice.ErrUserNotFound {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"code":    404,
+				"message": "用户不存在",
+			})
+			return
+		}
+		if err == userservice.ErrEmailExists {
+			ctx.JSON(http.StatusConflict, gin.H{
+				"code":    409,
+				"message": "邮箱已被使用",
+			})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "更新失败",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "更新成功",
+		"data": UserResponse{
+			ID:       user.ID,
+			Username: user.Username,
+			Email:    user.Email,
+			Nickname: user.Nickname,
+			Avatar:   user.Avatar,
+			Status:   user.Status,
+			Role:     user.Role,
+		},
+	})
+}
+
+type ChangePasswordRequest struct {
+	OldPassword string `json:"old_password" binding:"required,len=32"`
+	NewPassword string `json:"new_password" binding:"required,len=32"`
+}
+
+func (c *UserController) ChangePassword(ctx *gin.Context) {
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"code":    401,
+			"message": "未授权",
+		})
+		return
+	}
+
+	var req ChangePasswordRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请求参数错误",
+		})
+		return
+	}
+
+	err := c.service.ChangePassword(userID.(uint64), req.OldPassword, req.NewPassword)
+	if err != nil {
+		switch err {
+		case userservice.ErrUserNotFound:
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"code":    404,
+				"message": "用户不存在",
+			})
+		case userservice.ErrInvalidPassword:
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"code":    400,
+				"message": "当前密码错误",
+			})
+		case userservice.ErrPasswordFormat:
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"code":    400,
+				"message": "密码格式错误",
+			})
+		case userservice.ErrPasswordUnchanged:
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"code":    400,
+				"message": "新密码不能与当前密码相同",
+			})
+		default:
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"code":    500,
+				"message": "修改密码失败",
+			})
+		}
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "密码已更新",
+	})
+}
+
 func (c *UserController) GetProfile(ctx *gin.Context) {
 	// 从上下文中获取用户 ID
 	userID, exists := ctx.Get("user_id")
@@ -312,11 +441,112 @@ func (c *UserController) LogoutByRefreshToken(ctx *gin.Context) {
 	})
 }
 
-func (c *UserController) RevokeAllSessions(ctx *gin.Context) {
-	userID, _ := ctx.Get("user_id")
+func (c *UserController) ListSessions(ctx *gin.Context) {
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"code":    401,
+			"message": "未授权",
+		})
+		return
+	}
 
-	err := c.service.RevokeAllUserSessions(userID.(uint64))
+	refresh := strings.TrimSpace(ctx.GetHeader("X-Refresh-Token"))
+	items, err := c.service.ListUserSessions(userID.(uint64), refresh)
 	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "查询失败",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "获取成功",
+		"data": gin.H{
+			"items": items,
+		},
+	})
+}
+
+type RevokeSessionRequest struct {
+	SessionID uint64 `json:"session_id" binding:"required,gt=0"`
+}
+
+func (c *UserController) RevokeSession(ctx *gin.Context) {
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"code":    401,
+			"message": "未授权",
+		})
+		return
+	}
+
+	var req RevokeSessionRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请提供有效的 session_id",
+		})
+		return
+	}
+
+	err := c.service.RevokeSessionByID(userID.(uint64), req.SessionID)
+	if err != nil {
+		if err == userservice.ErrSessionNotFound {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"code":    404,
+				"message": "会话不存在",
+			})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "操作失败",
+		})
+		return
+	}
+
+	utils.Logger.Infof("用户", "用户撤销会话 session_id=%d (user_id=%v)", req.SessionID, userID)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "已踢下线该客户端",
+	})
+}
+
+func (c *UserController) RevokeAllSessions(ctx *gin.Context) {
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"code":    401,
+			"message": "未授权",
+		})
+		return
+	}
+
+	var req struct {
+		RefreshToken string `json:"refresh_token" binding:"required"`
+	}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请提供 refresh_token（当前设备）",
+		})
+		return
+	}
+
+	err := c.service.RevokeOtherSessions(userID.(uint64), req.RefreshToken)
+	if err != nil {
+		if err == userservice.ErrInvalidToken {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"code":    400,
+				"message": "refresh_token 无效或已失效",
+			})
+			return
+		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
 			"message": "撤销会话失败",
@@ -324,7 +554,7 @@ func (c *UserController) RevokeAllSessions(ctx *gin.Context) {
 		return
 	}
 
-	utils.Logger.Infof("用户", "用户撤销了所有会话 (user_id=%d)", userID)
+	utils.Logger.Infof("用户", "用户撤销了其他设备会话 (user_id=%v)", userID)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"code":    200,

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import 'md-editor-v3/lib/style.css'
 
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import { MdEditor } from 'md-editor-v3'
 
@@ -10,10 +10,13 @@ const props = withDefaults(
     modelValue: string
     placeholder?: string
     minHeight?: number
+    /** 是否默认展开右侧预览；文章编辑等保持 true，仅个别页需 false */
+    defaultPreviewOpen?: boolean
   }>(),
   {
     placeholder: '请输入 Markdown 内容',
     minHeight: 480,
+    defaultPreviewOpen: true,
   },
 )
 
@@ -33,6 +36,9 @@ const value = computed({
 const editorStyle = computed(() => ({
   height: `${props.minHeight}px`,
 }))
+
+/** 预览分栏初始是否展开；可通过工具栏「预览」切换 */
+const preview = ref(props.defaultPreviewOpen)
 </script>
 
 <template>
@@ -46,6 +52,7 @@ const editorStyle = computed(() => ({
       :style="editorStyle"
       :placeholder="placeholder"
       :toolbars-exclude="['github']"
+      v-model:preview="preview"
       show-code-row-number
     />
   </div>

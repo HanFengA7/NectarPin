@@ -25,6 +25,25 @@ export interface ArticleListData {
   page_size: number
 }
 
+export interface ListPublicArticlesParams {
+  page?: number
+  page_size?: number
+  author_id?: number
+  status?: number
+}
+
+/** 前台文章列表（无需登录） */
+export function listPublicArticles(params?: ListPublicArticlesParams) {
+  return get<ArticleListData>('/api/public/article/v1/list', {
+    params,
+  })
+}
+
+/** 前台按 slug 获取正文（无需登录） */
+export function getPublicArticleBySlug(slug: string) {
+  return get<ArticleItem>(`/api/public/article/v1/infoBySlug/${encodeURIComponent(slug)}`)
+}
+
 export interface ListAdminArticlesParams {
   page?: number
   page_size?: number

@@ -4,6 +4,7 @@ package routes
 
 import (
 	"nectarpin/api/routes/article"
+	"nectarpin/api/routes/site"
 	"nectarpin/api/routes/user"
 
 	"github.com/gin-gonic/gin"
@@ -22,4 +23,5 @@ import (
 func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 	user.SetupRoutes(router, db)
 	article.SetupRoutes(router, db)
+	site.SetupRoutes(router, db)
 }

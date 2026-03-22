@@ -30,8 +30,12 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 		userV1 := protectedAPI.Group("/user/v1")
 		{
 			userV1.GET("/profile", userController.GetProfile)
+			userV1.POST("/profile", userController.UpdateProfile)
+			userV1.POST("/password", userController.ChangePassword)
 			userV1.POST("/logout", userController.Logout)
 			userV1.POST("/logout/refresh-token", userController.LogoutByRefreshToken)
+			userV1.GET("/sessions", userController.ListSessions)
+			userV1.POST("/sessions/revoke", userController.RevokeSession)
 			userV1.POST("/sessions/all", userController.RevokeAllSessions)
 		}
 	}

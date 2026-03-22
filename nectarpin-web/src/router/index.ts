@@ -7,7 +7,39 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/admin/login',
+      component: () => import('@/components/index/IndexLayout.vue'),
+      children: [
+        {
+          path: '',
+          name: 'index',
+          component: () => import('@/pages/index/IndexView.vue'),
+        },
+        {
+          path: 'posts/:slug',
+          name: 'index-post-detail',
+          component: () => import('@/pages/index/PostDetailView.vue'),
+        },
+        {
+          path: 'articles',
+          name: 'index-articles',
+          component: () => import('@/pages/index/IndexView.vue'),
+        },
+        {
+          path: 'projects',
+          name: 'index-projects',
+          component: () => import('@/pages/index/IndexView.vue'),
+        },
+        {
+          path: 'friends',
+          name: 'index-friends',
+          component: () => import('@/pages/index/IndexView.vue'),
+        },
+        {
+          path: 'about',
+          name: 'index-about',
+          component: () => import('@/pages/index/IndexView.vue'),
+        },
+      ],
     },
     {
       path: '/admin/login',
@@ -34,6 +66,11 @@ const router = createRouter({
           component: () => import('@/pages/admin/DashboardView.vue'),
         },
         {
+          path: 'profile',
+          name: 'admin-profile',
+          component: () => import('@/pages/admin/AdminProfileView.vue'),
+        },
+        {
           path: 'articles',
           name: 'admin-articles',
           component: () => import('@/pages/admin/ArticlesView.vue'),
@@ -57,6 +94,11 @@ const router = createRouter({
           path: 'articleTags',
           name: 'admin-article-tags',
           component: () => import('@/pages/admin/ArticleTagsView.vue'),
+        },
+        {
+          path: 'global/siteSettings/index',
+          name: 'global-siteSettings-index',
+          component: () => import('@/pages/admin/SiteHomeSettingsView.vue'),
         },
       ],
     },

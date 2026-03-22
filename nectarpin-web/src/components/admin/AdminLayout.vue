@@ -1,7 +1,16 @@
 <script setup lang="ts">
-import AdminSidebar from './AdminSidebar.vue'
+import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
+
+import { useSiteStore } from '@/stores/site'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '../ui/sidebar'
+import AdminSidebar from './AdminSidebar.vue'
+
+const siteStore = useSiteStore()
+
+onMounted(() => {
+  void siteStore.hydrateFromApi()
+})
 </script>
 
 <template>

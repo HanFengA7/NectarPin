@@ -1,9 +1,5 @@
 export const ADMIN_SESSION_KEY = 'nectarpin.admin.session'
 
-export const ADMIN_LOGIN_CONFIG = {
-  title: 'NectarPin 管理后台',
-} as const
-
 export interface AdminUserProfile {
   id: number
   username: string
@@ -70,6 +66,17 @@ export function getRefreshToken() {
 
 export function getAdminProfile() {
   return getAdminSession()?.user ?? null
+}
+
+/** 合并更新本地会话中的用户信息（保存资料后同步侧栏展示） */
+export function patchAdminSessionUser(partial: Partial<AdminUserProfile>) {
+  const session = getAdminSession()
+  if (!session) {
+    return
+  }
+
+  session.user = { ...session.user, ...partial }
+  saveAdminSession(session)
 }
 
 export function isAdminAuthenticated() {

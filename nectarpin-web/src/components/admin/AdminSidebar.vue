@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 import { markRaw, ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { ChevronRight, FileText, FolderTree, GalleryVerticalEnd, LayoutDashboard, LogOut, Tags, User } from 'lucide-vue-next'
 import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger } from 'reka-ui'
@@ -23,10 +24,13 @@ import {
     SidebarSeparator,
 } from '@/components/ui/sidebar'
 import { getAdminProfile, getRefreshToken, logoutAdmin } from '@/lib/admin-auth'
+import { useSiteStore } from '@/stores/site'
 
 const router = useRouter()
 const route = useRoute()
 const profile = getAdminProfile()
+const siteStore = useSiteStore()
+const { siteName } = storeToRefs(siteStore)
 
 async function handleLogout() {
     const refreshToken = getRefreshToken()
@@ -87,7 +91,7 @@ const sidebarGroups: AdminNavGroup[] = [
         menuItems: [
             {
                 name: 'article',
-                label: '文章',
+                label: '文章管理',
                 icon: markRaw(FileText),
                 children: [
                     {
@@ -112,6 +116,23 @@ const sidebarGroups: AdminNavGroup[] = [
             },
         ],
     },
+    {
+        group: '全局',
+        menuItems: [
+            {
+                name: 'global-siteSettings',
+                label: '站点管理',
+                icon: markRaw(FileText),
+                children: [
+                    {
+                        name: 'global-siteSettings-index',
+                        label: '首页设置',
+                        url: '/admin/global/siteSettings/index',
+                    }
+                ],
+            },
+        ],
+    },
 ]
 </script>
 
@@ -126,8 +147,11 @@ const sidebarGroups: AdminNavGroup[] = [
                             <GalleryVerticalEnd class="size-4" />
                         </div>
                         <div class="grid flex-1 text-left text-sm leading-tight">
-                            <span class="truncate font-semibold">NectarPin</span>
-                            <span class="flex items-center gap-1.5 truncate text-xs text-muted-foreground font-normal">0.0.2 <span class="inline-flex items-center rounded-full border border-transparent bg-primary px-1.5 py-px text-[8px] font-medium leading-none text-primary-foreground">Alpha</span></span>
+                            <span class="truncate font-semibold">{{ siteName }}</span>
+                            <span
+                                class="flex items-center gap-1.5 truncate text-xs text-muted-foreground font-normal">0.0.2
+                                <span
+                                    class="inline-flex items-center rounded-full border border-transparent bg-primary px-1.5 py-px text-[8px] font-medium leading-none text-primary-foreground">Alpha</span></span>
                         </div>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -181,18 +205,25 @@ const sidebarGroups: AdminNavGroup[] = [
         <SidebarFooter>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton size="lg" tooltip="账户">
-                        <div
-                            class="flex aspect-square size-8 shrink-0 items-center justify-center rounded-md border border-sidebar-border bg-sidebar-accent/40">
-                            <User class="size-4 text-muted-foreground" />
-                        </div>
-                        <div class="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                            <span class="truncate font-medium">{{ profile?.nickname || profile?.username || '管理员'
+                    <SidebarMenuButton
+                        size="lg"
+                        tooltip="账户"
+                        as-child
+                        :is-active="route.name === 'admin-profile'"
+                    >
+                        <RouterLink :to="{ name: 'admin-profile' }">
+                            <div
+                                class="flex aspect-square size-8 shrink-0 items-center justify-center rounded-md border border-sidebar-border bg-sidebar-accent/40">
+                                <User class="size-4 text-muted-foreground" />
+                            </div>
+                            <div class="grid min-w-0 flex-1 text-left text-sm leading-tight">
+                                <span class="truncate font-medium">{{ profile?.nickname || profile?.username || '管理员'
                                 }}</span>
-                            <span class="truncate text-xs font-normal text-muted-foreground">
-                                {{ profile?.email || '账户与偏好' }}
-                            </span>
-                        </div>
+                                <span class="truncate text-xs font-normal text-muted-foreground">
+                                    {{ profile?.email || '个人资料' }}
+                                </span>
+                            </div>
+                        </RouterLink>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
