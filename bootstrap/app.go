@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"nectarpin/api/middlewares"
-	"nectarpin/api/models"
 	"nectarpin/api/routes"
 	"nectarpin/internal/utils"
 )
@@ -90,19 +89,7 @@ func (app *Application) Close() {
 // autoMigrate 执行数据库自动迁移
 // 自动创建或更新数据库表结构
 func (app *Application) autoMigrate() {
-	err := app.Database.DB.AutoMigrate(
-		&models.User{},
-		&models.UserToken{},
-		&models.Article{},
-		&models.ArticleViewStat{},
-		&models.ArticleCategory{},
-		&models.ArticleTag{},
-		&models.ArticleTagMapping{},
-		&models.SiteHomeConfig{},
-		&models.FriendLinkCategory{},
-		&models.FriendLink{},
-		&models.FriendLinkPage{},
-	)
+	err := AutoMigrateDB(app.Database.DB)
 	if err != nil {
 		utils.Logger.Fatalf("数据库", "自动迁移失败: %v", err)
 	}

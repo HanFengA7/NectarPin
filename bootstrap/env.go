@@ -93,3 +93,27 @@ func getConfigPath() string {
 
 	return filepath.Join(projectRoot, "config.yaml")
 }
+
+// ConfigFilePath 返回项目根目录下 config.yaml 的绝对路径
+func ConfigFilePath() string {
+	return getConfigPath()
+}
+
+// ConfigFileExists 判断 config.yaml 是否存在且为普通文件
+func ConfigFileExists() bool {
+	path := getConfigPath()
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return !info.IsDir()
+}
+
+// SaveConfig 将配置写入指定路径（权限 0600，因含密钥与数据库密码）
+func SaveConfig(path string, cfg *Config) error {
+	data, err := yaml.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(path, data, 0600)
+}
