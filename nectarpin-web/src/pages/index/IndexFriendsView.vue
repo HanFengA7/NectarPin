@@ -15,14 +15,6 @@ const sections = shallowRef<PublicFriendSection[]>([])
 
 const showIntro = computed(() => introHtml.value.trim().length > 0)
 
-function friendLinkHost(url: string) {
-  try {
-    return new URL(url).host
-  } catch {
-    return url
-  }
-}
-
 async function loadPage() {
   pageLoading.value = true
   pageError.value = ''

@@ -113,7 +113,6 @@ service.interceptors.request.use((config) => {
 service.interceptors.response.use(
   (response) => response.data,
   async (error: AxiosError<ApiErrorPayload>) => {
-    const payload = error.response?.data
     const originalRequest = error.config as (AxiosRequestConfig & { _retry?: boolean }) | undefined
 
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {

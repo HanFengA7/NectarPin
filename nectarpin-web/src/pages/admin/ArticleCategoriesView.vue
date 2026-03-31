@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, shallowRef } from 'vue'
-import { LoaderCircle, PencilLine, Plus, Trash2, X } from 'lucide-vue-next'
+import { LoaderCircle, PencilLine, Plus, Trash2 } from 'lucide-vue-next'
 
 import {
   createCategory,
