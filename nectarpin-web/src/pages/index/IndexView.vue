@@ -26,6 +26,7 @@ import {
   type SiteStatusIcon,
   type SiteStatusIconTone,
 } from '@/api/site'
+import { siteDefaultName } from '@/config'
 import { socialLinkIconKind, type SocialLinkIconKind } from '@/lib/social-link-icon'
 import { cn } from '@/lib/utils'
 import { RequestError } from '@/utils/req'
@@ -182,7 +183,7 @@ const avatarFallbackText = computed(() => {
   return 'NP'
 })
 
-const heroName = ref('NectarPin')
+const heroName = ref(siteDefaultName)
 const heroBio = ref(
   '这里记录学习与工程实践，关注基础设施与前后端协作，也折腾文档、工具链与一点点设计。欢迎随便看看。',
 )

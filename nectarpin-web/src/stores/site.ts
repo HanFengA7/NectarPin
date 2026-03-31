@@ -2,8 +2,9 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 import { getPublicSiteHome, type SiteHomePayload } from '@/api/site'
+import { siteDefaultName } from '@/config'
 
-const DEFAULT_SITE = 'NectarPin'
+const DEFAULT_SITE = siteDefaultName
 
 export const useSiteStore = defineStore('site', () => {
   const siteName = ref(DEFAULT_SITE)
